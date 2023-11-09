@@ -1,9 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var express = require('express');
-var router = express.Router();
+exports.indexRouter = void 0;
+const express_1 = __importDefault(require("express"));
+var router = express_1.default.Router();
 /* GET home page. */
 router.get('/', function (req, res, next) {
-    res.json({ title: 'FastEnd services for FastFixx Horee' });
+    res.json({ title: 'FastEnd services for FastFixx Jaya bross' });
 });
-module.exports = router;
+exports.indexRouter = router;

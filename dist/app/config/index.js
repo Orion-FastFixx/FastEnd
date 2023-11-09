@@ -10,3 +10,4 @@ exports.config = {
     serviceName: process.env.SERVICE_NAME,
     urlDb: process.env.MONGO_URL,
 };
+//# sourceMappingURL=index.js.map
