@@ -1,0 +1,23 @@
+{
+  "name": "fastend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx nodemon ./bin/www",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "nodemon": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.9.0",
+    "typescript": "^5.2.2"
+  }
+}
