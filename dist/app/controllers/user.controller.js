@@ -30,15 +30,22 @@ exports.UserController = {
                     password: bcryptjs_1.default.hashSync(password, 8)
                 });
                 const savedUser = yield user.save();
-                res.json({
-                    message: "User was registered successfully!",
-                    user: {
-                        id: savedUser._id,
-                        username: savedUser.username,
-                        email: savedUser.email,
-                        roles: savedUser.roles
-                    }
-                });
+                const userWithRoles = yield user_models_1.User.findById(savedUser._id).populate('roles', '-__v');
+                if (userWithRoles) {
+                    const rolesName = userWithRoles.roles.name;
+                    res.json({
+                        message: "User was registered successfully!",
+                        user: {
+                            id: userWithRoles._id,
+                            username: userWithRoles.username,
+                            email: userWithRoles.email,
+                            roles: rolesName
+                        }
+                    });
+                }
+                else {
+                    res.status(404).json({ message: "User not found after save operation." });
+                }
             }
             catch (error) {
                 res.status(500).json({ message: error.message });
