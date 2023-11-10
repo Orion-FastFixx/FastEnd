@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import { routes } from './app/routes/index.routes';
 
-
 var app = express();
 
 // view engine setup
