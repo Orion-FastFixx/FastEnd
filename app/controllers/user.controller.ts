@@ -8,13 +8,17 @@ export const UserController = {
     async createUser(req: Request, res: Response) {
         try {
             const { username, email, password, roles } = req.body;
+            const foundRoles = await Role.findOne({ name: roles });
             const user = new User({
                 username,
                 email,
+                roles: foundRoles ? foundRoles._id : null,
                 password: bcryptjs.hashSync(password, 8)
-            });``
+            });
 
             const savedUser = await user.save();
+
+            
             res.json({
                 message: "User was registered successfully!",
                 user: {

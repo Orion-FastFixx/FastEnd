@@ -13,11 +13,11 @@ export const User = mongoose.model(
             maxlength: [50, "Email maksimal 50 karakter"],
         },
         password: String,
-        roles: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Role"
-            }
-        ]
+        roles:
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Role"
+        }
+
     })
 );

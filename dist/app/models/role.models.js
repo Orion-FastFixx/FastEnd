@@ -8,7 +8,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 exports.Role = mongoose_1.default.model("Role", new mongoose_1.default.Schema({
     name: {
         type: String,
-        enum: ['admin', 'pengendara', 'mitra'],
         required: true
     }
 }));

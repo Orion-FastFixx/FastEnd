@@ -5,7 +5,6 @@ export const Role = mongoose.model(
     new mongoose.Schema({
         name: {
             type: String,
-            enum: ['admin', 'pengendara', 'mitra'],
             required: true
         }
     })

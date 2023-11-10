@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const user_models_1 = require("../models/user.models");
+const role_models_1 = require("../models/role.models");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 exports.UserController = {
     // create new user
@@ -21,12 +22,13 @@ exports.UserController = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, password, roles } = req.body;
+                const foundRoles = yield role_models_1.Role.findOne({ name: roles });
                 const user = new user_models_1.User({
                     username,
                     email,
+                    roles: foundRoles ? foundRoles._id : null,
                     password: bcryptjs_1.default.hashSync(password, 8)
                 });
-                ``;
                 const savedUser = yield user.save();
                 res.json({
                     message: "User was registered successfully!",

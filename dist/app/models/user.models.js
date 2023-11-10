@@ -16,11 +16,9 @@ exports.User = mongoose_1.default.model("User", new mongoose_1.default.Schema({
         maxlength: [50, "Email maksimal 50 karakter"],
     },
     password: String,
-    roles: [
-        {
-            type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: "Role"
-        }
-    ]
+    roles: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Role"
+    }
 }));
 //# sourceMappingURL=user.models.js.map
