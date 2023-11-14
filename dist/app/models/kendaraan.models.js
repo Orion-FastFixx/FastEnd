@@ -18,6 +18,11 @@ exports.Kendaraan = mongoose_1.default.model("Kendaraan", new mongoose_1.default
             "Mobil",
         ]
     },
+    tahunKendaraan: {
+        type: Number,
+        required: [true, "Tahun kendaraan wajib diisi"],
+        maxlength: [4, "Tahun kendaraan maksimal 4 karakter"],
+    },
     plat: {
         type: String,
         required: [true, "No plat wajib diisi"],
