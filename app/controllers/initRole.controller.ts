@@ -1,6 +1,6 @@
 import { Role } from "../models/role.models";
 
-const defaultRoles = ["admin", "pengendara", "mitra"];
+const defaultRoles = ["admin", "pengendara", "adminBengkel", "montir"];
 
 export const initializeRoles = async () => {
     try {

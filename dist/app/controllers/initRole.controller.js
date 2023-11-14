@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializeRoles = void 0;
 const role_models_1 = require("../models/role.models");
-const defaultRoles = ["admin", "pengendara", "mitra"];
+const defaultRoles = ["admin", "pengendara", "adminBengkel", "montir"];
 const initializeRoles = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield Promise.all(defaultRoles.map((roleName) => __awaiter(void 0, void 0, void 0, function* () {

@@ -7,14 +7,7 @@ export const Pengendara = mongoose.model(
             required: [true, "Nama wajib diisi"],
             maxlength: [30, "Nama maksimal 30 karakter"],
         },
-        jenisKelamin: {
-            type: String,
-            enum: [
-                "Laki-laki",
-                "Perempuan",
-            ]
-        },
-        phone: {
+        nomorTelepon: {
             type: String,
             required: [true, "No telepon wajib diisi"],
             unique: true,
