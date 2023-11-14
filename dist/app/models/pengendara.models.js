@@ -11,14 +11,7 @@ exports.Pengendara = mongoose_1.default.model("Pengendara", new mongoose_1.defau
         required: [true, "Nama wajib diisi"],
         maxlength: [30, "Nama maksimal 30 karakter"],
     },
-    jenisKelamin: {
-        type: String,
-        enum: [
-            "Laki-laki",
-            "Perempuan",
-        ]
-    },
-    phone: {
+    nomorTelepon: {
         type: String,
         required: [true, "No telepon wajib diisi"],
         unique: true,
