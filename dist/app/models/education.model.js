@@ -15,7 +15,7 @@ exports.Edukasi = mongoose_1.default.model("Edukasi", new mongoose_1.default.Sch
             "Mesin",
         ]
     },
-    kendala: {
+    kategori: {
         type: String,
         required: [true, "Masukkan Kategori"],
         maxlength: [50, "Nama Kategori Max 50 Karakter"],
@@ -24,6 +24,11 @@ exports.Edukasi = mongoose_1.default.model("Edukasi", new mongoose_1.default.Sch
         type: String,
         required: [true, "Foto Kategori"]
     },
+    kendala: {
+        type: String,
+        required: [true, "Isi Kendala"],
+        maxlength: [50, "Maksimal 50 Karakter"],
+    },
     konten: {
         type: String,
         required: [true, "Isi konten untuk kendala"],
@@ -31,6 +36,7 @@ exports.Edukasi = mongoose_1.default.model("Edukasi", new mongoose_1.default.Sch
     admin: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
+        required: true,
     },
 }));
-//# sourceMappingURL=edukasi.model.js.map
+//# sourceMappingURL=education.model.js.map

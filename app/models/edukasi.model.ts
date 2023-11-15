@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-export const edukasi = mongoose.model(
+export const Edukasi = mongoose.model(
     "Edukasi",
     new mongoose.Schema ({
-        jenisEdukasi: {
+        jenisKonten: {
             type: String,
             enum: [
                 "Tips",
@@ -12,7 +12,7 @@ export const edukasi = mongoose.model(
                 "Mesin",
             ]
         },
-        kategori: {
+        kendala: {
             type: String,
             required: [true, "Masukkan Kategori"],
             maxlength: [50, "Nama Kategori Max 50 Karakter"],
@@ -21,11 +21,6 @@ export const edukasi = mongoose.model(
             type: String,
             required: [true, "Foto Kategori"]
         },
-        kendala: {
-            type: String,
-            required: [true, "Isi Kendala"],
-            maxlength: [50, "Maksimal 50 Karakter"],
-        },
         konten: {
             type: String,
             required: [true, "Isi konten untuk kendala"],
@@ -33,7 +28,6 @@ export const edukasi = mongoose.model(
         admin: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true,
         },
     }
     )
