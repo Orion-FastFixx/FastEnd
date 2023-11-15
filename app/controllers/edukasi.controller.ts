@@ -10,11 +10,8 @@ export const EdukasiController = {
         } catch (error: any) {
             res.status(500).json({ message: error.message });
         }
-    }
-}
-
-//Tampilin berdasarkan id
-export const EdukasiControllerById = {
+    },
+    //Tampilin berdasarkan id
     async findId(req: Request , res: Response){
         try {
             const edukasi= await Edukasi.findById(req.params.id);
@@ -22,11 +19,8 @@ export const EdukasiControllerById = {
         } catch (error: any) {
             res.status(404).json({ message: error.message });
         }
-    }
-}
-
-//Buat nambahin konten
-export const saveContent = {
+    },
+    //Buat nambahin konten
     async createKonten(req: Request , res: Response){
         const { jenisKonten, kendala, fotoKategori, konten} = (req.body);
         const edukasi = new Edukasi({
@@ -41,11 +35,8 @@ export const saveContent = {
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }
-    }
-}
-
-//Buat ubah konten
-export const updateContent = {
+    },
+    //Ubah konten
     async updateKonten(req: Request , res: Response){
         try {
             const updateedukasi = await Edukasi.updateOne({_id:req.params.id}, {$set: req.body});
@@ -53,11 +44,8 @@ export const updateContent = {
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }
-    }
-}
-
-//Buat hapus konten
-export const deleteContent = {
+    },
+    //Hapus konten
     async deleteKonten(req: Request , res: Response){
         try {
             const deleteedukasi = await Edukasi.deleteOne({_id:req.params.id});
@@ -66,4 +54,4 @@ export const deleteContent = {
             res.status(400).json({ message: error.message });
         }
     }
-}
+};

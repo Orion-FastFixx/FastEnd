@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteContent = exports.updateContent = exports.saveContent = exports.EdukasiControllerById = exports.EdukasiController = void 0;
+exports.EdukasiController = void 0;
 const edukasi_model_1 = require("../models/edukasi.model");
 //Tampilin data
 exports.EdukasiController = {
@@ -23,10 +23,8 @@ exports.EdukasiController = {
                 res.status(500).json({ message: error.message });
             }
         });
-    }
-};
-//Tampilin berdasarkan id
-exports.EdukasiControllerById = {
+    },
+    //Tampilin berdasarkan id
     findId(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -37,10 +35,8 @@ exports.EdukasiControllerById = {
                 res.status(404).json({ message: error.message });
             }
         });
-    }
-};
-//Buat nambahin konten
-exports.saveContent = {
+    },
+    //Buat nambahin konten
     createKonten(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { jenisKonten, kendala, fotoKategori, konten } = (req.body);
@@ -58,10 +54,8 @@ exports.saveContent = {
                 res.status(400).json({ message: error.message });
             }
         });
-    }
-};
-//Buat ubah konten
-exports.updateContent = {
+    },
+    //Ubah konten
     updateKonten(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -72,10 +66,8 @@ exports.updateContent = {
                 res.status(400).json({ message: error.message });
             }
         });
-    }
-};
-//Buat hapus konten
-exports.deleteContent = {
+    },
+    //Hapus konten
     deleteKonten(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

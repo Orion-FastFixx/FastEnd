@@ -1,16 +1,10 @@
-import { 
-    EdukasiController,
-    EdukasiControllerById,
-    saveContent,
-    updateContent,
-    deleteContent
- } from "../controllers/edukasi.controller";
+import { EdukasiController } from "../controllers/edukasi.controller";
 import router from "./router";
 
 router.get('/edukasi', EdukasiController.find);
-router.get('/edukasi/:id', EdukasiControllerById.findId);
-router.post('/edukasi', saveContent.createKonten );
-router.patch('/edukasi/:id', updateContent.updateKonten);
-router.delete('/edukasi/:id', deleteContent.deleteKonten )
+router.get('/edukasi/:id', EdukasiController.findId);
+router.post('/edukasi', EdukasiController.createKonten );
+router.patch('/edukasi/:id', EdukasiController.updateKonten);
+router.delete('/edukasi/:id', EdukasiController.deleteKonten )
 
 export default router;
