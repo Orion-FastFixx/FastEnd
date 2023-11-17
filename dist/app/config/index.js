@@ -8,6 +8,11 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 exports.config = {
     serviceName: process.env.SERVICE_NAME,
-    urlDb: process.env.MONGO_URL,
+    jwtKey: process.env.SECRET,
+    mysqlHost: process.env.DB_HOST,
+    mysqlUser: process.env.DB_USERNAME,
+    mysqlPassword: process.env.DB_PASSWORD,
+    mysqlDatabase: process.env.DB_DATABASE,
+    mysqlPort: process.env.DB_PORT,
 };
 //# sourceMappingURL=index.js.map
