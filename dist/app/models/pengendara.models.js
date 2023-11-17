@@ -15,19 +15,19 @@ const Pengendara = db_1.sequelize.define("pengendaras", {
     },
     nama: {
         type: sequelize_1.DataTypes.STRING(30),
-        allowNull: false,
+        allowNull: true,
     },
     phone: {
         type: sequelize_1.DataTypes.STRING(12),
-        allowNull: false,
+        allowNull: true,
     },
     lokasi: {
         type: sequelize_1.DataTypes.STRING(50),
-        allowNull: false,
+        allowNull: true,
     },
     kendaraan_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: kendaraan_models_1.default,
             key: 'id', // This is the column name of the referenced model
