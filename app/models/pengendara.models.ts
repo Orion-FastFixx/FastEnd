@@ -1,30 +1,42 @@
-import mongoose from "mongoose";
-export const Pengendara = mongoose.model(
-    "Pengendara",
-    new mongoose.Schema({
-        nama: {
-            type: String,
-            required: [true, "Nama wajib diisi"],
-            maxlength: [30, "Nama maksimal 30 karakter"],
-        },
-        nomorTelepon: {
-            type: String,
-            required: [true, "No telepon wajib diisi"],
-            unique: true,
-            maxlength: [12, "No telepon maksimal 12 karakter"],
-        },
-        lokasi: {
-            type: String,
-            required: [true, "Lokasi wajib diisi"],
-            maxlength: [30, "Lokasi maksimal 30 karakter"],
-        },
-        kendaraan: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Kendaraan",
-        }],
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        },
-    })
-);
+import { sequelize } from "../../db";
+import { DataTypes } from 'sequelize';
+import User from "./user.models";
+import Kendaraan from "./kendaraan.models";
+
+const Pengendara = sequelize.define("pengendaras", {
+    id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    nama: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+    },
+    phone: {
+        type: DataTypes.STRING(12),
+        allowNull: false,
+    },
+    lokasi: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+    },
+    kendaraan_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: Kendaraan, // This is a reference to another model
+            key: 'id', // This is the column name of the referenced model
+        }
+    },
+    user_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: User, // This is a reference to another model
+            key: 'id', // This is the column name of the referenced model
+        }
+    }
+});
+
+export default Pengendara;

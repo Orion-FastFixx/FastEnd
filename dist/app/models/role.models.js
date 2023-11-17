@@ -1,14 +1,17 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Role = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
-exports.Role = mongoose_1.default.model("Role", new mongoose_1.default.Schema({
+const db_1 = require("../../db");
+const sequelize_1 = require("sequelize");
+const Role = db_1.sequelize.define("roles", {
+    id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+    },
     name: {
-        type: String,
-        required: true
-    }
-}));
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
+    },
+});
+exports.default = Role;
 //# sourceMappingURL=role.models.js.map
