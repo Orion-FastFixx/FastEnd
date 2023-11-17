@@ -3,60 +3,66 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Bengkel = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
-exports.Bengkel = mongoose_1.default.model("Bengkel", new mongoose_1.default.Schema({
-    namaBengkel: {
-        type: String,
-        required: [true, "Nama bengkel wajib diisi"],
-        maxlength: [50, "Nama bengkel maksimal 50 karakter"],
+const db_1 = require("../../db");
+const sequelize_1 = require("sequelize");
+const user_models_1 = __importDefault(require("./user.models"));
+const rating_models_1 = __importDefault(require("./rating.models"));
+const Bengkel = db_1.sequelize.define("bengkels", {
+    id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
     },
-    nomorTelepon: {
-        type: String,
-        required: [true, "Nomor telepon wajib diisi"],
-        maxlength: [12, "Nomor telepon maksimal 12 karakter"],
+    nama_bengkel: {
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
+    },
+    phone_bengkel: {
+        type: sequelize_1.DataTypes.STRING(12),
+        allowNull: false,
     },
     alamat: {
-        type: String,
-        required: [true, "Alamat wajib diisi"],
-        maxlength: [50, "Alamat maksimal 50 karakter"],
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
     },
     lokasi: {
-        type: String,
-        required: [true, "Lokasi wajib diisi"],
-        maxlength: [50, "Lokasi maksimal 50 karakter"],
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
     },
     deskripsi: {
-        type: String,
-        required: [true, "Deskripsi wajib diisi"],
-        maxlength: [250, "Deskripsi maksimal 250 karakter"],
+        // TEXT DATA TYPE
+        type: sequelize_1.DataTypes.TEXT,
+        allowNull: false,
     },
-    jenisBengkel: {
-        type: String,
-        enum: [
-            "Bengkel Umum",
-            "Bengkel Resmi",
-        ]
+    jenis_bengkel: {
+        type: sequelize_1.DataTypes.ENUM,
+        values: ['Bengkel Umum', 'Bengkel Resmi'],
+        allowNull: false,
     },
-    isOpen: {
-        type: Boolean,
+    is_open: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false,
     },
-    // make foto as array of string
-    foto: [{
-            type: String,
-            required: [true, "Foto wajib diisi"],
-        }],
-    rating: {
-        type: Number,
-        default: 0,
+    foto: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
     },
-    review: [{
-            type: String,
-        }],
-    pemilik: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+    pemilik_id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: user_models_1.default,
+            key: 'id', // This is the column name of the referenced model
+        }
     },
-}));
+    rating_id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: rating_models_1.default,
+            key: 'id', // This is the column name of the referenced model
+        }
+    }
+});
+exports.default = Bengkel;
 //# sourceMappingURL=bengkel.models.js.map

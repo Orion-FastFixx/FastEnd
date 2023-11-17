@@ -8,10 +8,14 @@ const role_models_1 = __importDefault(require("./app/models/role.models"));
 const user_models_1 = __importDefault(require("./app/models/user.models"));
 const pengendara_models_1 = __importDefault(require("./app/models/pengendara.models"));
 const kendaraan_models_1 = __importDefault(require("./app/models/kendaraan.models"));
+const bengkel_models_1 = __importDefault(require("./app/models/bengkel.models"));
+const rating_models_1 = __importDefault(require("./app/models/rating.models"));
 console.log('Is Role model registered:', role_models_1.default === db_1.sequelize.model('roles'));
 console.log('Is Kendaraan model registered:', kendaraan_models_1.default === db_1.sequelize.model('kendaraans'));
 console.log('Is User model registered:', user_models_1.default === db_1.sequelize.model('users'));
 console.log('Is Pengendara model registered:', pengendara_models_1.default === db_1.sequelize.model('pengendaras'));
+console.log('Is Rating model registered:', rating_models_1.default === db_1.sequelize.model('ratings'));
+console.log('Is Bengkel model registered:', bengkel_models_1.default === db_1.sequelize.model('bengkels'));
 db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
