@@ -1,22 +1,36 @@
-import { Role } from "../models/role.models";
+import Role from "../models/role.models";
+import { sequelize } from "../../db";
+import { Request, Response } from "express"
 
-const defaultRoles = ["admin", "pengendara", "adminBengkel", "montir"];
+const defaultRoles = ["Admin", "Pengendara", "Admin Bengkel", "Montir"];
 
-export const initializeRoles = async () => {
+export const initializeRoles = async (req: Request, res: Response) => {
     try {
-        await Promise.all(defaultRoles.map(async (roleName) => {
-            const roleExists = await Role.findOne({ name: roleName });
-            if (!roleExists) {
-                const newRole = new Role({ name: roleName });
-                await newRole.save();
-                console.log(`Role ${roleName} created successfully.`);
-            } else {
-                console.log(`Role ${roleName} already exists.`);
-            }
-        }));
-        console.log('Roles initialization completed.');
-    } catch (error) {
-        console.error('Error initializing roles:', error);
-        process.exit(1);
+        const transaction = await sequelize.transaction();
+        let results = [];
+
+        for (const roleName of defaultRoles) {
+            const [role, created] = await Role.findOrCreate({
+                where: { name: roleName },
+                defaults: { name: roleName },
+                transaction,
+            });
+
+            results.push({
+                roleName: roleName,
+                status: created ? 'created' : 'already exists',
+                roleDetails: role
+            });
+        }
+        await transaction.commit();
+
+        res.status(200).json({
+            message: "Success initialize roles",
+            data: results
+        });
+
+    } catch (error: any) {
+        console.error("Error initializing roles:", error);
+        res.status(500).json({ message: error.message });
     }
 }
