@@ -9,6 +9,7 @@ const pengendara_models_1 = __importDefault(require("./pengendara.models"));
 const kendaraan_models_1 = __importDefault(require("./kendaraan.models"));
 const bengkel_models_1 = __importDefault(require("./bengkel.models"));
 const rating_models_1 = __importDefault(require("./rating.models"));
+const admin_models_1 = __importDefault(require("./admin.models"));
 // Start User Relations to Role
 role_models_1.default.hasMany(user_models_1.default, {
     foreignKey: 'role_id',
@@ -57,5 +58,15 @@ bengkel_models_1.default.hasMany(rating_models_1.default, {
 rating_models_1.default.belongsTo(bengkel_models_1.default, {
     foreignKey: 'rating_id',
     as: 'bengkel' // Optional alias
+});
+// End Bengkel Relations to Rating
+// Start User Relations to Admin
+user_models_1.default.hasMany(admin_models_1.default, {
+    foreignKey: 'user_id',
+    as: 'admin' // This is optional, it's an alias for the association, used in queries
+});
+admin_models_1.default.belongsTo(user_models_1.default, {
+    foreignKey: 'user_id',
+    as: 'user' // Optional alias
 });
 //# sourceMappingURL=relations.models.js.map

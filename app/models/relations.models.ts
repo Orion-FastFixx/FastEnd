@@ -4,6 +4,7 @@ import Pengendara from "./pengendara.models";
 import Kendaraan from "./kendaraan.models";
 import Bengkel from "./bengkel.models";
 import Rating from "./rating.models";
+import Admin from "./admin.models";
 
 // Start User Relations to Role
 
@@ -72,4 +73,18 @@ Bengkel.hasMany(Rating, {
 Rating.belongsTo(Bengkel, {
     foreignKey: 'rating_id',
     as: 'bengkel' // Optional alias
+});
+
+// End Bengkel Relations to Rating
+
+// Start User Relations to Admin
+
+User.hasMany(Admin, {
+    foreignKey: 'user_id', // Ensure this matches the foreign key attribute in the User model
+    as: 'admin' // This is optional, it's an alias for the association, used in queries
+});
+
+Admin.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user' // Optional alias
 });
