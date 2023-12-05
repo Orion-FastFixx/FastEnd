@@ -3,6 +3,6 @@ import router from "./router";
 
 
 router.post("/signup", AuthenticationController.signUp);
-// router.post("/signin", AuthenticationController.signIn);
+router.post("/signin", AuthenticationController.signIn);
 
 export default router;
