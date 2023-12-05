@@ -6,6 +6,8 @@ import Kendaraan from "./app/models/kendaraan.models";
 import Bengkel from "./app/models/bengkel.models";
 import Rating from "./app/models/rating.models";
 import Admin from "./app/models/admin.models";
+import Montir from "./app/models/montir.models";
+import AdminBengkel from "./app/models/admin.bengkel.model";
 
 console.log('Is Role model registered:', Role === sequelize.model('roles'));
 console.log('Is Kendaraan model registered:', Kendaraan === sequelize.model('kendaraans'));
@@ -14,8 +16,10 @@ console.log('Is Pengendara model registered:', Pengendara === sequelize.model('p
 console.log('Is Rating model registered:', Rating === sequelize.model('ratings'));
 console.log('Is Bengkel model registered:', Bengkel === sequelize.model('bengkels'));
 console.log('Is Admin model registered:', Admin === sequelize.model('admins'));
+console.log('Is Montir model registered:', Montir === sequelize.model('montirs'));
+console.log('Is AdminBengkel model registered:', AdminBengkel === sequelize.model('admin_bengkels'));
 
-sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
+sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
     .then(() => {
         console.log('Database synchronized successfully.');
         process.exit();

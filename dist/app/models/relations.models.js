@@ -10,6 +10,8 @@ const kendaraan_models_1 = __importDefault(require("./kendaraan.models"));
 const bengkel_models_1 = __importDefault(require("./bengkel.models"));
 const rating_models_1 = __importDefault(require("./rating.models"));
 const admin_models_1 = __importDefault(require("./admin.models"));
+const montir_models_1 = __importDefault(require("./montir.models"));
+const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
 // Start User Relations to Role
 role_models_1.default.hasMany(user_models_1.default, {
     foreignKey: 'role_id',
@@ -66,6 +68,26 @@ user_models_1.default.hasMany(admin_models_1.default, {
     as: 'admin' // This is optional, it's an alias for the association, used in queries
 });
 admin_models_1.default.belongsTo(user_models_1.default, {
+    foreignKey: 'user_id',
+    as: 'user' // Optional alias
+});
+// End User Relations to Admin
+// Start User Relations to Montir
+user_models_1.default.hasMany(montir_models_1.default, {
+    foreignKey: 'user_id',
+    as: 'montir' // This is optional, it's an alias for the association, used in queries
+});
+montir_models_1.default.belongsTo(user_models_1.default, {
+    foreignKey: 'user_id',
+    as: 'user' // Optional alias
+});
+// End User Relations to Montir
+// Start User Relations to Admin Bengkel
+user_models_1.default.hasMany(admin_bengkel_model_1.default, {
+    foreignKey: 'user_id',
+    as: 'admin_bengkel' // This is optional, it's an alias for the association, used in queries
+});
+admin_bengkel_model_1.default.belongsTo(user_models_1.default, {
     foreignKey: 'user_id',
     as: 'user' // Optional alias
 });
