@@ -8,6 +8,8 @@ import { Op } from 'sequelize';
 import Montir from "../models/montir.models";
 import Pengendara from "../models/pengendara.models";
 import AdminBengkel from "../models/admin.bengkel.model";
+import session from "express-session";
+
 
 
 export const AuthenticationController = {
@@ -83,6 +85,13 @@ export const AuthenticationController = {
 
     async signIn(req: Request, res: Response) {
         try {
+            if (req.session.user) {
+                return res.status(200).json({
+                    message: "User already logged in",
+                    user: req.session.user,
+                });
+            }
+
             const { identifier, password } = req.body;
 
             const user: any = await User.findOne({
@@ -111,20 +120,42 @@ export const AuthenticationController = {
                 expiresIn: 43200
             });
 
+            req.session.user = {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role_id: user.role_id,
+                token: token
+            };
+
             return res.status(200).json({
                 message: "User found",
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    role_id: user.role_id
-                },
-                token: token
+                user: req.session.user,
             });
 
         } catch (error: any) {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
-    }
+    },
+
+    async signOut(req: Request, res: Response) {
+        try {
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ message: err.message || "Internal Server Error" });
+                }
+            });
+
+            res.clearCookie('connect.sid');
+
+            return res.status(200).json({
+                auth: false,
+                token: null,
+                message: "User logged out"
+            });
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
 }
 

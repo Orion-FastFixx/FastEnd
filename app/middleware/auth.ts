@@ -3,7 +3,7 @@ import { config } from "../config";
 // import { User } from "../models/user.models";
 import { NextFunction, Response } from 'express';
 import User from "../models/user.models";
-import { Request as CustomRequest } from "../types/types";
+import { Request as CustomRequest } from "../utils/types";
 
 export const AuthMiddleware = {
     async verifyToken(req: CustomRequest, res: Response, next: NextFunction) {

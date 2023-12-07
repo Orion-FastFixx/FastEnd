@@ -96,6 +96,12 @@ exports.AuthenticationController = {
     signIn(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                if (req.session.user) {
+                    return res.status(200).json({
+                        message: "User already logged in",
+                        user: req.session.user,
+                    });
+                }
                 const { identifier, password } = req.body;
                 const user = yield user_models_1.default.findOne({
                     where: {
@@ -118,21 +124,42 @@ exports.AuthenticationController = {
                     // exp in 12 hours
                     expiresIn: 43200
                 });
+                req.session.user = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role_id: user.role_id,
+                    token: token
+                };
                 return res.status(200).json({
                     message: "User found",
-                    user: {
-                        id: user.id,
-                        username: user.username,
-                        email: user.email,
-                        role_id: user.role_id
-                    },
-                    token: token
+                    user: req.session.user,
                 });
             }
             catch (error) {
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
-    }
+    },
+    signOut(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                req.session.destroy((err) => {
+                    if (err) {
+                        return res.status(500).json({ message: err.message || "Internal Server Error" });
+                    }
+                });
+                res.clearCookie('connect.sid');
+                return res.status(200).json({
+                    auth: false,
+                    token: null,
+                    message: "User logged out"
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
 };
 //# sourceMappingURL=authentication.controller.js.map

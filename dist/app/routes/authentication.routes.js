@@ -7,5 +7,6 @@ const authentication_controller_1 = require("../controllers/authentication.contr
 const router_1 = __importDefault(require("./router"));
 router_1.default.post("/signup", authentication_controller_1.AuthenticationController.signUp);
 router_1.default.post("/signin", authentication_controller_1.AuthenticationController.signIn);
+router_1.default.post("/signout", authentication_controller_1.AuthenticationController.signOut);
 exports.default = router_1.default;
 //# sourceMappingURL=authentication.routes.js.map
