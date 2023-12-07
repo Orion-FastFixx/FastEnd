@@ -12,6 +12,8 @@ const rating_models_1 = __importDefault(require("./rating.models"));
 const admin_models_1 = __importDefault(require("./admin.models"));
 const montir_models_1 = __importDefault(require("./montir.models"));
 const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
+const bengkel_service_model_1 = __importDefault(require("./bengkel.service.model"));
+const service_model_1 = __importDefault(require("./service.model"));
 // Start User Relations to Role
 role_models_1.default.hasMany(user_models_1.default, {
     foreignKey: 'role_id',
@@ -42,26 +44,6 @@ kendaraan_models_1.default.belongsTo(pengendara_models_1.default, {
     as: 'pengendara' // Optional alias
 });
 // End Pengendara Relations to Kendaraan
-// Start User Relations to Bengkel
-user_models_1.default.hasMany(bengkel_models_1.default, {
-    foreignKey: 'pemilik_id',
-    as: 'bengkel' // This is optional, it's an alias for the association, used in queries
-});
-bengkel_models_1.default.belongsTo(user_models_1.default, {
-    foreignKey: 'pemilik_id',
-    as: 'user' // Optional alias
-});
-// End User Relations to Bengkel
-// Start Bengkel Relations to Rating
-bengkel_models_1.default.hasMany(rating_models_1.default, {
-    foreignKey: 'rating_id',
-    as: 'rating' // This is optional, it's an alias for the association, used in queries
-});
-rating_models_1.default.belongsTo(bengkel_models_1.default, {
-    foreignKey: 'rating_id',
-    as: 'bengkel' // Optional alias
-});
-// End Bengkel Relations to Rating
 // Start User Relations to Admin
 user_models_1.default.hasMany(admin_models_1.default, {
     foreignKey: 'user_id',
@@ -91,4 +73,38 @@ admin_bengkel_model_1.default.belongsTo(user_models_1.default, {
     foreignKey: 'user_id',
     as: 'user' // Optional alias
 });
+// End User Relations to Admin Bengkel
+// Start Admin Bengkel Relations to Bengkel
+admin_bengkel_model_1.default.hasMany(bengkel_models_1.default, {
+    foreignKey: 'pemilik_id',
+    as: 'bengkel' // This is optional, it's an alias for the association, used in queries
+});
+bengkel_models_1.default.belongsTo(admin_bengkel_model_1.default, {
+    foreignKey: 'pemilik_id',
+    as: 'admin_bengkel' // Optional alias
+});
+// End Admin Bengkel Relations to Bengkel
+// Bengkel Service is a pivot table between Bengkel and Service
+bengkel_models_1.default.belongsToMany(service_model_1.default, {
+    through: bengkel_service_model_1.default,
+    as: 'services',
+    foreignKey: 'bengkel_id',
+    otherKey: 'service_id'
+});
+service_model_1.default.belongsToMany(bengkel_models_1.default, {
+    through: bengkel_service_model_1.default,
+    as: 'bengkels',
+    foreignKey: 'service_id',
+    otherKey: 'bengkel_id'
+});
+// Start Bengkel Relations to Rating
+bengkel_models_1.default.hasMany(rating_models_1.default, {
+    foreignKey: 'rating_id',
+    as: 'rating' // This is optional, it's an alias for the association, used in queries
+});
+rating_models_1.default.belongsTo(bengkel_models_1.default, {
+    foreignKey: 'rating_id',
+    as: 'bengkel' // Optional alias
+});
+// End Bengkel Relations to Rating
 //# sourceMappingURL=relations.models.js.map

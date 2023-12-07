@@ -7,6 +7,9 @@ import Rating from "./rating.models";
 import Admin from "./admin.models";
 import Montir from "./montir.models";
 import AdminBengkel from "./admin.bengkel.model";
+import BengkelService from "./bengkel.service.model";
+import Service from "./service.model";
+import { BelongsToMany } from "sequelize";
 
 // Start User Relations to Role
 
@@ -51,34 +54,6 @@ Kendaraan.belongsTo(Pengendara, {
 
 // End Pengendara Relations to Kendaraan
 
-// Start User Relations to Bengkel
-
-User.hasMany(Bengkel, {
-    foreignKey: 'pemilik_id', // Ensure this matches the foreign key attribute in the User model
-    as: 'bengkel' // This is optional, it's an alias for the association, used in queries
-});
-
-Bengkel.belongsTo(User, {
-    foreignKey: 'pemilik_id',
-    as: 'user' // Optional alias
-});
-
-// End User Relations to Bengkel
-
-// Start Bengkel Relations to Rating
-
-Bengkel.hasMany(Rating, {
-    foreignKey: 'rating_id', // Ensure this matches the foreign key attribute in the User model
-    as: 'rating' // This is optional, it's an alias for the association, used in queries
-});
-
-Rating.belongsTo(Bengkel, {
-    foreignKey: 'rating_id',
-    as: 'bengkel' // Optional alias
-});
-
-// End Bengkel Relations to Rating
-
 // Start User Relations to Admin
 
 User.hasMany(Admin, {
@@ -117,3 +92,51 @@ AdminBengkel.belongsTo(User, {
     foreignKey: 'user_id',
     as: 'user' // Optional alias
 });
+
+// End User Relations to Admin Bengkel
+
+// Start Admin Bengkel Relations to Bengkel
+
+AdminBengkel.hasMany(Bengkel, {
+    foreignKey: 'pemilik_id', // Ensure this matches the foreign key attribute in the Admin Bengkel model
+    as: 'bengkel' // This is optional, it's an alias for the association, used in queries
+});
+
+Bengkel.belongsTo(AdminBengkel, {
+    foreignKey: 'pemilik_id',
+    as: 'admin_bengkel' // Optional alias
+});
+
+// End Admin Bengkel Relations to Bengkel
+
+// Bengkel Service is a pivot table between Bengkel and Service
+
+Bengkel.belongsToMany(Service, {
+    through: BengkelService,
+    as: 'services',
+    foreignKey: 'bengkel_id',
+    otherKey: 'service_id'
+});
+
+Service.belongsToMany(Bengkel, {
+    through: BengkelService,
+    as: 'bengkels',
+    foreignKey: 'service_id',
+    otherKey: 'bengkel_id'
+});
+
+
+
+// Start Bengkel Relations to Rating
+
+Bengkel.hasMany(Rating, {
+    foreignKey: 'rating_id', // Ensure this matches the foreign key attribute in the User model
+    as: 'rating' // This is optional, it's an alias for the association, used in queries
+});
+
+Rating.belongsTo(Bengkel, {
+    foreignKey: 'rating_id',
+    as: 'bengkel' // Optional alias
+});
+
+// End Bengkel Relations to Rating
