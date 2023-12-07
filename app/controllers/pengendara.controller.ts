@@ -1,7 +1,7 @@
 import { Response } from "express";
 import Bengkel from "../models/bengkel.models";
 import Service from "../models/service.model";
-import { Request as CustomRequest } from "../types/types";
+import { Request as CustomRequest } from "../utils/types";
 
 export const PengendaraController = {
     async getAllBengkel(req: CustomRequest, res: Response) {
@@ -10,11 +10,11 @@ export const PengendaraController = {
             const bengkel = await Bengkel.findAll({
                 include: [{
                     model: Service,
-                    as: 'layanan',
+                    as: 'services',
                     attributes: { exclude: ['createdAt', 'updatedAt'] },
                     through: {
                         attributes: ['harga'], // Include additional attributes from BengkelService
-                        as: 'harga'
+                        as: 'harga_layanan'
                     }
                 }],
                 attributes: { exclude: ['createdAt', 'updatedAt'] }

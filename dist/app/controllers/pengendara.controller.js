@@ -22,11 +22,11 @@ exports.PengendaraController = {
                 const bengkel = yield bengkel_models_1.default.findAll({
                     include: [{
                             model: service_model_1.default,
-                            as: 'layanan',
+                            as: 'services',
                             attributes: { exclude: ['createdAt', 'updatedAt'] },
                             through: {
                                 attributes: ['harga'],
-                                as: 'harga'
+                                as: 'harga_layanan'
                             }
                         }],
                     attributes: { exclude: ['createdAt', 'updatedAt'] }
