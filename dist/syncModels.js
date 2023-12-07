@@ -13,6 +13,8 @@ const rating_models_1 = __importDefault(require("./app/models/rating.models"));
 const admin_models_1 = __importDefault(require("./app/models/admin.models"));
 const montir_models_1 = __importDefault(require("./app/models/montir.models"));
 const admin_bengkel_model_1 = __importDefault(require("./app/models/admin.bengkel.model"));
+const bengkel_service_model_1 = __importDefault(require("./app/models/bengkel.service.model"));
+const service_model_1 = __importDefault(require("./app/models/service.model"));
 console.log('Is Role model registered:', role_models_1.default === db_1.sequelize.model('roles'));
 console.log('Is Kendaraan model registered:', kendaraan_models_1.default === db_1.sequelize.model('kendaraans'));
 console.log('Is User model registered:', user_models_1.default === db_1.sequelize.model('users'));
@@ -22,6 +24,8 @@ console.log('Is Bengkel model registered:', bengkel_models_1.default === db_1.se
 console.log('Is Admin model registered:', admin_models_1.default === db_1.sequelize.model('admins'));
 console.log('Is Montir model registered:', montir_models_1.default === db_1.sequelize.model('montirs'));
 console.log('Is AdminBengkel model registered:', admin_bengkel_model_1.default === db_1.sequelize.model('admin_bengkels'));
+console.log('Is Service model registered:', service_model_1.default === db_1.sequelize.model('services'));
+console.log('Is BengkelService model registered:', bengkel_service_model_1.default === db_1.sequelize.model('bengkel_services'));
 db_1.sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
