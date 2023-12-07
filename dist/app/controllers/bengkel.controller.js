@@ -17,6 +17,9 @@ const bengkel_models_1 = __importDefault(require("../models/bengkel.models"));
 const admin_bengkel_model_1 = __importDefault(require("../models/admin.bengkel.model"));
 const service_model_1 = __importDefault(require("../models/service.model"));
 const bengkel_service_model_1 = __importDefault(require("../models/bengkel.service.model"));
+const path_1 = __importDefault(require("path"));
+const multer_1 = __importDefault(require("multer"));
+const multer_2 = require("../utils/multer");
 exports.BengkelController = {
     createBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -28,7 +31,16 @@ exports.BengkelController = {
                         message: "Require Admin Bengkel Role!"
                     });
                 }
-                const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, foto, rating_id } = req.body;
+                const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, rating_id } = req.body;
+                let foto_url = [];
+                const ratingId = rating_id === '' ? null : rating_id;
+                if (req.files) {
+                    const files = req.files;
+                    foto_url = files.map(file => {
+                        const filename = path_1.default.basename(file.path); // Extract filename from path
+                        return `${req.protocol}://${req.get("host")}/images/${filename}`;
+                    });
+                }
                 // check if bengkel already exist
                 const bengkel = yield bengkel_models_1.default.findOne({ where: { nama_bengkel: nama_bengkel } });
                 if (bengkel) {
@@ -45,10 +57,11 @@ exports.BengkelController = {
                     jenis_bengkel,
                     spesialisasi_bengkel,
                     is_open,
-                    foto,
+                    foto_url: JSON.stringify(foto_url),
                     pemilik_id: adminBengkel.id,
-                    rating_id
+                    rating_id: ratingId
                 });
+                console.log(newBengkel);
                 res.status(201).json({
                     message: "Bengkel created successfully",
                     data: newBengkel
@@ -91,6 +104,13 @@ exports.BengkelController = {
                 });
             }
             catch (error) {
+                // Check if the error is related to file size
+                if (error instanceof multer_1.default.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(413).json({
+                        message: `One or more files are too large. Maximum file size allowed is ${multer_2.maxSize}.`,
+                        error: error
+                    });
+                }
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });

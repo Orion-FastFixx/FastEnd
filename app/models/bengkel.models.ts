@@ -44,9 +44,16 @@ const Bengkel = sequelize.define("bengkels", {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    foto: {
-        type: DataTypes.STRING,
+    foto_url: {
+        type: DataTypes.TEXT, // or STRING if length is sufficient
         allowNull: false,
+        get() {
+            const rawValue = this.getDataValue('foto_url');
+            return rawValue ? JSON.parse(rawValue) : [];
+        },
+        set(value) {
+            this.setDataValue('foto_url', JSON.stringify(value));
+        }
     },
     pemilik_id: {
         type: DataTypes.INTEGER.UNSIGNED,

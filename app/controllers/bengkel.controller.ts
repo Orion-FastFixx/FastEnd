@@ -1,9 +1,12 @@
 import { Response } from "express"
-import { Request as CustomRequest } from "../types/types";
+import { Request as CustomRequest } from "../utils/types";
 import Bengkel from "../models/bengkel.models";
 import AdminBengkel from "../models/admin.bengkel.model";
 import Service from "../models/service.model";
 import BengkelService from "../models/bengkel.service.model";
+import path from "path";
+import multer from "multer";
+import { maxSize } from "../utils/multer";
 
 export const BengkelController = {
     async createBengkel(req: CustomRequest, res: Response) {
@@ -17,7 +20,19 @@ export const BengkelController = {
                 });
             }
 
-            const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, foto, rating_id } = req.body;
+            const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, rating_id } = req.body;
+            let foto_url: string[] = [];
+            const ratingId = rating_id === '' ? null : rating_id;
+
+
+            if (req.files) {
+                const files = req.files as Express.Multer.File[];
+                foto_url = files.map(file => {
+                    const filename = path.basename(file.path); // Extract filename from path
+                    return `${req.protocol}://${req.get("host")}/images/${filename}`;
+                });
+            }
+
 
             // check if bengkel already exist
             const bengkel: any = await Bengkel.findOne({ where: { nama_bengkel: nama_bengkel } });
@@ -25,7 +40,7 @@ export const BengkelController = {
                 return res.status(409).json({
                     message: "Bengkel already exist"
                 });
-            } 
+            }
 
             const newBengkel = await Bengkel.create({
                 nama_bengkel,
@@ -36,10 +51,12 @@ export const BengkelController = {
                 jenis_bengkel,
                 spesialisasi_bengkel,
                 is_open,
-                foto,
+                foto_url: JSON.stringify(foto_url),
                 pemilik_id: adminBengkel.id,
-                rating_id
+                rating_id: ratingId
             });
+
+            console.log(newBengkel);
 
             res.status(201).json({
                 message: "Bengkel created successfully",
@@ -88,6 +105,15 @@ export const BengkelController = {
             });
 
         } catch (error: any) {
+            // Check if the error is related to file size
+            if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+                return res.status(413).json({
+                    message: `One or more files are too large. Maximum file size allowed is ${maxSize}.`,
+                    error: error
+                });
+            }
+
+
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },

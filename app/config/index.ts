@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 
@@ -10,5 +11,6 @@ export const config = {
     mysqlPassword: process.env.DB_PASSWORD as string,
     mysqlDatabase: process.env.DB_DATABASE as string,
     mysqlPort: process.env.DB_PORT as any,
-
+    rootPath : path.resolve(__dirname, '..'),
+    uploadsFolder: path.resolve(__dirname, '..', 'public', 'uploads', 'images') 
 }
