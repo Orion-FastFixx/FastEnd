@@ -1,6 +1,6 @@
 import { sequelize } from "../../db";
 import { DataTypes } from 'sequelize';
-import User from "./user.models";
+import AdminBengkel from "./admin.bengkel.model";
 import Rating from "./rating.models";
 
 const Bengkel = sequelize.define("bengkels", {
@@ -35,6 +35,11 @@ const Bengkel = sequelize.define("bengkels", {
         values: ['Bengkel Umum', 'Bengkel Resmi'],
         allowNull: false,
     },
+    spesialisasi_bengkel: {
+        type: DataTypes.ENUM,
+        values: ['Bengkel Mobil', 'Bengkel Motor'],
+        allowNull: false,
+    },
     is_open: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -47,13 +52,13 @@ const Bengkel = sequelize.define("bengkels", {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: User, // This is a reference to another model
+            model: AdminBengkel, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
         }
     },
     rating_id: {
         type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: Rating, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model

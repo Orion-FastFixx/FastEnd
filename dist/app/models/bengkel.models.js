@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../../db");
 const sequelize_1 = require("sequelize");
-const user_models_1 = __importDefault(require("./user.models"));
+const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
 const rating_models_1 = __importDefault(require("./rating.models"));
 const Bengkel = db_1.sequelize.define("bengkels", {
     id: {
@@ -39,6 +39,11 @@ const Bengkel = db_1.sequelize.define("bengkels", {
         values: ['Bengkel Umum', 'Bengkel Resmi'],
         allowNull: false,
     },
+    spesialisasi_bengkel: {
+        type: sequelize_1.DataTypes.ENUM,
+        values: ['Bengkel Mobil', 'Bengkel Motor'],
+        allowNull: false,
+    },
     is_open: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: false,
@@ -51,13 +56,13 @@ const Bengkel = db_1.sequelize.define("bengkels", {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: user_models_1.default,
+            model: admin_bengkel_model_1.default,
             key: 'id', // This is the column name of the referenced model
         }
     },
     rating_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: rating_models_1.default,
             key: 'id', // This is the column name of the referenced model
