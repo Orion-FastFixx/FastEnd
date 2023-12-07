@@ -12,7 +12,6 @@ const rating_models_1 = __importDefault(require("./rating.models"));
 const admin_models_1 = __importDefault(require("./admin.models"));
 const montir_models_1 = __importDefault(require("./montir.models"));
 const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
-const bengkel_service_model_1 = __importDefault(require("./bengkel.service.model"));
 const service_model_1 = __importDefault(require("./service.model"));
 // Start User Relations to Role
 role_models_1.default.hasMany(user_models_1.default, {
@@ -86,13 +85,13 @@ bengkel_models_1.default.belongsTo(admin_bengkel_model_1.default, {
 // End Admin Bengkel Relations to Bengkel
 // Bengkel Service is a pivot table between Bengkel and Service
 bengkel_models_1.default.belongsToMany(service_model_1.default, {
-    through: bengkel_service_model_1.default,
+    through: 'bengkel_services',
     as: 'services',
     foreignKey: 'bengkel_id',
     otherKey: 'service_id'
 });
 service_model_1.default.belongsToMany(bengkel_models_1.default, {
-    through: bengkel_service_model_1.default,
+    through: 'bengkel_services',
     as: 'bengkels',
     foreignKey: 'service_id',
     otherKey: 'bengkel_id'

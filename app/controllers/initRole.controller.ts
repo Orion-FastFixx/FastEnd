@@ -24,13 +24,13 @@ export const initializeRoles = async (req: Request, res: Response) => {
         }
         await transaction.commit();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Success initialize roles",
             data: results
         });
 
     } catch (error: any) {
         console.error("Error initializing roles:", error);
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 }

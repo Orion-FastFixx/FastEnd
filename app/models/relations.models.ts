@@ -112,14 +112,14 @@ Bengkel.belongsTo(AdminBengkel, {
 // Bengkel Service is a pivot table between Bengkel and Service
 
 Bengkel.belongsToMany(Service, {
-    through: BengkelService,
+    through: 'bengkel_services',
     as: 'services',
     foreignKey: 'bengkel_id',
     otherKey: 'service_id'
 });
 
 Service.belongsToMany(Bengkel, {
-    through: BengkelService,
+    through: 'bengkel_services',
     as: 'bengkels',
     foreignKey: 'service_id',
     otherKey: 'bengkel_id'

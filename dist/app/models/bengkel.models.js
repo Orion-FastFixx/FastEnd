@@ -60,6 +60,14 @@ const Bengkel = db_1.sequelize.define("bengkels", {
             key: 'id', // This is the column name of the referenced model
         }
     },
+    // layanan_id: {
+    //     type: DataTypes.INTEGER.UNSIGNED,
+    //     allowNull: true,
+    //     references: {
+    //         model: BengkelService, // This is a reference to another model
+    //         key: 'id', // This is the column name of the referenced model
+    //     }
+    // },
     rating_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: true,

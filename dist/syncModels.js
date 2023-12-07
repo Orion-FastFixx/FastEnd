@@ -26,7 +26,7 @@ console.log('Is Montir model registered:', montir_models_1.default === db_1.sequ
 console.log('Is AdminBengkel model registered:', admin_bengkel_model_1.default === db_1.sequelize.model('admin_bengkels'));
 console.log('Is Service model registered:', service_model_1.default === db_1.sequelize.model('services'));
 console.log('Is BengkelService model registered:', bengkel_service_model_1.default === db_1.sequelize.model('bengkel_services'));
-db_1.sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
+db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
     process.exit();

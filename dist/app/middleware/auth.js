@@ -50,7 +50,7 @@ exports.AuthMiddleware = {
                 });
             }
             catch (error) {
-                res.status(500).send({ message: error.message });
+                return res.status(500).send({ message: error.message });
             }
         });
     },
@@ -67,7 +67,7 @@ exports.AuthMiddleware = {
                 });
             }
             catch (error) {
-                res.status(500).send({ message: error.message });
+                return res.status(500).send({ message: error.message });
             }
         });
     },
@@ -84,7 +84,7 @@ exports.AuthMiddleware = {
                 });
             }
             catch (error) {
-                res.status(500).send({ message: error.message });
+                return res.status(500).send({ message: error.message });
             }
         });
     },
@@ -101,7 +101,7 @@ exports.AuthMiddleware = {
                 });
             }
             catch (error) {
-                res.status(500).send({ message: error.message });
+                return res.status(500).send({ message: error.message });
             }
         });
     }

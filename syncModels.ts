@@ -23,7 +23,7 @@ console.log('Is AdminBengkel model registered:', AdminBengkel === sequelize.mode
 console.log('Is Service model registered:', Service === sequelize.model('services'));
 console.log('Is BengkelService model registered:', BengkelService === sequelize.model('bengkel_services'));
 
-sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
+sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
     .then(() => {
         console.log('Database synchronized successfully.');
         process.exit();

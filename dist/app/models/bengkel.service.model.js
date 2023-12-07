@@ -1,12 +1,7 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../../db");
 const sequelize_1 = require("sequelize");
-const bengkel_models_1 = __importDefault(require("./bengkel.models"));
-const service_model_1 = __importDefault(require("./service.model"));
 const BengkelService = db_1.sequelize.define("bengkel_services", {
     id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
@@ -22,7 +17,7 @@ const BengkelService = db_1.sequelize.define("bengkel_services", {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: bengkel_models_1.default,
+            model: 'bengkels',
             key: 'id', // This is the column name of the referenced model
         }
     },
@@ -30,7 +25,7 @@ const BengkelService = db_1.sequelize.define("bengkel_services", {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: service_model_1.default,
+            model: 'services',
             key: 'id', // This is the column name of the referenced model
         }
     },

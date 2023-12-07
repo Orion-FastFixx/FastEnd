@@ -22,13 +22,20 @@ exports.BengkelController = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const bengkelOwner = req.userId;
-                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { id: bengkelOwner } });
+                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
                 if (!adminBengkel) {
-                    res.status(403).json({
+                    return res.status(403).json({
                         message: "Require Admin Bengkel Role!"
                     });
                 }
                 const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, foto, rating_id } = req.body;
+                // check if bengkel already exist
+                const bengkel = yield bengkel_models_1.default.findOne({ where: { nama_bengkel: nama_bengkel } });
+                if (bengkel) {
+                    return res.status(409).json({
+                        message: "Bengkel already exist"
+                    });
+                }
                 const newBengkel = yield bengkel_models_1.default.create({
                     nama_bengkel,
                     phone_bengkel,
@@ -78,13 +85,13 @@ exports.BengkelController = {
                     service_id: services.id,
                     harga: harga
                 });
-                res.status(201).json({
+                return res.status(201).json({
                     message: "Layanan created successfully",
                     data: bengkelService
                 });
             }
             catch (error) {
-                res.status(500).json({ message: error.message || "Internal Server Error" });
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
     },

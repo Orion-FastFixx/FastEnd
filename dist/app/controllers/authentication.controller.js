@@ -37,7 +37,7 @@ exports.AuthenticationController = {
                     }
                 });
                 if (userExists) {
-                    res.status(409).json({
+                    return res.status(409).json({
                         message: "User already exists"
                     });
                 }
@@ -77,7 +77,7 @@ exports.AuthenticationController = {
                             user_id: user.id
                         });
                     }
-                    res.status(201).json({
+                    return res.status(201).json({
                         message: "User created",
                         user: {
                             id: user.id,
@@ -89,7 +89,7 @@ exports.AuthenticationController = {
                 }
             }
             catch (error) {
-                res.status(500).json({ message: error.message || "Internal Server Error" });
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
     },
@@ -118,7 +118,7 @@ exports.AuthenticationController = {
                     // exp in 12 hours
                     expiresIn: 43200
                 });
-                res.status(200).json({
+                return res.status(200).json({
                     message: "User found",
                     user: {
                         id: user.id,
@@ -130,7 +130,7 @@ exports.AuthenticationController = {
                 });
             }
             catch (error) {
-                res.status(500).json({ message: error.message || "Internal Server Error" });
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
     }

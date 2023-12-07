@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { Response } from "express"
 import { Request as CustomRequest } from "../types/types";
 import Bengkel from "../models/bengkel.models";
 import AdminBengkel from "../models/admin.bengkel.model";
@@ -10,14 +10,22 @@ export const BengkelController = {
         try {
             const bengkelOwner = req.userId;
 
-            const adminBengkel: any = await AdminBengkel.findOne({ where: { id: bengkelOwner } });
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
             if (!adminBengkel) {
-                res.status(403).json({
+                return res.status(403).json({
                     message: "Require Admin Bengkel Role!"
                 });
             }
 
             const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, foto, rating_id } = req.body;
+
+            // check if bengkel already exist
+            const bengkel: any = await Bengkel.findOne({ where: { nama_bengkel: nama_bengkel } });
+            if (bengkel) {
+                return res.status(409).json({
+                    message: "Bengkel already exist"
+                });
+            } 
 
             const newBengkel = await Bengkel.create({
                 nama_bengkel,
@@ -74,13 +82,13 @@ export const BengkelController = {
                 harga: harga
             });
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: "Layanan created successfully",
                 data: bengkelService
             });
 
         } catch (error: any) {
-            res.status(500).json({ message: error.message || "Internal Server Error" });
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
 }

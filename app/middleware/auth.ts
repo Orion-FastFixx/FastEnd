@@ -40,7 +40,7 @@ export const AuthMiddleware = {
                 message: "Require Admin Role!"
             });
         } catch (error: any) {
-            res.status(500).send({ message: error.message });
+            return res.status(500).send({ message: error.message });
         }
     },
 
@@ -56,7 +56,7 @@ export const AuthMiddleware = {
                 message: "Require Pengendara Role!"
             });
         } catch (error: any) {
-            res.status(500).send({ message: error.message });
+            return res.status(500).send({ message: error.message });
         }
     },
 
@@ -73,7 +73,7 @@ export const AuthMiddleware = {
                 message: "Require Admin Bengkel Role!"
             });
         } catch (error: any) {
-            res.status(500).send({ message: error.message });
+            return res.status(500).send({ message: error.message });
         }
     },
 
@@ -89,7 +89,7 @@ export const AuthMiddleware = {
                 message: "Require Montir Role!"
             });
         } catch (error: any) {
-            res.status(500).send({ message: error.message });
+            return res.status(500).send({ message: error.message });
         }
     }
 }
