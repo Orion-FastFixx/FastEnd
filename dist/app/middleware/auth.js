@@ -54,6 +54,23 @@ exports.AuthMiddleware = {
             }
         });
     },
+    isPengendara(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield user_models_1.default.findByPk(req.userId);
+                if (user && user.role_id == 2) {
+                    next();
+                    return;
+                }
+                res.status(403).json({
+                    message: "Require Pengendara Role!"
+                });
+            }
+            catch (error) {
+                res.status(500).send({ message: error.message });
+            }
+        });
+    },
     isAdminBengkel(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

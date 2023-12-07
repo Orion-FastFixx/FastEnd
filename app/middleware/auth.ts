@@ -44,9 +44,26 @@ export const AuthMiddleware = {
         }
     },
 
+    async isPengendara(req: CustomRequest, res: Response, next: NextFunction) {
+        try {
+            const user: any = await User.findByPk(req.userId);
+
+            if (user && user.role_id == 2) {
+                next();
+                return;
+            }
+            res.status(403).json({
+                message: "Require Pengendara Role!"
+            });
+        } catch (error: any) {
+            res.status(500).send({ message: error.message });
+        }
+    },
+
     async isAdminBengkel(req: CustomRequest, res: Response, next: NextFunction) {
         try {
             const user: any = await User.findByPk(req.userId);
+
 
             if (user && user.role_id == 3) {
                 next();
