@@ -55,9 +55,9 @@ export const BengkelController = {
         try {
             const bengkelOwner = req.userId;
 
-            const adminBengkel: any = await AdminBengkel.findOne({ where: { id: bengkelOwner } });
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
             if (!adminBengkel) {
-                res.status(403).json({
+                return res.status(403).json({
                     message: "Require Admin Bengkel Role!"
                 });
             }
@@ -66,7 +66,7 @@ export const BengkelController = {
 
             const bengkel: any = await Bengkel.findByPk(bengkel_id);
             if (!bengkel) {
-                res.status(404).json({
+                return res.status(404).json({
                     message: "Bengkel not found"
                 });
             }

@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const db_1 = require("../../db");
 const sequelize_1 = require("sequelize");
+const db_1 = require("../../db");
 const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
 const rating_models_1 = __importDefault(require("./rating.models"));
 const Bengkel = db_1.sequelize.define("bengkels", {
@@ -60,14 +60,6 @@ const Bengkel = db_1.sequelize.define("bengkels", {
             key: 'id', // This is the column name of the referenced model
         }
     },
-    // layanan_id: {
-    //     type: DataTypes.INTEGER.UNSIGNED,
-    //     allowNull: true,
-    //     references: {
-    //         model: BengkelService, // This is a reference to another model
-    //         key: 'id', // This is the column name of the referenced model
-    //     }
-    // },
     rating_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: true,

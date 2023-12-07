@@ -1,9 +1,9 @@
-import { config } from "../config";
 import jwt from 'jsonwebtoken';
+import { config } from "../config";
 // import { User } from "../models/user.models";
-import { Request, Response, NextFunction } from 'express';
-import { Request as CustomRequest } from "../types/types";
+import { NextFunction, Response } from 'express';
 import User from "../models/user.models";
+import { Request as CustomRequest } from "../types/types";
 
 export const AuthMiddleware = {
     async verifyToken(req: CustomRequest, res: Response, next: NextFunction) {

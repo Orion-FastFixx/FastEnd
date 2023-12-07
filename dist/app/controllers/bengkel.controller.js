@@ -63,16 +63,16 @@ exports.BengkelController = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const bengkelOwner = req.userId;
-                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { id: bengkelOwner } });
+                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
                 if (!adminBengkel) {
-                    res.status(403).json({
+                    return res.status(403).json({
                         message: "Require Admin Bengkel Role!"
                     });
                 }
                 const { bengkel_id, layanan, harga } = req.body;
                 const bengkel = yield bengkel_models_1.default.findByPk(bengkel_id);
                 if (!bengkel) {
-                    res.status(404).json({
+                    return res.status(404).json({
                         message: "Bengkel not found"
                     });
                 }

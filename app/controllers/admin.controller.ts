@@ -1,6 +1,5 @@
-import { Request, Response } from "express"
+import { Request, Response } from "express";
 import User from "../models/user.models";
-import Montir from "../models/montir.models";
 
 export const AdminController = {
 

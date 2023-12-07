@@ -18,7 +18,7 @@ const BengkelService = sequelize.define("bengkel_services", {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'bengkels', // This is a reference to another model
+            model: Bengkel, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
         }
     },
@@ -26,7 +26,7 @@ const BengkelService = sequelize.define("bengkel_services", {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'services', // This is a reference to another model
+            model: Service, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
         }
     },

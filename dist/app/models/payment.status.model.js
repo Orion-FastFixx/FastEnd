@@ -2,20 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../../db");
 const sequelize_1 = require("sequelize");
-const Rating = db_1.sequelize.define("ratings", {
+const PaymentStatus = db_1.sequelize.define("payment_statuses", {
     id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         primaryKey: true,
     },
-    rating: {
-        type: sequelize_1.DataTypes.FLOAT,
-        allowNull: false,
-    },
-    review: {
-        type: sequelize_1.DataTypes.TEXT,
-        allowNull: false,
+    status: {
+        type: sequelize_1.DataTypes.STRING(30),
+        allowNull: true,
     },
 });
-exports.default = Rating;
-//# sourceMappingURL=rating.models.js.map
+exports.default = PaymentStatus;
+//# sourceMappingURL=payment.status.model.js.map

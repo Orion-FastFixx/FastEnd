@@ -1,6 +1,5 @@
-import { sequelize } from "../../db";
 import { DataTypes } from 'sequelize';
-import Pengendara from "./pengendara.models";
+import { sequelize } from "../../db";
 
 const Kendaraan = sequelize.define("kendaraans", {
     id: {

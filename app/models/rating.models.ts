@@ -8,7 +8,7 @@ const Rating = sequelize.define("ratings", {
         primaryKey: true,
     },
     rating: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         allowNull: false,
     },
     review: {
