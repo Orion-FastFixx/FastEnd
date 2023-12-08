@@ -53,15 +53,21 @@ export const BengkelController = {
                 pemilik_id: adminBengkel.id,
             });
 
-            console.log(newBengkel);
-
             res.status(201).json({
                 message: "Bengkel created successfully",
                 data: newBengkel
             });
 
         } catch (error: any) {
-            res.status(500).json({ message: error.message || "Internal Server Error" });
+            // Check if the error is related to file size
+            if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+                return res.status(413).json({
+                    message: `One or more files are too large. Maximum file size allowed is ${maxSize}.`,
+                    error: error
+                });
+            }
+
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
 
@@ -85,6 +91,13 @@ export const BengkelController = {
                 });
             }
 
+            // Check if the adminBengkel is the owner of the bengkel
+            if (bengkel.pemilik_id !== adminBengkel.id) {
+                return res.status(403).json({
+                    message: "Unauthorized: Only the Bengkel owner can add services"
+                });
+            }
+
             let services: any = await Service.findOne({ where: { layanan: layanan } });
             if (!services) {
                 services = await Service.create({ layanan: layanan });
@@ -102,15 +115,6 @@ export const BengkelController = {
             });
 
         } catch (error: any) {
-            // Check if the error is related to file size
-            if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
-                return res.status(413).json({
-                    message: `One or more files are too large. Maximum file size allowed is ${maxSize}.`,
-                    error: error
-                });
-            }
-
-
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
