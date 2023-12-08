@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from "../../db";
 import AdminBengkel from "./admin.bengkel.model";
-import Rating from "./bengkel.rating.models";
 
 const Bengkel = sequelize.define("bengkels", {
     id: {

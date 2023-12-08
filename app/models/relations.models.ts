@@ -129,12 +129,12 @@ export const relations = () => {
     // Start Bengkel Relations to Bengkel Rating
 
     Bengkel.hasMany(BengkelRating, {
-        foreignKey: 'bengkel_rating_id', // Ensure this matches the foreign key attribute in the User model
+        foreignKey: 'bengkel_id', // Ensure this matches the foreign key attribute in the User model
         as: 'rating' // This is optional, it's an alias for the association, used in queries
     });
 
     BengkelRating.belongsTo(Bengkel, {
-        foreignKey: 'bengkel_rating_id',
+        foreignKey: 'bengkel_id',
         as: 'bengkel' // Optional alias
     });
 

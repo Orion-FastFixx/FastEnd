@@ -13,6 +13,10 @@ const Pengendara = sequelize.define("pengendaras", {
         type: DataTypes.STRING(30),
         allowNull: true,
     },
+    foto: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+    },
     phone: {
         type: DataTypes.STRING(12),
         allowNull: true,

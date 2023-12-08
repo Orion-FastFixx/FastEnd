@@ -100,11 +100,11 @@ const relations = () => {
     });
     // Start Bengkel Relations to Bengkel Rating
     bengkel_models_1.default.hasMany(bengkel_rating_models_1.default, {
-        foreignKey: 'bengkel_rating_id',
+        foreignKey: 'bengkel_id',
         as: 'rating' // This is optional, it's an alias for the association, used in queries
     });
     bengkel_rating_models_1.default.belongsTo(bengkel_models_1.default, {
-        foreignKey: 'bengkel_rating_id',
+        foreignKey: 'bengkel_id',
         as: 'bengkel' // Optional alias
     });
     // End Bengkel Relations to Rating

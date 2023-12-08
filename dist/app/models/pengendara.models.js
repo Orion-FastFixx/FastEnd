@@ -17,6 +17,10 @@ const Pengendara = db_1.sequelize.define("pengendaras", {
         type: sequelize_1.DataTypes.STRING(30),
         allowNull: true,
     },
+    foto: {
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: true,
+    },
     phone: {
         type: sequelize_1.DataTypes.STRING(12),
         allowNull: true,
