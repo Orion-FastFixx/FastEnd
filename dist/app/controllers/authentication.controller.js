@@ -13,15 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthenticationController = void 0;
-const user_models_1 = __importDefault(require("../models/user.models"));
-const admin_models_1 = __importDefault(require("../models/admin.models"));
-const config_1 = require("../config");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sequelize_1 = require("sequelize");
+const config_1 = require("../config");
+const admin_bengkel_model_1 = __importDefault(require("../models/admin.bengkel.model"));
+const admin_models_1 = __importDefault(require("../models/admin.models"));
 const montir_models_1 = __importDefault(require("../models/montir.models"));
 const pengendara_models_1 = __importDefault(require("../models/pengendara.models"));
-const admin_bengkel_model_1 = __importDefault(require("../models/admin.bengkel.model"));
+const user_models_1 = __importDefault(require("../models/user.models"));
 exports.AuthenticationController = {
     signUp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {

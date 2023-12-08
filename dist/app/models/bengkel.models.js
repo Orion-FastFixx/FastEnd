@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const db_1 = require("../../db");
 const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
-const rating_models_1 = __importDefault(require("./rating.models"));
 const Bengkel = db_1.sequelize.define("bengkels", {
     id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
@@ -67,14 +66,6 @@ const Bengkel = db_1.sequelize.define("bengkels", {
             key: 'id', // This is the column name of the referenced model
         }
     },
-    rating_id: {
-        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
-        allowNull: true,
-        references: {
-            model: rating_models_1.default,
-            key: 'id', // This is the column name of the referenced model
-        }
-    }
 });
 exports.default = Bengkel;
 //# sourceMappingURL=bengkel.models.js.map

@@ -4,26 +4,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.relations = void 0;
-const role_models_1 = __importDefault(require("./role.models"));
-const user_models_1 = __importDefault(require("./user.models"));
-const pengendara_models_1 = __importDefault(require("./pengendara.models"));
-const kendaraan_models_1 = __importDefault(require("./kendaraan.models"));
-const bengkel_models_1 = __importDefault(require("./bengkel.models"));
-const rating_models_1 = __importDefault(require("./rating.models"));
-const admin_models_1 = __importDefault(require("./admin.models"));
-const montir_models_1 = __importDefault(require("./montir.models"));
 const admin_bengkel_model_1 = __importDefault(require("./admin.bengkel.model"));
+const admin_models_1 = __importDefault(require("./admin.models"));
+const bengkel_models_1 = __importDefault(require("./bengkel.models"));
+const bengkel_rating_models_1 = __importDefault(require("./bengkel.rating.models"));
 const bengkel_service_model_1 = __importDefault(require("./bengkel.service.model"));
+const kendaraan_models_1 = __importDefault(require("./kendaraan.models"));
+const montir_models_1 = __importDefault(require("./montir.models"));
+const montir_rating_model_1 = __importDefault(require("./montir.rating.model"));
+const pengendara_models_1 = __importDefault(require("./pengendara.models"));
+const role_models_1 = __importDefault(require("./role.models"));
 const service_model_1 = __importDefault(require("./service.model"));
+const user_models_1 = __importDefault(require("./user.models"));
 const relations = () => {
     // Start User Relations to Role
     role_models_1.default.hasMany(user_models_1.default, {
-        foreignKey: 'role_id', // Ensure this matches the foreign key attribute in the User model
-        // as: 'users' // This is optional, it's an alias for the association, used in queries
+        foreignKey: 'role_id',
+        as: 'users' // This is optional, it's an alias for the association, used in queries
     });
     user_models_1.default.belongsTo(role_models_1.default, {
         foreignKey: 'role_id',
-        // as: 'role' // Optional alias
+        as: 'role' // Optional alias
     });
     // End User Relations to Role
     // Start User Relations to Pengendara
@@ -97,16 +98,46 @@ const relations = () => {
         as: 'bengkels',
         foreignKey: 'service_id',
     });
-    // Start Bengkel Relations to Rating
-    bengkel_models_1.default.hasMany(rating_models_1.default, {
-        foreignKey: 'rating_id',
+    // Start Bengkel Relations to Bengkel Rating
+    bengkel_models_1.default.hasMany(bengkel_rating_models_1.default, {
+        foreignKey: 'bengkel_rating_id',
         as: 'rating' // This is optional, it's an alias for the association, used in queries
     });
-    rating_models_1.default.belongsTo(bengkel_models_1.default, {
-        foreignKey: 'rating_id',
+    bengkel_rating_models_1.default.belongsTo(bengkel_models_1.default, {
+        foreignKey: 'bengkel_rating_id',
         as: 'bengkel' // Optional alias
     });
     // End Bengkel Relations to Rating
+    // Start Pengendara Relations to Bengkel Rating
+    pengendara_models_1.default.hasMany(bengkel_rating_models_1.default, {
+        foreignKey: 'pengendara_id',
+        as: 'rating_bengkel' // This is optional, it's an alias for the association, used in queries
+    });
+    bengkel_rating_models_1.default.belongsTo(pengendara_models_1.default, {
+        foreignKey: 'pengendara_id',
+        as: 'pengendara' // Optional alias
+    });
+    // End Pengendara Relations to Bengkel Rating
+    // Start Montir Relations to Montir Rating
+    montir_models_1.default.hasMany(montir_rating_model_1.default, {
+        foreignKey: 'montir_id',
+        as: 'rating' // This is optional, it's an alias for the association, used in queries
+    });
+    montir_rating_model_1.default.belongsTo(montir_models_1.default, {
+        foreignKey: 'montir_id',
+        as: 'montir' // Optional alias
+    });
+    // End Montir Relations to Montir Rating
+    // Start Pengendara Relations to Montir Rating
+    pengendara_models_1.default.hasMany(montir_rating_model_1.default, {
+        foreignKey: 'pengendara_id',
+        as: 'rating_montir' // This is optional, it's an alias for the association, used in queries
+    });
+    montir_rating_model_1.default.belongsTo(pengendara_models_1.default, {
+        foreignKey: 'pengendara_id',
+        as: 'pengendara' // Optional alias
+    });
+    // End Pengendara Relations to Montir Rating
 };
 exports.relations = relations;
 //# sourceMappingURL=relations.models.js.map

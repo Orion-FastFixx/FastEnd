@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from "../../db";
 import AdminBengkel from "./admin.bengkel.model";
-import Rating from "./rating.models";
+import Rating from "./bengkel.rating.models";
 
 const Bengkel = sequelize.define("bengkels", {
     id: {
@@ -63,14 +63,6 @@ const Bengkel = sequelize.define("bengkels", {
             key: 'id', // This is the column name of the referenced model
         }
     },
-    rating_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: true,
-        references: {
-            model: Rating, // This is a reference to another model
-            key: 'id', // This is the column name of the referenced model
-        }
-    }
 });
 
 export default Bengkel;

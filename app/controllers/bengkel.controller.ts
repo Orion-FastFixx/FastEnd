@@ -20,10 +20,8 @@ export const BengkelController = {
                 });
             }
 
-            const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, rating_id } = req.body;
+            const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open } = req.body;
             let foto_url: string[] = [];
-            const ratingId = rating_id === '' ? null : rating_id;
-
 
             if (req.files) {
                 const files = req.files as Express.Multer.File[];
@@ -53,7 +51,6 @@ export const BengkelController = {
                 is_open,
                 foto_url: JSON.stringify(foto_url),
                 pemilik_id: adminBengkel.id,
-                rating_id: ratingId
             });
 
             console.log(newBengkel);

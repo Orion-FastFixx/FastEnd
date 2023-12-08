@@ -10,7 +10,8 @@ const bengkel_service_model_1 = __importDefault(require("./app/models/bengkel.se
 const kendaraan_models_1 = __importDefault(require("./app/models/kendaraan.models"));
 const montir_models_1 = __importDefault(require("./app/models/montir.models"));
 const pengendara_models_1 = __importDefault(require("./app/models/pengendara.models"));
-const rating_models_1 = __importDefault(require("./app/models/rating.models"));
+const bengkel_rating_models_1 = __importDefault(require("./app/models/bengkel.rating.models"));
+const montir_rating_model_1 = __importDefault(require("./app/models/montir.rating.model"));
 const role_models_1 = __importDefault(require("./app/models/role.models"));
 const service_model_1 = __importDefault(require("./app/models/service.model"));
 const user_models_1 = __importDefault(require("./app/models/user.models"));
@@ -19,7 +20,8 @@ console.log('Is Role model registered:', role_models_1.default === db_1.sequeliz
 console.log('Is User model registered:', user_models_1.default === db_1.sequelize.model('users'));
 console.log('Is Kendaraan model registered:', kendaraan_models_1.default === db_1.sequelize.model('kendaraans'));
 console.log('Is Pengendara model registered:', pengendara_models_1.default === db_1.sequelize.model('pengendaras'));
-console.log('Is Rating model registered:', rating_models_1.default === db_1.sequelize.model('ratings'));
+console.log('Is BengkelRating model registered:', bengkel_rating_models_1.default === db_1.sequelize.model('bengkel_ratings'));
+console.log('Is MontirRating model registered:', montir_rating_model_1.default === db_1.sequelize.model('montir_ratings'));
 console.log('Is Service model registered:', service_model_1.default === db_1.sequelize.model('services'));
 console.log('Is Bengkel model registered:', bengkel_models_1.default === db_1.sequelize.model('bengkels'));
 console.log('Is Admin model registered:', admin_models_1.default === db_1.sequelize.model('admins'));

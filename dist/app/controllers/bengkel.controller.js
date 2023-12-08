@@ -31,9 +31,8 @@ exports.BengkelController = {
                         message: "Require Admin Bengkel Role!"
                     });
                 }
-                const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open, rating_id } = req.body;
+                const { nama_bengkel, phone_bengkel, alamat, lokasi, deskripsi, jenis_bengkel, spesialisasi_bengkel, is_open } = req.body;
                 let foto_url = [];
-                const ratingId = rating_id === '' ? null : rating_id;
                 if (req.files) {
                     const files = req.files;
                     foto_url = files.map(file => {
@@ -59,7 +58,6 @@ exports.BengkelController = {
                     is_open,
                     foto_url: JSON.stringify(foto_url),
                     pemilik_id: adminBengkel.id,
-                    rating_id: ratingId
                 });
                 console.log(newBengkel);
                 res.status(201).json({

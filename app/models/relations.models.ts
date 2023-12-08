@@ -1,27 +1,28 @@
-import Role from "./role.models";
-import User from "./user.models";
-import Pengendara from "./pengendara.models";
-import Kendaraan from "./kendaraan.models";
-import Bengkel from "./bengkel.models";
-import Rating from "./rating.models";
-import Admin from "./admin.models";
-import Montir from "./montir.models";
 import AdminBengkel from "./admin.bengkel.model";
+import Admin from "./admin.models";
+import Bengkel from "./bengkel.models";
+import BengkelRating from "./bengkel.rating.models";
 import BengkelService from "./bengkel.service.model";
+import Kendaraan from "./kendaraan.models";
+import Montir from "./montir.models";
+import MontirRating from "./montir.rating.model";
+import Pengendara from "./pengendara.models";
+import Role from "./role.models";
 import Service from "./service.model";
+import User from "./user.models";
 
 export const relations = () => {
     // Start User Relations to Role
 
     Role.hasMany(User, {
         foreignKey: 'role_id', // Ensure this matches the foreign key attribute in the User model
-        // as: 'users' // This is optional, it's an alias for the association, used in queries
+        as: 'users' // This is optional, it's an alias for the association, used in queries
     });
 
 
     User.belongsTo(Role, {
         foreignKey: 'role_id',
-        // as: 'role' // Optional alias
+        as: 'role' // Optional alias
     });
 
     // End User Relations to Role
@@ -125,19 +126,62 @@ export const relations = () => {
 
 
 
-    // Start Bengkel Relations to Rating
+    // Start Bengkel Relations to Bengkel Rating
 
-    Bengkel.hasMany(Rating, {
-        foreignKey: 'rating_id', // Ensure this matches the foreign key attribute in the User model
+    Bengkel.hasMany(BengkelRating, {
+        foreignKey: 'bengkel_rating_id', // Ensure this matches the foreign key attribute in the User model
         as: 'rating' // This is optional, it's an alias for the association, used in queries
     });
 
-    Rating.belongsTo(Bengkel, {
-        foreignKey: 'rating_id',
+    BengkelRating.belongsTo(Bengkel, {
+        foreignKey: 'bengkel_rating_id',
         as: 'bengkel' // Optional alias
     });
 
     // End Bengkel Relations to Rating
+
+    // Start Pengendara Relations to Bengkel Rating
+    Pengendara.hasMany(BengkelRating, {
+        foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'rating_bengkel' // This is optional, it's an alias for the association, used in queries
+    });
+
+    BengkelRating.belongsTo(Pengendara, {
+        foreignKey: 'pengendara_id',
+        as: 'pengendara' // Optional alias
+    });
+
+    // End Pengendara Relations to Bengkel Rating
+
+    // Start Montir Relations to Montir Rating
+
+    Montir.hasMany(MontirRating, {
+        foreignKey: 'montir_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'rating' // This is optional, it's an alias for the association, used in queries
+    });
+
+    MontirRating.belongsTo(Montir, {
+        foreignKey: 'montir_id',
+        as: 'montir' // Optional alias
+    });
+
+    // End Montir Relations to Montir Rating
+
+    // Start Pengendara Relations to Montir Rating
+
+    Pengendara.hasMany(MontirRating, {
+        foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'rating_montir' // This is optional, it's an alias for the association, used in queries
+    });
+
+    MontirRating.belongsTo(Pengendara, {
+        foreignKey: 'pengendara_id',
+        as: 'pengendara' // Optional alias
+    });
+
+    // End Pengendara Relations to Montir Rating
+
+
 }
 
 
