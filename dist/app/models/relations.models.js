@@ -12,6 +12,12 @@ const bengkel_service_model_1 = __importDefault(require("./bengkel.service.model
 const kendaraan_models_1 = __importDefault(require("./kendaraan.models"));
 const montir_models_1 = __importDefault(require("./montir.models"));
 const montir_rating_model_1 = __importDefault(require("./montir.rating.model"));
+const order_model_1 = __importDefault(require("./order.model"));
+const order_service_model_1 = __importDefault(require("./order.service.model"));
+const order_status_model_1 = __importDefault(require("./order.status.model"));
+const payment_method_model_1 = __importDefault(require("./payment.method.model"));
+const payment_model_1 = __importDefault(require("./payment.model"));
+const payment_status_model_1 = __importDefault(require("./payment.status.model"));
 const pengendara_models_1 = __importDefault(require("./pengendara.models"));
 const role_models_1 = __importDefault(require("./role.models"));
 const service_model_1 = __importDefault(require("./service.model"));
@@ -138,6 +144,72 @@ const relations = () => {
         as: 'pengendara' // Optional alias
     });
     // End Pengendara Relations to Montir Rating
+    // Order to Order status
+    order_status_model_1.default.hasMany(order_model_1.default, {
+        foreignKey: 'order_status_id',
+        as: 'order' // This is optional, it's an alias for the association, used in queries
+    });
+    order_model_1.default.belongsTo(order_status_model_1.default, {
+        foreignKey: 'order_status_id',
+        as: 'order_status' // Optional alias
+    });
+    // End Order to Order status
+    // Payment to Payment status
+    payment_status_model_1.default.hasMany(payment_model_1.default, {
+        foreignKey: 'payment_status_id',
+        as: 'payment' // This is optional, it's an alias for the association, used in queries
+    });
+    payment_model_1.default.belongsTo(payment_status_model_1.default, {
+        foreignKey: 'payment_status_id',
+        as: 'payment_status' // Optional alias
+    });
+    // End Payment to Payment status
+    // Payment to Payment method
+    payment_method_model_1.default.hasMany(payment_model_1.default, {
+        foreignKey: 'payment_method_id',
+        as: 'payment' // This is optional, it's an alias for the association, used in queries
+    });
+    payment_model_1.default.belongsTo(payment_method_model_1.default, {
+        foreignKey: 'payment_method_id',
+        as: 'payment_method' // Optional alias
+    });
+    // End Payment to Payment method
+    // The bengkel orders
+    pengendara_models_1.default.hasMany(order_model_1.default, {
+        foreignKey: 'pengendara_id',
+        as: 'order' // This is optional, it's an alias for the association, used in queries
+    });
+    order_model_1.default.belongsTo(pengendara_models_1.default, {
+        foreignKey: 'pengendara_id',
+        as: 'pengendara' // Optional alias
+    });
+    bengkel_models_1.default.hasMany(order_model_1.default, {
+        foreignKey: 'bengkel_id',
+        as: 'order' // This is optional, it's an alias for the association, used in queries
+    });
+    order_model_1.default.belongsTo(bengkel_models_1.default, {
+        foreignKey: 'bengkel_id',
+        as: 'bengkel' // Optional alias
+    });
+    order_model_1.default.belongsToMany(service_model_1.default, {
+        through: order_service_model_1.default,
+        as: 'services',
+        foreignKey: 'order_id',
+    });
+    service_model_1.default.belongsToMany(order_model_1.default, {
+        through: order_service_model_1.default,
+        as: 'orders',
+        foreignKey: 'service_id',
+    });
+    order_model_1.default.hasOne(payment_model_1.default, {
+        foreignKey: 'order_id',
+        as: 'payment'
+    });
+    payment_model_1.default.belongsTo(order_model_1.default, {
+        foreignKey: 'order_id',
+        as: 'order'
+    });
+    // End Bengkel Orders
 };
 exports.relations = relations;
 //# sourceMappingURL=relations.models.js.map

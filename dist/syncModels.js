@@ -15,6 +15,12 @@ const montir_rating_model_1 = __importDefault(require("./app/models/montir.ratin
 const role_models_1 = __importDefault(require("./app/models/role.models"));
 const service_model_1 = __importDefault(require("./app/models/service.model"));
 const user_models_1 = __importDefault(require("./app/models/user.models"));
+const order_status_model_1 = __importDefault(require("./app/models/order.status.model"));
+const payment_status_model_1 = __importDefault(require("./app/models/payment.status.model"));
+const payment_method_model_1 = __importDefault(require("./app/models/payment.method.model"));
+const order_model_1 = __importDefault(require("./app/models/order.model"));
+const order_service_model_1 = __importDefault(require("./app/models/order.service.model"));
+const payment_model_1 = __importDefault(require("./app/models/payment.model"));
 const db_1 = require("./db");
 console.log('Is Role model registered:', role_models_1.default === db_1.sequelize.model('roles'));
 console.log('Is User model registered:', user_models_1.default === db_1.sequelize.model('users'));
@@ -28,7 +34,13 @@ console.log('Is Admin model registered:', admin_models_1.default === db_1.sequel
 console.log('Is Montir model registered:', montir_models_1.default === db_1.sequelize.model('montirs'));
 console.log('Is AdminBengkel model registered:', admin_bengkel_model_1.default === db_1.sequelize.model('admin_bengkels'));
 console.log('Is BengkelService model registered:', bengkel_service_model_1.default === db_1.sequelize.model('bengkel_services'));
-db_1.sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
+console.log('Is OrderStatus model registered:', order_status_model_1.default === db_1.sequelize.model('order_statuses'));
+console.log('Is PaymentStatus model registered:', payment_status_model_1.default === db_1.sequelize.model('payment_statuses'));
+console.log('Is PaymentMethod model registered:', payment_method_model_1.default === db_1.sequelize.model('payment_methods'));
+console.log('Is Order model registered:', order_model_1.default === db_1.sequelize.model('orders'));
+console.log('Is OrderService model registered:', order_service_model_1.default === db_1.sequelize.model('order_services'));
+console.log('Is Payment model registered:', payment_model_1.default === db_1.sequelize.model('payments'));
+db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
     process.exit();

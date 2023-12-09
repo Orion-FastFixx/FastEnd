@@ -6,6 +6,12 @@ import BengkelService from "./bengkel.service.model";
 import Kendaraan from "./kendaraan.models";
 import Montir from "./montir.models";
 import MontirRating from "./montir.rating.model";
+import Order from "./order.model";
+import OrderService from "./order.service.model";
+import OrderStatus from "./order.status.model";
+import PaymentMethod from "./payment.method.model";
+import Payment from "./payment.model";
+import PaymentStatus from "./payment.status.model";
 import Pengendara from "./pengendara.models";
 import Role from "./role.models";
 import Service from "./service.model";
@@ -181,6 +187,93 @@ export const relations = () => {
 
     // End Pengendara Relations to Montir Rating
 
+    // Order to Order status
+    
+    OrderStatus.hasMany(Order, {
+        foreignKey: 'order_status_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'order' // This is optional, it's an alias for the association, used in queries
+    });
+
+    Order.belongsTo(OrderStatus, {
+        foreignKey: 'order_status_id',
+        as: 'order_status' // Optional alias
+    });
+
+    // End Order to Order status
+
+    // Payment to Payment status
+
+    PaymentStatus.hasMany(Payment, {
+        foreignKey: 'payment_status_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'payment' // This is optional, it's an alias for the association, used in queries
+    });
+
+    Payment.belongsTo(PaymentStatus, {
+        foreignKey: 'payment_status_id',
+        as: 'payment_status' // Optional alias
+    });
+
+    // End Payment to Payment status
+
+    // Payment to Payment method
+
+    PaymentMethod.hasMany(Payment, {
+        foreignKey: 'payment_method_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'payment' // This is optional, it's an alias for the association, used in queries
+    });
+
+    Payment.belongsTo(PaymentMethod, {
+        foreignKey: 'payment_method_id',
+        as: 'payment_method' // Optional alias
+    });
+
+    // End Payment to Payment method
+
+    // The bengkel orders
+
+    Pengendara.hasMany(Order, {
+        foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'order' // This is optional, it's an alias for the association, used in queries
+    });
+
+    Order.belongsTo(Pengendara, {
+        foreignKey: 'pengendara_id',
+        as: 'pengendara' // Optional alias
+    });
+
+    Bengkel.hasMany(Order, {
+        foreignKey: 'bengkel_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'order' // This is optional, it's an alias for the association, used in queries
+    });
+
+    Order.belongsTo(Bengkel, {
+        foreignKey: 'bengkel_id',
+        as: 'bengkel' // Optional alias
+    });
+
+    Order.belongsToMany(Service, {
+        through: OrderService,
+        as: 'services',
+        foreignKey: 'order_id',
+    });
+
+    Service.belongsToMany(Order, {
+        through: OrderService,
+        as: 'orders',
+        foreignKey: 'service_id',
+    });
+
+    Order.hasOne(Payment, {
+        foreignKey: 'order_id',
+        as: 'payment'
+    });
+
+    Payment.belongsTo(Order, {
+        foreignKey: 'order_id',
+        as: 'order'
+    });
+
+    // End Bengkel Orders
 
 }
 
