@@ -20,6 +20,7 @@ const bengkel_service_model_1 = __importDefault(require("../models/bengkel.servi
 const path_1 = __importDefault(require("path"));
 const multer_1 = __importDefault(require("multer"));
 const multer_2 = require("../utils/multer");
+const fs_1 = __importDefault(require("fs"));
 exports.BengkelController = {
     createBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -43,6 +44,11 @@ exports.BengkelController = {
                 // check if bengkel already exist
                 const bengkel = yield bengkel_models_1.default.findOne({ where: { nama_bengkel: nama_bengkel } });
                 if (bengkel) {
+                    if (req.files) {
+                        req.files.forEach((file) => {
+                            fs_1.default.unlinkSync(file.path); // Use the correct type for 'file'
+                        });
+                    }
                     return res.status(409).json({
                         message: "Bengkel already exist"
                     });
@@ -65,6 +71,11 @@ exports.BengkelController = {
                 });
             }
             catch (error) {
+                if (req.files) {
+                    req.files.forEach((file) => {
+                        fs_1.default.unlinkSync(file.path); // Use the correct type for 'file'
+                    });
+                }
                 // Check if the error is related to file size
                 if (error instanceof multer_1.default.MulterError && error.code === 'LIMIT_FILE_SIZE') {
                     return res.status(413).json({

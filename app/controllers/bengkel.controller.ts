@@ -7,6 +7,7 @@ import BengkelService from "../models/bengkel.service.model";
 import path from "path";
 import multer from "multer";
 import { maxSize } from "../utils/multer";
+import fs from "fs";
 
 export const BengkelController = {
     async createBengkel(req: CustomRequest, res: Response) {
@@ -35,6 +36,12 @@ export const BengkelController = {
             // check if bengkel already exist
             const bengkel: any = await Bengkel.findOne({ where: { nama_bengkel: nama_bengkel } });
             if (bengkel) {
+                if (req.files) {
+                    (req.files as Express.Multer.File[]).forEach((file: Express.Multer.File) => {
+                        fs.unlinkSync(file.path); // Use the correct type for 'file'
+                    });
+                }
+
                 return res.status(409).json({
                     message: "Bengkel already exist"
                 });
@@ -59,6 +66,11 @@ export const BengkelController = {
             });
 
         } catch (error: any) {
+            if (req.files) {
+                (req.files as Express.Multer.File[]).forEach((file: Express.Multer.File) => {
+                    fs.unlinkSync(file.path); // Use the correct type for 'file'
+                });
+            }
             // Check if the error is related to file size
             if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
                 return res.status(413).json({

@@ -16,6 +16,6 @@ exports.config = {
     mysqlDatabase: process.env.DB_DATABASE,
     mysqlPort: process.env.DB_PORT,
     rootPath: path_1.default.resolve(__dirname, '..'),
-    uploadsFolder: path_1.default.resolve(__dirname, '..', 'public', 'uploads', 'images')
+    uploadsFolder: path_1.default.resolve(__dirname, '..', 'public', 'images')
 };
 //# sourceMappingURL=index.js.map

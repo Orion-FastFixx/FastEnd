@@ -12,5 +12,5 @@ export const config = {
     mysqlDatabase: process.env.DB_DATABASE as string,
     mysqlPort: process.env.DB_PORT as any,
     rootPath : path.resolve(__dirname, '..'),
-    uploadsFolder: path.resolve(__dirname, '..', 'public', 'uploads', 'images') 
+    uploadsFolder: path.resolve(__dirname, '..', 'public', 'images') 
 }

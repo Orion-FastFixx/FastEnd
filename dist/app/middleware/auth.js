@@ -20,7 +20,6 @@ exports.AuthMiddleware = {
     verifyToken(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             const token = req.headers.authorization ? req.headers.authorization.replace('Bearer ', '') : null;
-            console.log(token);
             if (!token) {
                 return res.status(403).json({
                     message: "No token provided!"

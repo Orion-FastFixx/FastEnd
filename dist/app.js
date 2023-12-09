@@ -16,7 +16,8 @@ app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
-app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+app.use(express_1.default.static(path_1.default.join(__dirname, 'app/public')));
+console.log('__dirname is: ', __dirname);
 app.use((0, express_session_1.default)({
     secret: 'house of el',
     resave: false,
