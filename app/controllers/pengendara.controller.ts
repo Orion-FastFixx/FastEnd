@@ -6,8 +6,14 @@ import Pengendara from "../models/pengendara.models";
 import BengkelRating from "../models/bengkel.rating.models";
 import { sequelize } from "../../db";
 import MontirRating from "../models/montir.rating.model";
+import Order from "../models/order.model";
+import OrderService from "../models/order.service.model";
+import BengkelService from "../models/bengkel.service.model";
 
 export const PengendaraController = {
+    // feature Bengkel
+
+
     async getAllBengkel(req: CustomRequest, res: Response) {
         try {
             const user = req.userId;
@@ -193,6 +199,78 @@ export const PengendaraController = {
         }
     },
 
+    async orderBengkelService(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const user = req.userId;
+
+            const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
+            if (!pengendara) {
+                await transaction.rollback();
+                return res.status(403).json({
+                    message: "Require Pengendara Role!"
+                });
+            }
+
+            const { bengkel_id, service_id, } = req.body;
+
+            const newOrder: any = await Order.create({
+                pengendara_id: pengendara.id,
+                bengkel_id,
+                order_status_id: 1
+            }, { transaction });
+
+            // init total price
+            let totalPrice = 0;
+
+            // add admin fee
+            const adminFee = 1000;
+
+            for (const serviceId of service_id) {
+                const bengkelService: any = await BengkelService.findOne({
+                    where: {
+                        bengkel_id: bengkel_id,
+                        service_id: serviceId
+                    }
+                });
+
+                if (!bengkelService) {
+                    await transaction.rollback();
+                    return res.status(400).json({
+                        message: "Service not found!"
+                    });
+                }
+
+                await OrderService.create({
+                    order_id: newOrder.id,
+                    service_id: serviceId,
+                    price: bengkelService.harga
+                });
+
+                totalPrice += bengkelService.harga;
+            }
+
+            const totalPayment = totalPrice + adminFee;
+
+            await newOrder.update({
+                total_harga: totalPayment
+            });
+
+            await transaction.commit(); // Commit the transaction
+            return res.status(201).json({
+                message: "Order created successfully",
+                data: newOrder
+            });
+
+        } catch (error: any) {
+            await transaction.rollback(); // Rollback transaction if any errors were encountered
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    // End feature Bengkel
+
     async addReviewMontir(req: CustomRequest, res: Response) {
         try {
             const user = req.userId;
@@ -204,7 +282,7 @@ export const PengendaraController = {
                 });
             }
 
-            const {montir_rating, review, montir_id} = req.body;
+            const { montir_rating, review, montir_id } = req.body;
 
             const existingReview = await MontirRating.findOne({
                 where: {
@@ -230,7 +308,7 @@ export const PengendaraController = {
                 message: "Review Montir created successfully",
                 data: ReviewMontir
             });
-            
+
         } catch (error: any) {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }

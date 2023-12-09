@@ -19,7 +19,11 @@ const pengendara_models_1 = __importDefault(require("../models/pengendara.models
 const bengkel_rating_models_1 = __importDefault(require("../models/bengkel.rating.models"));
 const db_1 = require("../../db");
 const montir_rating_model_1 = __importDefault(require("../models/montir.rating.model"));
+const order_model_1 = __importDefault(require("../models/order.model"));
+const order_service_model_1 = __importDefault(require("../models/order.service.model"));
+const bengkel_service_model_1 = __importDefault(require("../models/bengkel.service.model"));
 exports.PengendaraController = {
+    // feature Bengkel
     getAllBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -189,6 +193,65 @@ exports.PengendaraController = {
             }
         });
     },
+    orderBengkelService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { bengkel_id, service_id, } = req.body;
+                const newOrder = yield order_model_1.default.create({
+                    pengendara_id: pengendara.id,
+                    bengkel_id,
+                    order_status_id: 1
+                }, { transaction });
+                // init total price
+                let totalPrice = 0;
+                // add admin fee
+                const adminFee = 1000;
+                for (const serviceId of service_id) {
+                    const bengkelService = yield bengkel_service_model_1.default.findOne({
+                        where: {
+                            bengkel_id: bengkel_id,
+                            service_id: serviceId
+                        }
+                    });
+                    if (!bengkelService) {
+                        yield transaction.rollback();
+                        return res.status(400).json({
+                            message: "Service not found!"
+                        });
+                    }
+                    yield order_service_model_1.default.create({
+                        order_id: newOrder.id,
+                        service_id: serviceId,
+                        price: bengkelService.harga
+                    });
+                    totalPrice += bengkelService.harga;
+                }
+                const totalPayment = totalPrice + adminFee;
+                yield newOrder.update({
+                    total_harga: totalPayment
+                });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(201).json({
+                    message: "Order created successfully",
+                    data: newOrder
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    // End feature Bengkel
     addReviewMontir(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

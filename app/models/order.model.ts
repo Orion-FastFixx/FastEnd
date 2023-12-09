@@ -35,7 +35,7 @@ const Order = sequelize.define("orders", {
             key: "id"
         }
     },
-    total_price: {
+    total_harga: {
         type: DataTypes.DECIMAL(10, 2), // Adjust the precision as needed
         allowNull: false,
         defaultValue: 0.00
