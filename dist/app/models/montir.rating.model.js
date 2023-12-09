@@ -13,7 +13,7 @@ const MontirRating = db_1.sequelize.define("montir_ratings", {
         autoIncrement: true,
         primaryKey: true,
     },
-    bengkel_rating: {
+    montir_rating: {
         type: sequelize_1.DataTypes.FLOAT,
         allowNull: false,
     },

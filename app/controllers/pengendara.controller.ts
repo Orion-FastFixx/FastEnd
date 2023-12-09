@@ -5,6 +5,7 @@ import { Request as CustomRequest } from "../utils/types";
 import Pengendara from "../models/pengendara.models";
 import BengkelRating from "../models/bengkel.rating.models";
 import { sequelize } from "../../db";
+import MontirRating from "../models/montir.rating.model";
 
 export const PengendaraController = {
     async getAllBengkel(req: CustomRequest, res: Response) {
@@ -187,6 +188,103 @@ export const PengendaraController = {
                 }
             });
 
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async addReviewMontir(req: CustomRequest, res: Response) {
+        try {
+            const user = req.userId;
+
+            const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
+            if (!pengendara) {
+                return res.status(403).json({
+                    message: "Require Pengendara Role!"
+                });
+            }
+
+            const {montir_rating, review, montir_id} = req.body;
+
+            const existingReview = await MontirRating.findOne({
+                where: {
+                    montir_id: montir_id,
+                    pengendara_id: pengendara.id
+                }
+            });
+
+            if (existingReview) {
+                return res.status(403).json({
+                    message: "You have already review this montir!"
+                });
+            }
+
+            const ReviewMontir = await MontirRating.create({
+                montir_rating,
+                review,
+                montir_id,
+                pengendara_id: pengendara.id
+            });
+
+            return res.status(201).json({
+                message: "Review Montir created successfully",
+                data: ReviewMontir
+            });
+            
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async getDetailReviewMontir(req: CustomRequest, res: Response) {
+        try {
+            const user = req.userId;
+
+            const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
+            if (!pengendara) {
+                return res.status(403).json({
+                    message: "Require Pengendara Role!"
+                });
+            }
+
+            // Get montir_id from route parameters
+            const montir_id = req.params.id;
+
+            if (!montir_id) {
+                return res.status(400).json({
+                    message: "Montir id is required!"
+                });
+            }
+
+            const ReviewMontir = await MontirRating.findAll({
+                where: {
+                    montir_id: montir_id,
+                },
+                include: [{
+                    model: Pengendara,
+                    as: 'pengendara',
+                    attributes: ['nama', 'foto']
+                }],
+                attributes: { exclude: ['pengendara_id'] },
+            });
+
+            // Calculate the average rating and count of ratings
+            const reviewSummary = await MontirRating.findOne({
+                where: { montir_id: montir_id },
+                attributes: [
+                    [sequelize.fn('ROUND', sequelize.fn('AVG', sequelize.col('montir_rating')), 1), 'average_rating'],
+                    [sequelize.fn('COUNT', sequelize.col('montir_rating')), 'rating_count']
+                ],
+                raw: true
+            });
+
+            return res.status(200).json({
+                message: "Success get all review montir",
+                data: {
+                    review_summary: reviewSummary,
+                    review_all: ReviewMontir
+                }
+            });
         } catch (error: any) {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }

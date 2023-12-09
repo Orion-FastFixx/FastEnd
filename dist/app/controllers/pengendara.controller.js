@@ -18,6 +18,7 @@ const service_model_1 = __importDefault(require("../models/service.model"));
 const pengendara_models_1 = __importDefault(require("../models/pengendara.models"));
 const bengkel_rating_models_1 = __importDefault(require("../models/bengkel.rating.models"));
 const db_1 = require("../../db");
+const montir_rating_model_1 = __importDefault(require("../models/montir.rating.model"));
 exports.PengendaraController = {
     getAllBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -180,6 +181,94 @@ exports.PengendaraController = {
                     data: {
                         review_summary: reviewSummary,
                         review_all: ReviewBengkel
+                    }
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    addReviewMontir(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { montir_rating, review, montir_id } = req.body;
+                const existingReview = yield montir_rating_model_1.default.findOne({
+                    where: {
+                        montir_id: montir_id,
+                        pengendara_id: pengendara.id
+                    }
+                });
+                if (existingReview) {
+                    return res.status(403).json({
+                        message: "You have already review this montir!"
+                    });
+                }
+                const ReviewMontir = yield montir_rating_model_1.default.create({
+                    montir_rating,
+                    review,
+                    montir_id,
+                    pengendara_id: pengendara.id
+                });
+                return res.status(201).json({
+                    message: "Review Montir created successfully",
+                    data: ReviewMontir
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getDetailReviewMontir(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                // Get montir_id from route parameters
+                const montir_id = req.params.id;
+                if (!montir_id) {
+                    return res.status(400).json({
+                        message: "Montir id is required!"
+                    });
+                }
+                const ReviewMontir = yield montir_rating_model_1.default.findAll({
+                    where: {
+                        montir_id: montir_id,
+                    },
+                    include: [{
+                            model: pengendara_models_1.default,
+                            as: 'pengendara',
+                            attributes: ['nama', 'foto']
+                        }],
+                    attributes: { exclude: ['pengendara_id'] },
+                });
+                // Calculate the average rating and count of ratings
+                const reviewSummary = yield montir_rating_model_1.default.findOne({
+                    where: { montir_id: montir_id },
+                    attributes: [
+                        [db_1.sequelize.fn('ROUND', db_1.sequelize.fn('AVG', db_1.sequelize.col('montir_rating')), 1), 'average_rating'],
+                        [db_1.sequelize.fn('COUNT', db_1.sequelize.col('montir_rating')), 'rating_count']
+                    ],
+                    raw: true
+                });
+                return res.status(200).json({
+                    message: "Success get all review montir",
+                    data: {
+                        review_summary: reviewSummary,
+                        review_all: ReviewMontir
                     }
                 });
             }
