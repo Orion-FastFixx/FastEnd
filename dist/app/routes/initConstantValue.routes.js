@@ -8,5 +8,6 @@ const router_1 = __importDefault(require("./router"));
 router_1.default.post("/init-roles", initConstantValue_controller_1.initializeContantValue.initRole);
 router_1.default.post("/init-order-status", initConstantValue_controller_1.initializeContantValue.initOrderStatus);
 router_1.default.post("/init-payment-status", initConstantValue_controller_1.initializeContantValue.initPaymentStatus);
+router_1.default.post("/init-payment-method", initConstantValue_controller_1.initializeContantValue.initPaymentMethod);
 exports.default = router_1.default;
 //# sourceMappingURL=initConstantValue.routes.js.map

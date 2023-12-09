@@ -45,11 +45,11 @@ const relations = () => {
     // End User Relations to Pengendara
     // Start Pengendara Relations to Kendaraan
     pengendara_models_1.default.hasMany(kendaraan_models_1.default, {
-        foreignKey: 'kendaraan_id',
+        foreignKey: 'pengendara_id',
         as: 'kendaraan' // This is optional, it's an alias for the association, used in queries
     });
     kendaraan_models_1.default.belongsTo(pengendara_models_1.default, {
-        foreignKey: 'kendaraan_id',
+        foreignKey: 'pengendara_id',
         as: 'pengendara' // Optional alias
     });
     // End Pengendara Relations to Kendaraan

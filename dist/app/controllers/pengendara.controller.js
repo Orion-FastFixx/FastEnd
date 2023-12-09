@@ -22,6 +22,9 @@ const montir_rating_model_1 = __importDefault(require("../models/montir.rating.m
 const order_model_1 = __importDefault(require("../models/order.model"));
 const order_service_model_1 = __importDefault(require("../models/order.service.model"));
 const bengkel_service_model_1 = __importDefault(require("../models/bengkel.service.model"));
+const payment_model_1 = __importDefault(require("../models/payment.model"));
+const order_status_1 = require("../utils/order.status");
+const payment_method_1 = require("../utils/payment.method");
 exports.PengendaraController = {
     // feature Bengkel
     getAllBengkel(req, res) {
@@ -209,8 +212,9 @@ exports.PengendaraController = {
                 const newOrder = yield order_model_1.default.create({
                     pengendara_id: pengendara.id,
                     bengkel_id,
-                    order_status_id: 1
-                }, { transaction });
+                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
+                    transaction
+                });
                 // init total price
                 let totalPrice = 0;
                 // add admin fee
@@ -247,6 +251,110 @@ exports.PengendaraController = {
             }
             catch (error) {
                 yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    payBengkelService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { order_id, payment_method_id } = req.body;
+                // fetch order
+                const order = yield order_model_1.default.findOne({
+                    where: {
+                        id: order_id,
+                        pengendara_id: pengendara.id
+                    },
+                    transaction
+                });
+                if (!order) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "Order not found!"
+                    });
+                }
+                if (!payment_method_id) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Payment method is required!"
+                    });
+                }
+                if (payment_method_id == payment_method_1.PAYMENT_METHOD_CASH) {
+                    yield payment_model_1.default.create({
+                        order_id,
+                        payment_method_id,
+                        payment_status_id: 2,
+                        transaction
+                    });
+                    order.order_status_id = order_status_1.ORDER_PAID_STATUS_ID;
+                    yield order.save({ transaction });
+                }
+                else if (payment_method_id == payment_method_1.PAYMENT_METHOD_TRANSFER) {
+                    yield payment_model_1.default.create({
+                        order_id,
+                        payment_method_id,
+                        payment_status_id: 2,
+                        transaction
+                    });
+                    order.order_status_id = order_status_1.ORDER_PAID_STATUS_ID;
+                    yield order.save({ transaction });
+                }
+                else {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Payment method not found!"
+                    });
+                }
+                yield transaction.commit(); // Commit the transaction
+                return res.status(201).json({
+                    message: "Payment created successfully",
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    cancelOrder(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const order_id = req.params.orderId;
+                const order = yield order_model_1.default.findOne({
+                    where: {
+                        id: order_id,
+                        pengendara_id: pengendara.id
+                    }
+                });
+                if (!order) {
+                    return res.status(404).json({
+                        message: "Order not found!"
+                    });
+                }
+                order.order_status_id = order_status_1.ORDER_CANCELED_STATUS_ID;
+                yield order.save();
+                return res.status(200).json({
+                    message: "Order cancelled",
+                    order
+                });
+            }
+            catch (error) {
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });

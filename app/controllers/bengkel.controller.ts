@@ -1,13 +1,17 @@
-import { Response } from "express"
-import { Request as CustomRequest } from "../utils/types";
-import Bengkel from "../models/bengkel.models";
-import AdminBengkel from "../models/admin.bengkel.model";
-import Service from "../models/service.model";
-import BengkelService from "../models/bengkel.service.model";
-import path from "path";
-import multer from "multer";
-import { maxSize } from "../utils/multer";
+import { Response } from "express";
 import fs from "fs";
+import multer from "multer";
+import path from "path";
+import AdminBengkel from "../models/admin.bengkel.model";
+import Bengkel from "../models/bengkel.models";
+import BengkelService from "../models/bengkel.service.model";
+import Kendaraan from "../models/kendaraan.models";
+import Order from "../models/order.model";
+import Pengendara from "../models/pengendara.models";
+import Service from "../models/service.model";
+import { maxSize } from "../utils/multer";
+import { ORDER_ACCEPTED_STATUS_ID, ORDER_CANCELED_STATUS_ID, ORDER_COMPLETED_STATUS_ID, ORDER_PAID_STATUS_ID } from "../utils/order.status";
+import { Request as CustomRequest } from "../utils/types";
 
 export const BengkelController = {
     async createBengkel(req: CustomRequest, res: Response) {
@@ -125,6 +129,144 @@ export const BengkelController = {
                 message: "Layanan created successfully",
                 data: bengkelService
             });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async getBengkelOrderService(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            // fetch bengkel order
+            const orders = await Order.findAll({
+                where: {
+                    bengkel_id: adminBengkel.id,
+                    order_status_id: ORDER_PAID_STATUS_ID
+                },
+                include: [
+                    {
+                        model: Pengendara,
+                        as: "pengendara",
+                        attributes: ["nama", "phone", "foto", "lokasi",],
+                        include: [
+                            {
+                                model: Kendaraan,
+                                as: "kendaraan",
+                                attributes: ["nama_kendaraan", "jenis", "plat"],
+                            }
+                        ]
+                    },
+                    {
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['price']
+                        }
+                    }
+                ],
+                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+            });
+
+            return res.status(200).json({
+                message: "Bengkel order fetched successfully",
+                data: orders
+            });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    // todo: pikirkan cara untuk membatalkan order yang sudah diterima jika melebihi waktu tertentu
+    
+    async acceptOrder(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            const order_id = req.params.orderId;
+            const order: any = await Order.findByPk(order_id);
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+
+            // Assuming the 'status' field holds the status name or ID
+            order.order_status_id = ORDER_ACCEPTED_STATUS_ID
+            await order.save();
+
+            return res.status(200).json({ message: 'Order accepted' });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async cancelOrder(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            const order_id = req.params.orderId;
+            const order: any = await Order.findByPk(order_id);
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+
+            // Assuming the 'status' field holds the status name or ID
+            order.order_status_id = ORDER_CANCELED_STATUS_ID
+            await order.save();
+
+            return res.status(200).json({ message: 'Order cancelled' });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async completedOrder(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            const order_id = req.params.orderId;
+            const order: any = await Order.findByPk(order_id);
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+
+            // Assuming the 'status' field holds the status name or ID
+            order.order_status_id = ORDER_COMPLETED_STATUS_ID
+            await order.save();
+
+            return res.status(200).json({ message: 'Order completed' });
 
         } catch (error: any) {
             return res.status(500).json({ message: error.message || "Internal Server Error" });

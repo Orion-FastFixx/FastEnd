@@ -17,9 +17,11 @@ const role_models_1 = __importDefault(require("../models/role.models"));
 const db_1 = require("../../db");
 const order_status_model_1 = __importDefault(require("../models/order.status.model"));
 const payment_status_model_1 = __importDefault(require("../models/payment.status.model"));
+const payment_method_model_1 = __importDefault(require("../models/payment.method.model"));
 const defaultRoles = ["Admin", "Pengendara", "Admin Bengkel", "Montir"];
-const orderStatus = ["Pending", "On Progress", "Accepted", "Completed", "Canceled"];
+const orderStatus = ["Pending", "Paid", "Accepted", "Completed", "Canceled"];
 const paymentStatus = ["Pending", "Paid", "Canceled"];
+const paymentMethod = ["Cash", "Transfer"];
 exports.initializeContantValue = {
     initRole(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -104,6 +106,35 @@ exports.initializeContantValue = {
             }
             catch (error) {
                 console.error("Error initializing payment status:", error);
+                return res.status(500).json({ message: error.message });
+            }
+        });
+    },
+    initPaymentMethod(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const transaction = yield db_1.sequelize.transaction();
+                let results = [];
+                for (const methodName of paymentMethod) {
+                    const [method, created] = yield payment_method_model_1.default.findOrCreate({
+                        where: { method: methodName },
+                        defaults: { method: methodName },
+                        transaction,
+                    });
+                    results.push({
+                        methodName: methodName,
+                        status: created ? 'created' : 'already exists',
+                        methodDetails: method
+                    });
+                }
+                yield transaction.commit();
+                return res.status(200).json({
+                    message: "Success initialize payment method",
+                    data: results
+                });
+            }
+            catch (error) {
+                console.error("Error initializing payment method:", error);
                 return res.status(500).json({ message: error.message });
             }
         });

@@ -7,6 +7,7 @@ import path from 'path';
 import session from 'express-session';
 
 import { relations } from './app/models/relations.models';
+import { checkOrderTimeouts } from './app/utils/scheduler';
 
 var app = express();
 
@@ -15,7 +16,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'app/public')));
-console.log('__dirname is: ', __dirname);
 
 app.use(session({
   secret: 'house of el',
@@ -46,5 +46,8 @@ app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
 });
 
 relations();
+
+// Start the cron job
+checkOrderTimeouts();
 
 module.exports = app;

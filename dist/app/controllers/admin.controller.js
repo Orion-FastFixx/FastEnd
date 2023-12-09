@@ -30,6 +30,6 @@ exports.AdminController = {
                 res.status(500).json({ message: error.message });
             }
         });
-    }
+    },
 };
 //# sourceMappingURL=admin.controller.js.map

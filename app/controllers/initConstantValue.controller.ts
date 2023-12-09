@@ -3,10 +3,12 @@ import { sequelize } from "../../db";
 import { Request, Response } from "express"
 import OrderStatus from "../models/order.status.model";
 import PaymentStatus from "../models/payment.status.model";
+import PaymentMethod from "../models/payment.method.model";
 
 const defaultRoles = ["Admin", "Pengendara", "Admin Bengkel", "Montir"];
-const orderStatus = ["Pending", "On Progress", "Accepted", "Completed", "Canceled"];
+const orderStatus = ["Pending", "Paid", "Accepted", "Completed", "Canceled"];
 const paymentStatus = ["Pending", "Paid", "Canceled"];
+const paymentMethod = ["Cash", "Transfer"];
 
 export const initializeContantValue = {
     async initRole(req: Request, res: Response) {
@@ -98,6 +100,37 @@ export const initializeContantValue = {
 
         } catch (error: any) {
             console.error("Error initializing payment status:", error);
+            return res.status(500).json({ message: error.message });
+        }
+    },
+
+    async initPaymentMethod(req: Request, res: Response) {
+        try {
+            const transaction = await sequelize.transaction();
+            let results = [];
+
+            for (const methodName of paymentMethod) {
+                const [method, created] = await PaymentMethod.findOrCreate({
+                    where: { method: methodName },
+                    defaults: { method: methodName },
+                    transaction,
+                });
+
+                results.push({
+                    methodName: methodName,
+                    status: created ? 'created' : 'already exists',
+                    methodDetails: method
+                });
+            }
+            await transaction.commit();
+
+            return res.status(200).json({
+                message: "Success initialize payment method",
+                data: results
+            });
+
+        } catch (error: any) {
+            console.error("Error initializing payment method:", error);
             return res.status(500).json({ message: error.message });
         }
     },

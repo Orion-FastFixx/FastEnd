@@ -9,6 +9,7 @@ const sequelize = new Sequelize(config.mysqlDatabase, config.mysqlUser, config.m
   host: config.mysqlHost,
   dialect: 'mysql',
   port: config.mysqlPort,
+  timezone: config.mysqlTimezone, // for writing to database
 });
 
 const connectDb = async () => {

@@ -50,12 +50,12 @@ export const relations = () => {
     // Start Pengendara Relations to Kendaraan
 
     Pengendara.hasMany(Kendaraan, {
-        foreignKey: 'kendaraan_id', // Ensure this matches the foreign key attribute in the User model
+        foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
         as: 'kendaraan' // This is optional, it's an alias for the association, used in queries
     });
 
     Kendaraan.belongsTo(Pengendara, {
-        foreignKey: 'kendaraan_id',
+        foreignKey: 'pengendara_id',
         as: 'pengendara' // Optional alias
     });
 
@@ -262,6 +262,7 @@ export const relations = () => {
         as: 'orders',
         foreignKey: 'service_id',
     });
+    
 
     Order.hasOne(Payment, {
         foreignKey: 'order_id',

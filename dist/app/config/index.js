@@ -15,6 +15,7 @@ exports.config = {
     mysqlPassword: process.env.DB_PASSWORD,
     mysqlDatabase: process.env.DB_DATABASE,
     mysqlPort: process.env.DB_PORT,
+    mysqlTimezone: process.env.DB_TIMEZONE,
     rootPath: path_1.default.resolve(__dirname, '..'),
     uploadsFolder: path_1.default.resolve(__dirname, '..', 'public', 'images')
 };

@@ -13,6 +13,12 @@ router.get("/get-detail-review-bengkel/:id", AuthMiddleware.verifyToken, AuthMid
 // Order Bengkel Service
 router.post("/order-bengkel-service", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.orderBengkelService);
 
+// Pay Order
+router.post("/pay-order", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.payBengkelService);
+
+// Cancel Order
+router.post("/cancel-order/:orderId", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.cancelOrder);
+
 // Get Montir Review
 router.post("/add-review-montir", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.addReviewMontir);
 router.get("/get-detail-review-montir/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getDetailReviewMontir);

@@ -11,6 +11,7 @@ export const config = {
     mysqlPassword: process.env.DB_PASSWORD as string,
     mysqlDatabase: process.env.DB_DATABASE as string,
     mysqlPort: process.env.DB_PORT as any,
+    mysqlTimezone: process.env.DB_TIMEZONE as string,
     rootPath : path.resolve(__dirname, '..'),
     uploadsFolder: path.resolve(__dirname, '..', 'public', 'images') 
 }

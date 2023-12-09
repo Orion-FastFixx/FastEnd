@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from "../../db";
+import Pengendara from './pengendara.models';
 
 const Kendaraan = sequelize.define("kendaraans", {
     id: {
@@ -16,7 +17,7 @@ const Kendaraan = sequelize.define("kendaraans", {
         values: ['Motor', 'Mobil'],
         allowNull: false,
     },
-    tahunKendaraan: {
+    tahun_kendaraan: {
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
@@ -30,6 +31,14 @@ const Kendaraan = sequelize.define("kendaraans", {
         type: DataTypes.STRING(10),
         allowNull: false,
         unique: true,
+    },
+    pengendara_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: Pengendara,
+            key: "id"
+        }
     },
 });
 

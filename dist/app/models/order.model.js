@@ -39,7 +39,7 @@ const Order = db_1.sequelize.define("orders", {
             key: "id"
         }
     },
-    total_price: {
+    total_harga: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
         allowNull: false,
         defaultValue: 0.00
