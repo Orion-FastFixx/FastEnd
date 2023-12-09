@@ -14,8 +14,11 @@ import User from "../models/user.models";
 export const AuthenticationController = {
     async signUp(req: Request, res: Response) {
         try {
-            const { username, email, password, role_id } = req.body;
+            const { username, foto, email, password, role_id } = req.body;
             const hashedPassword = bcryptjs.hashSync(password, 8);
+
+            const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`
+            const fotoUrl = foto ? foto : placeHolderImgPath;
 
             const userExists = await User.findOne({
                 where: {
@@ -50,6 +53,7 @@ export const AuthenticationController = {
                     await Pengendara.create({
                         nama: user.username,
                         phone: user.phone,
+                        foto: fotoUrl,
                         user_id: user.id
                     });
                 } else if (role_id == 3) {

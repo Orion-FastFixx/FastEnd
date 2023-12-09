@@ -26,8 +26,10 @@ exports.AuthenticationController = {
     signUp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { username, email, password, role_id } = req.body;
+                const { username, foto, email, password, role_id } = req.body;
                 const hashedPassword = bcryptjs_1.default.hashSync(password, 8);
+                const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`;
+                const fotoUrl = foto ? foto : placeHolderImgPath;
                 const userExists = yield user_models_1.default.findOne({
                     where: {
                         [sequelize_1.Op.or]: [
@@ -60,6 +62,7 @@ exports.AuthenticationController = {
                         yield pengendara_models_1.default.create({
                             nama: user.username,
                             phone: user.phone,
+                            foto: fotoUrl,
                             user_id: user.id
                         });
                     }
