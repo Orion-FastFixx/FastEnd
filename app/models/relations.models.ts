@@ -75,6 +75,7 @@ Rating.belongsTo(Bengkel, {
     as: 'bengkel' // Optional alias
 });
 
+
 // End Bengkel Relations to Rating
 
 // Start User Relations to Admin

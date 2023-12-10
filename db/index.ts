@@ -2,8 +2,6 @@ import {config} from '../app/config';
 import { Sequelize } from "sequelize";
 
 
-
-
 // Initialize a new Sequelize instance
 const sequelize = new Sequelize(config.mysqlDatabase, config.mysqlUser, config.mysqlPassword, {
   host: config.mysqlHost,

@@ -21,6 +21,7 @@ exports.UserController = {
     createUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                user_models_1.User;
                 const { username, email, password, roles } = req.body;
                 const foundRoles = yield role_models_1.Role.findOne({ name: roles });
                 const user = new user_models_1.User({

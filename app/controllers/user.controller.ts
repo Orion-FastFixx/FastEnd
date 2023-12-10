@@ -1,12 +1,12 @@
 import {User} from "../models/user.models"
 import {Role} from "../models/role.models"
-import {Request, Response} from "express"
+import { Request, Response } from "express"
 import bcryptjs from "bcryptjs"
 
 export const UserController = {
     // create new user
     async createUser(req: Request, res: Response) {
-        try {
+        try {User
             const { username, email, password, roles } = req.body;
             const foundRoles = await Role.findOne({ name: roles });
             const user = new User({
