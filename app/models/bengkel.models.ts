@@ -1,7 +1,6 @@
-import { sequelize } from "../../db";
 import { DataTypes } from 'sequelize';
-import User from "./user.models";
-import Rating from "./rating.models";
+import { sequelize } from "../../db";
+import AdminBengkel from "./admin.bengkel.model";
 
 const Bengkel = sequelize.define("bengkels", {
     id: {
@@ -35,30 +34,34 @@ const Bengkel = sequelize.define("bengkels", {
         values: ['Bengkel Umum', 'Bengkel Resmi'],
         allowNull: false,
     },
+    spesialisasi_bengkel: {
+        type: DataTypes.ENUM,
+        values: ['Bengkel Mobil', 'Bengkel Motor'],
+        allowNull: false,
+    },
     is_open: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    foto: {
-        type: DataTypes.STRING,
+    foto_url: {
+        type: DataTypes.TEXT, // or STRING if length is sufficient
         allowNull: false,
+        get() {
+            const rawValue = this.getDataValue('foto_url');
+            return rawValue ? JSON.parse(rawValue) : [];
+        },
+        set(value) {
+            this.setDataValue('foto_url', JSON.stringify(value));
+        }
     },
     pemilik_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: User, // This is a reference to another model
+            model: AdminBengkel, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
         }
     },
-    rating_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
-        references: {
-            model: Rating, // This is a reference to another model
-            key: 'id', // This is the column name of the referenced model
-        }
-    }
 });
 
 export default Bengkel;

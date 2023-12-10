@@ -17,6 +17,7 @@ const sequelize = new sequelize_1.Sequelize(config_1.config.mysqlDatabase, confi
     host: config_1.config.mysqlHost,
     dialect: 'mysql',
     port: config_1.config.mysqlPort,
+    timezone: config_1.config.mysqlTimezone, // for writing to database
 });
 exports.sequelize = sequelize;
 const connectDb = () => __awaiter(void 0, void 0, void 0, function* () {

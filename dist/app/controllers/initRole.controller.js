@@ -33,14 +33,14 @@ const initializeRoles = (req, res) => __awaiter(void 0, void 0, void 0, function
             });
         }
         yield transaction.commit();
-        res.status(200).json({
+        return res.status(200).json({
             message: "Success initialize roles",
             data: results
         });
     }
     catch (error) {
         console.error("Error initializing roles:", error);
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 });
 exports.initializeRoles = initializeRoles;

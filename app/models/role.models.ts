@@ -1,5 +1,5 @@
-import { sequelize } from "../../db";
 import { DataTypes } from 'sequelize';
+import { sequelize } from "../../db";
 
 const Role = sequelize.define("roles", {
     id: {
