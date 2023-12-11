@@ -8,11 +8,15 @@ import Admin from "../models/admin.models";
 import Montir from "../models/montir.models";
 import Pengendara from "../models/pengendara.models";
 import User from "../models/user.models";
+import { sequelize } from "../../db";
+
 
 
 
 export const AuthenticationController = {
     async signUp(req: Request, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const { username, foto, email, password, role_id, deskripsi, jenis_montir, pengalaman } = req.body;
             const hashedPassword = bcryptjs.hashSync(password, 8);
@@ -38,6 +42,7 @@ export const AuthenticationController = {
 
 
             if (userExists) {
+                await transaction.rollback();
                 return res.status(409).json({
                     message: "User already exists"
                 });
@@ -46,7 +51,8 @@ export const AuthenticationController = {
                     username,
                     email,
                     password: hashedPassword,
-                    role_id
+                    role_id,
+                    transaction
                 });
 
                 // create admin
@@ -54,20 +60,23 @@ export const AuthenticationController = {
                     await Admin.create({
                         nama: user.username,
                         phone: user.phone,
-                        user_id: user.id
+                        user_id: user.id,
+                        transaction
                     });
                 } else if (role_id == 2) {
                     await Pengendara.create({
                         nama: user.username,
                         phone: user.phone,
                         foto: fotoUrl,
-                        user_id: user.id
+                        user_id: user.id,
+                        transaction
                     });
                 } else if (role_id == 3) {
                     await AdminBengkel.create({
                         nama: user.username,
                         phone: user.phone,
-                        user_id: user.id
+                        user_id: user.id,
+                        transaction
                     });
                 }
                 else if (role_id == 4) {
@@ -82,6 +91,7 @@ export const AuthenticationController = {
                     });
                 }
 
+                await transaction.commit();
                 return res.status(201).json({
                     message: "User created",
                     user: {
@@ -93,6 +103,7 @@ export const AuthenticationController = {
                 });
             }
         } catch (error: any) {
+            await transaction.rollback();
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },

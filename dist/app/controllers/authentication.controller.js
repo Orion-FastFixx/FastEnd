@@ -22,9 +22,11 @@ const admin_models_1 = __importDefault(require("../models/admin.models"));
 const montir_models_1 = __importDefault(require("../models/montir.models"));
 const pengendara_models_1 = __importDefault(require("../models/pengendara.models"));
 const user_models_1 = __importDefault(require("../models/user.models"));
+const db_1 = require("../../db");
 exports.AuthenticationController = {
     signUp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const { username, foto, email, password, role_id, deskripsi, jenis_montir, pengalaman } = req.body;
                 const hashedPassword = bcryptjs_1.default.hashSync(password, 8);
@@ -42,6 +44,7 @@ exports.AuthenticationController = {
                     }
                 });
                 if (userExists) {
+                    yield transaction.rollback();
                     return res.status(409).json({
                         message: "User already exists"
                     });
@@ -51,14 +54,16 @@ exports.AuthenticationController = {
                         username,
                         email,
                         password: hashedPassword,
-                        role_id
+                        role_id,
+                        transaction
                     });
                     // create admin
                     if (role_id == 1) {
                         yield admin_models_1.default.create({
                             nama: user.username,
                             phone: user.phone,
-                            user_id: user.id
+                            user_id: user.id,
+                            transaction
                         });
                     }
                     else if (role_id == 2) {
@@ -66,14 +71,16 @@ exports.AuthenticationController = {
                             nama: user.username,
                             phone: user.phone,
                             foto: fotoUrl,
-                            user_id: user.id
+                            user_id: user.id,
+                            transaction
                         });
                     }
                     else if (role_id == 3) {
                         yield admin_bengkel_model_1.default.create({
                             nama: user.username,
                             phone: user.phone,
-                            user_id: user.id
+                            user_id: user.id,
+                            transaction
                         });
                     }
                     else if (role_id == 4) {
@@ -84,9 +91,11 @@ exports.AuthenticationController = {
                             jenis_montir: check_jenis_montir,
                             pengalaman: check_pengalaman,
                             foto_url: fotoUrl,
-                            user_id: user.id
+                            user_id: user.id,
+                            transaction
                         });
                     }
+                    yield transaction.commit();
                     return res.status(201).json({
                         message: "User created",
                         user: {
@@ -99,6 +108,7 @@ exports.AuthenticationController = {
                 }
             }
             catch (error) {
+                yield transaction.rollback();
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
