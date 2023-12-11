@@ -25,6 +25,7 @@ const bengkel_service_model_1 = __importDefault(require("../models/bengkel.servi
 const payment_model_1 = __importDefault(require("../models/payment.model"));
 const order_status_1 = require("../utils/order.status");
 const payment_method_1 = require("../utils/payment.method");
+const payment_status_1 = require("../utils/payment.status");
 exports.PengendaraController = {
     // feature Bengkel
     getAllBengkel(req, res) {
@@ -208,8 +209,9 @@ exports.PengendaraController = {
                         message: "Require Pengendara Role!"
                     });
                 }
-                const { bengkel_id, service_id, } = req.body;
+                const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
                 const newOrder = yield order_model_1.default.create({
+                    additional_info: { precise_location, fullName, complaint },
                     pengendara_id: pengendara.id,
                     bengkel_id,
                     order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
@@ -276,10 +278,22 @@ exports.PengendaraController = {
                     },
                     transaction
                 });
+                const paidOrder = yield payment_model_1.default.findOne({
+                    where: {
+                        order_id: order_id,
+                        payment_status_id: payment_status_1.PAYMENT_PAID_STATUS_ID,
+                    }
+                });
                 if (!order) {
                     yield transaction.rollback();
                     return res.status(404).json({
                         message: "Order not found!"
+                    });
+                }
+                if (paidOrder) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Order already paid!"
                     });
                 }
                 if (!payment_method_id) {
@@ -292,7 +306,7 @@ exports.PengendaraController = {
                     yield payment_model_1.default.create({
                         order_id,
                         payment_method_id,
-                        payment_status_id: 2,
+                        payment_status_id: payment_status_1.PAYMENT_PAID_STATUS_ID,
                         transaction
                     });
                     order.order_status_id = order_status_1.ORDER_PAID_STATUS_ID;
@@ -302,7 +316,7 @@ exports.PengendaraController = {
                     yield payment_model_1.default.create({
                         order_id,
                         payment_method_id,
-                        payment_status_id: 2,
+                        payment_status_id: payment_status_1.PAYMENT_PAID_STATUS_ID,
                         transaction
                     });
                     order.order_status_id = order_status_1.ORDER_PAID_STATUS_ID;
