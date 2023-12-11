@@ -3,6 +3,7 @@ import { MontirController } from "../controllers/montir.controller";
 import { AuthMiddleware } from "../middleware/auth";
 import uploads from "../utils/multer";
 
+router.put("/update-montir", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.updateMontir);
 router.post("/create-layanan-montir", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.createLayanan);
 router.get("/get-montir-order-service", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.getMontirOrderService);
 router.post("/order-montir/:orderId/accept", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.acceptOrder);

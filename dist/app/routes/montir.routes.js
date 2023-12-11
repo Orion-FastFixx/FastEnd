@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const router_1 = __importDefault(require("./router"));
 const montir_controller_1 = require("../controllers/montir.controller");
 const auth_1 = require("../middleware/auth");
+router_1.default.put("/update-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.updateMontir);
 router_1.default.post("/create-layanan-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.createLayanan);
 router_1.default.get("/get-montir-order-service", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.getMontirOrderService);
 router_1.default.post("/order-montir/:orderId/accept", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.acceptOrder);

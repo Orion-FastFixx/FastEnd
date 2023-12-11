@@ -13,74 +13,73 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MontirController = void 0;
+const fs_1 = __importDefault(require("fs"));
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
 const montir_models_1 = __importDefault(require("../models/montir.models"));
 const montir_service_model_1 = __importDefault(require("../models/montir.service.model"));
 const kendaraan_models_1 = __importDefault(require("../models/kendaraan.models"));
 const order_model_1 = __importDefault(require("../models/order.model"));
 const pengendara_models_1 = __importDefault(require("../models/pengendara.models"));
 const service_model_1 = __importDefault(require("../models/service.model"));
+const multer_2 = require("../utils/multer");
 const order_status_1 = require("../utils/order.status");
 exports.MontirController = {
-    // async createMontir(req: CustomRequest, res: Response) {
-    //     try {
-    //         const montirAdmin = req.userId;
-    //         const admin: any = await AdminMontir.findOne({ where: { user_id: montirAdmin } });
-    //         if (!admin) {
-    //             return res.status(403).json({
-    //                 message: "Require Role!"
-    //             });
-    //         }
-    //         const { nama, phone, deskripsi, jenis_montir, pengalaman, is_avaible } = req.body;
-    //         let foto_url: string[] = [];
-    //         if (req.files) {
-    //             const files = req.files as Express.Multer.File[];
-    //             foto_url = files.map(file => {
-    //                 const filename = path.basename(file.path); // Extract filename from path
-    //                 return `${req.protocol}://${req.get("host")}/images/${filename}`;
-    //             });
-    //         }
-    //         // check if bengkel already exist
-    //         const montirs: any = await Montir.findOne({ where: { nama : nama } });
-    //         if (montirs) {
-    //             if (req.files) {
-    //                 (req.files as Express.Multer.File[]).forEach((file: Express.Multer.File) => {
-    //                     fs.unlinkSync(file.path); // Use the correct type for 'file'
-    //                 });
-    //             }
-    //             return res.status(409).json({
-    //                 message: "Montir already exist"
-    //             });
-    //         }
-    //         const newMontir = await Montir.create({
-    //             nama,
-    //             phone,
-    //             deskripsi,
-    //             jenis_montir,
-    //             pengalaman,
-    //             is_avaible,
-    //             foto_url: JSON.stringify(foto_url),
-    //             user_id: admin.id,
-    //         });
-    //         res.status(201).json({
-    //             message: "Montir created successfully",
-    //             data: newMontir
-    //         });
-    //     } catch (error: any) {
-    //         if (req.files) {
-    //             (req.files as Express.Multer.File[]).forEach((file: Express.Multer.File) => {
-    //                 fs.unlinkSync(file.path); // Use the correct type for 'file'
-    //             });
-    //         }
-    //         // Check if the error is related to file size
-    //         if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
-    //             return res.status(413).json({
-    //                 message: `One or more files are too large. Maximum file size allowed is ${maxSize}.`,
-    //                 error: error
-    //             });
-    //         }
-    //         return res.status(500).json({ message: error.message || "Internal Server Error" });
-    //     }
-    // },
+    updateMontir(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const montirAdmin = req.userId;
+                const admin = yield montir_models_1.default.findOne({ where: { user_id: montirAdmin } });
+                if (!admin) {
+                    return res.status(403).json({
+                        message: "Require Role!"
+                    });
+                }
+                const { id, nama, phone, deskripsi, jenis_montir, pengalaman, is_available } = req.body;
+                let foto_url = [];
+                if (req.files) {
+                    const files = req.files;
+                    foto_url = files.map(file => {
+                        const filename = path_1.default.basename(file.path);
+                        return `${req.protocol}://${req.get("host")}/images/${filename}`;
+                    });
+                }
+                const montir = yield montir_models_1.default.findByPk(id);
+                if (!montir) {
+                    return res.status(404).json({
+                        message: "Montir not found"
+                    });
+                }
+                // Lakukan pemrosesan perubahan atribut montir di sini
+                montir.nama = nama;
+                montir.phone = phone;
+                montir.deskripsi = deskripsi;
+                montir.jenis_montir = jenis_montir;
+                montir.pengalaman = pengalaman;
+                montir.is_available = is_available;
+                montir.foto_url = JSON.stringify(foto_url);
+                yield montir.save();
+                res.status(200).json({
+                    message: "Montir updated successfully",
+                    data: montir
+                });
+            }
+            catch (error) {
+                if (req.files) {
+                    req.files.forEach((file) => {
+                        fs_1.default.unlinkSync(file.path);
+                    });
+                }
+                if (error instanceof multer_1.default.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+                    return res.status(413).json({
+                        message: `One or more files are too large. Maximum file size allowed is ${multer_2.maxSize}.`,
+                        error: error
+                    });
+                }
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
     createLayanan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
