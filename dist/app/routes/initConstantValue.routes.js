@@ -1,13 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const initConstantValue_controller_1 = require("../controllers/initConstantValue.controller");
-const router_1 = __importDefault(require("./router"));
-router_1.default.post("/init-roles", initConstantValue_controller_1.initializeContantValue.initRole);
-router_1.default.post("/init-order-status", initConstantValue_controller_1.initializeContantValue.initOrderStatus);
-router_1.default.post("/init-payment-status", initConstantValue_controller_1.initializeContantValue.initPaymentStatus);
-router_1.default.post("/init-payment-method", initConstantValue_controller_1.initializeContantValue.initPaymentMethod);
-exports.default = router_1.default;
+const express_1 = require("express");
+const initRouter = (0, express_1.Router)();
+initRouter.post("/init-roles", initConstantValue_controller_1.initializeContantValue.initRole);
+initRouter.post("/init-order-status", initConstantValue_controller_1.initializeContantValue.initOrderStatus);
+initRouter.post("/init-payment-status", initConstantValue_controller_1.initializeContantValue.initPaymentStatus);
+initRouter.post("/init-payment-method", initConstantValue_controller_1.initializeContantValue.initPaymentMethod);
+exports.default = initRouter;
 //# sourceMappingURL=initConstantValue.routes.js.map

@@ -1,8 +1,10 @@
 import { AdminController } from "../controllers/admin.controller";
 import { AuthMiddleware } from "../middleware/auth";
-import router from "./router";
+import { Router } from "express";
+
+const adminRouter = Router();
 
 
-router.get("/list-montir", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.getAllMontir);
+adminRouter.get("/list-montir", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.getAllMontir);
 
-export default router;
+export default adminRouter;

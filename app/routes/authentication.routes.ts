@@ -1,9 +1,12 @@
 import { AuthenticationController } from "../controllers/authentication.controller";
-import router from "./router";
+import { Router } from "express";
 
 
-router.post("/signup", AuthenticationController.signUp);
-router.post("/signin", AuthenticationController.signIn);
-router.post("/signout", AuthenticationController.signOut);
+const authRouter = Router();
 
-export default router;
+
+authRouter.post("/signup", AuthenticationController.signUp);
+authRouter.post("/signin", AuthenticationController.signIn);
+authRouter.post("/signout", AuthenticationController.signOut);
+
+export default authRouter;
