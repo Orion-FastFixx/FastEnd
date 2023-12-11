@@ -12,14 +12,19 @@ import Service from "../models/service.model";
 import { maxSize } from "../utils/multer";
 import { ORDER_ACCEPTED_STATUS_ID, ORDER_CANCELED_STATUS_ID, ORDER_COMPLETED_STATUS_ID, ORDER_PAID_STATUS_ID } from "../utils/order.status";
 import { Request as CustomRequest } from "../utils/types";
+import { sequelize } from "../../db";
+
 
 export const BengkelController = {
     async createBengkel(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const bengkelOwner = req.userId;
 
             const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
             if (!adminBengkel) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "Require Admin Bengkel Role!"
                 });
@@ -62,14 +67,17 @@ export const BengkelController = {
                 is_open,
                 foto_url: JSON.stringify(foto_url),
                 pemilik_id: adminBengkel.id,
+                transaction
             });
 
-            res.status(201).json({
+            await transaction.commit();
+            return res.status(201).json({
                 message: "Bengkel created successfully",
                 data: newBengkel
             });
 
         } catch (error: any) {
+            await transaction.rollback();
             if (req.files) {
                 (req.files as Express.Multer.File[]).forEach((file: Express.Multer.File) => {
                     fs.unlinkSync(file.path); // Use the correct type for 'file'
@@ -88,11 +96,14 @@ export const BengkelController = {
     },
 
     async createLayanan(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const bengkelOwner = req.userId;
 
             const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
             if (!adminBengkel) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "Require Admin Bengkel Role!"
                 });
@@ -102,6 +113,7 @@ export const BengkelController = {
 
             const bengkel: any = await Bengkel.findByPk(bengkel_id);
             if (!bengkel) {
+                await transaction.rollback();
                 return res.status(404).json({
                     message: "Bengkel not found"
                 });
@@ -109,6 +121,7 @@ export const BengkelController = {
 
             // Check if the adminBengkel is the owner of the bengkel
             if (bengkel.pemilik_id !== adminBengkel.id) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "Unauthorized: Only the Bengkel owner can add services"
                 });
@@ -116,21 +129,24 @@ export const BengkelController = {
 
             let services: any = await Service.findOne({ where: { layanan: layanan } });
             if (!services) {
-                services = await Service.create({ layanan: layanan });
+                services = await Service.create({ layanan: layanan, transaction });
             }
 
             const bengkelService = await BengkelService.create({
                 bengkel_id: bengkel.id,
                 service_id: services.id,
-                harga: harga
+                harga: harga,
+                transaction
             });
 
+            await transaction.commit();
             return res.status(201).json({
                 message: "Layanan created successfully",
                 data: bengkelService
             });
 
         } catch (error: any) {
+            await transaction.rollback();
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
@@ -188,7 +204,7 @@ export const BengkelController = {
     },
 
     // todo: pikirkan cara untuk membatalkan order yang sudah diterima jika melebihi waktu tertentu
-    
+
     async acceptOrder(req: CustomRequest, res: Response) {
         try {
             const bengkelOwner = req.userId;

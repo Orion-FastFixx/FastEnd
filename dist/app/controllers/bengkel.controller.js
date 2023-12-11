@@ -25,13 +25,16 @@ const pengendara_models_1 = __importDefault(require("../models/pengendara.models
 const service_model_1 = __importDefault(require("../models/service.model"));
 const multer_2 = require("../utils/multer");
 const order_status_1 = require("../utils/order.status");
+const db_1 = require("../../db");
 exports.BengkelController = {
     createBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const bengkelOwner = req.userId;
                 const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
                 if (!adminBengkel) {
+                    yield transaction.rollback();
                     return res.status(403).json({
                         message: "Require Admin Bengkel Role!"
                     });
@@ -68,13 +71,16 @@ exports.BengkelController = {
                     is_open,
                     foto_url: JSON.stringify(foto_url),
                     pemilik_id: adminBengkel.id,
+                    transaction
                 });
-                res.status(201).json({
+                yield transaction.commit();
+                return res.status(201).json({
                     message: "Bengkel created successfully",
                     data: newBengkel
                 });
             }
             catch (error) {
+                yield transaction.rollback();
                 if (req.files) {
                     req.files.forEach((file) => {
                         fs_1.default.unlinkSync(file.path); // Use the correct type for 'file'
@@ -93,10 +99,12 @@ exports.BengkelController = {
     },
     createLayanan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const bengkelOwner = req.userId;
                 const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
                 if (!adminBengkel) {
+                    yield transaction.rollback();
                     return res.status(403).json({
                         message: "Require Admin Bengkel Role!"
                     });
@@ -104,31 +112,36 @@ exports.BengkelController = {
                 const { bengkel_id, layanan, harga } = req.body;
                 const bengkel = yield bengkel_models_1.default.findByPk(bengkel_id);
                 if (!bengkel) {
+                    yield transaction.rollback();
                     return res.status(404).json({
                         message: "Bengkel not found"
                     });
                 }
                 // Check if the adminBengkel is the owner of the bengkel
                 if (bengkel.pemilik_id !== adminBengkel.id) {
+                    yield transaction.rollback();
                     return res.status(403).json({
                         message: "Unauthorized: Only the Bengkel owner can add services"
                     });
                 }
                 let services = yield service_model_1.default.findOne({ where: { layanan: layanan } });
                 if (!services) {
-                    services = yield service_model_1.default.create({ layanan: layanan });
+                    services = yield service_model_1.default.create({ layanan: layanan, transaction });
                 }
                 const bengkelService = yield bengkel_service_model_1.default.create({
                     bengkel_id: bengkel.id,
                     service_id: services.id,
-                    harga: harga
+                    harga: harga,
+                    transaction
                 });
+                yield transaction.commit();
                 return res.status(201).json({
                     message: "Layanan created successfully",
                     data: bengkelService
                 });
             }
             catch (error) {
+                yield transaction.rollback();
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
