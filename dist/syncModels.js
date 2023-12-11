@@ -7,6 +7,7 @@ const admin_bengkel_model_1 = __importDefault(require("./app/models/admin.bengke
 const admin_models_1 = __importDefault(require("./app/models/admin.models"));
 const bengkel_models_1 = __importDefault(require("./app/models/bengkel.models"));
 const bengkel_service_model_1 = __importDefault(require("./app/models/bengkel.service.model"));
+const montir_service_model_1 = __importDefault(require("./app/models/montir.service.model"));
 const pengendara_models_1 = __importDefault(require("./app/models/pengendara.models"));
 const kendaraan_models_1 = __importDefault(require("./app/models/kendaraan.models"));
 const montir_models_1 = __importDefault(require("./app/models/montir.models"));
@@ -40,7 +41,8 @@ console.log('Is PaymentMethod model registered:', payment_method_model_1.default
 console.log('Is Order model registered:', order_model_1.default === db_1.sequelize.model('orders'));
 console.log('Is OrderService model registered:', order_service_model_1.default === db_1.sequelize.model('order_services'));
 console.log('Is Payment model registered:', payment_model_1.default === db_1.sequelize.model('payments'));
-db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
+console.log('Is MontirService model registered:', montir_service_model_1.default === db_1.sequelize.model('montir_services'));
+db_1.sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
     process.exit();
