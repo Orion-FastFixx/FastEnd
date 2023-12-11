@@ -15,6 +15,19 @@ const Order = db_1.sequelize.define("orders", {
         autoIncrement: true,
         primaryKey: true,
     },
+    additional_info: {
+        type: sequelize_1.DataTypes.JSON,
+        allowNull: true,
+        get() {
+            const rawValue = this.getDataValue('additional_info');
+            try {
+                return JSON.parse(rawValue);
+            }
+            catch (error) {
+                return rawValue; // or return {} or null based on your preference
+            }
+        }
+    },
     pengendara_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: true,

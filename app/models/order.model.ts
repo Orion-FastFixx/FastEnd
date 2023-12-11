@@ -11,6 +11,18 @@ const Order = sequelize.define("orders", {
         autoIncrement: true,
         primaryKey: true,
     },
+    additional_info: {
+        type: DataTypes.JSON, // Assuming you're storing raw JSON
+        allowNull: true,
+        get() {
+            const rawValue = this.getDataValue('additional_info');
+            try {
+                return JSON.parse(rawValue);
+            } catch (error) {
+                return rawValue; // or return {} or null based on your preference
+            }
+        }
+    },
     pengendara_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
