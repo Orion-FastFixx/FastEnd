@@ -12,6 +12,7 @@ import BengkelService from "../models/bengkel.service.model";
 import Payment from "../models/payment.model";
 import { ORDER_CANCELED_STATUS_ID, ORDER_PAID_STATUS_ID, ORDER_PENDING_STATUS_ID } from "../utils/order.status";
 import { PAYMENT_METHOD_CASH, PAYMENT_METHOD_TRANSFER } from "../utils/payment.method";
+import { PAYMENT_PAID_STATUS_ID } from "../utils/payment.status";
 
 export const PengendaraController = {
     // feature Bengkel
@@ -216,9 +217,10 @@ export const PengendaraController = {
                 });
             }
 
-            const { bengkel_id, service_id, } = req.body;
+            const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
 
             const newOrder: any = await Order.create({
+                additional_info: { precise_location, fullName, complaint },
                 pengendara_id: pengendara.id,
                 bengkel_id,
                 order_status_id: ORDER_PENDING_STATUS_ID,
@@ -297,10 +299,24 @@ export const PengendaraController = {
                 transaction
             });
 
+            const paidOrder = await Payment.findOne({
+                where: {
+                    order_id: order_id,
+                    payment_status_id: PAYMENT_PAID_STATUS_ID,
+                }
+            });
+
             if (!order) {
                 await transaction.rollback();
                 return res.status(404).json({
                     message: "Order not found!"
+                });
+            }
+
+            if (paidOrder) {
+                await transaction.rollback();
+                return res.status(400).json({
+                    message: "Order already paid!"
                 });
             }
 
@@ -315,7 +331,7 @@ export const PengendaraController = {
                 await Payment.create({
                     order_id,
                     payment_method_id,
-                    payment_status_id: 2,
+                    payment_status_id: PAYMENT_PAID_STATUS_ID,
                     transaction
                 });
                 order.order_status_id = ORDER_PAID_STATUS_ID;
@@ -324,7 +340,7 @@ export const PengendaraController = {
                 await Payment.create({
                     order_id,
                     payment_method_id,
-                    payment_status_id: 2,
+                    payment_status_id: PAYMENT_PAID_STATUS_ID,
                     transaction
                 });
                 order.order_status_id = ORDER_PAID_STATUS_ID;
