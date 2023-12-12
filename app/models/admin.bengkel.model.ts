@@ -22,7 +22,8 @@ const AdminBengkel = sequelize.define("admin_bengkels", {
         references: {
             model: User, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     }
 });
 

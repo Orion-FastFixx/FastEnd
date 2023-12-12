@@ -37,12 +37,14 @@ export const relations = () => {
 
     User.hasMany(Pengendara, {
         foreignKey: 'user_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'pengendara' // This is optional, it's an alias for the association, used in queries
+        as: 'pengendara', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Pengendara.belongsTo(User, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End User Relations to Pengendara
@@ -51,12 +53,14 @@ export const relations = () => {
 
     Pengendara.hasMany(Kendaraan, {
         foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'kendaraan' // This is optional, it's an alias for the association, used in queries
+        as: 'kendaraan', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Kendaraan.belongsTo(Pengendara, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Pengendara Relations to Kendaraan
@@ -65,12 +69,14 @@ export const relations = () => {
 
     User.hasMany(Admin, {
         foreignKey: 'user_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'admin' // This is optional, it's an alias for the association, used in queries
+        as: 'admin', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Admin.belongsTo(User, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End User Relations to Admin
@@ -79,12 +85,14 @@ export const relations = () => {
 
     User.hasMany(Montir, {
         foreignKey: 'user_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'montir' // This is optional, it's an alias for the association, used in queries
+        as: 'montir', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Montir.belongsTo(User, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End User Relations to Montir
@@ -92,12 +100,14 @@ export const relations = () => {
     // Start User Relations to Admin Bengkel
     User.hasMany(AdminBengkel, {
         foreignKey: 'user_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'admin_bengkel' // This is optional, it's an alias for the association, used in queries
+        as: 'admin_bengkel', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     AdminBengkel.belongsTo(User, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End User Relations to Admin Bengkel
@@ -106,12 +116,14 @@ export const relations = () => {
 
     AdminBengkel.hasMany(Bengkel, {
         foreignKey: 'pemilik_id', // Ensure this matches the foreign key attribute in the Admin Bengkel model
-        as: 'bengkel' // This is optional, it's an alias for the association, used in queries
+        as: 'bengkel', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Bengkel.belongsTo(AdminBengkel, {
         foreignKey: 'pemilik_id',
-        as: 'admin_bengkel' // Optional alias
+        as: 'admin_bengkel', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Admin Bengkel Relations to Bengkel

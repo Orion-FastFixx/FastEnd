@@ -64,7 +64,8 @@ const Bengkel = db_1.sequelize.define("bengkels", {
         references: {
             model: admin_bengkel_model_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 exports.default = Bengkel;

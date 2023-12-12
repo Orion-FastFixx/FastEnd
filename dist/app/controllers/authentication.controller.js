@@ -174,5 +174,44 @@ exports.AuthenticationController = {
             }
         });
     },
+    deleteAccount(req, res) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const userId = (_b = (_a = req.session) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.id;
+                if (!userId) {
+                    yield transaction.rollback();
+                    return res.status(401).json({
+                        message: "Unauthorized"
+                    });
+                }
+                const user = yield user_models_1.default.findByPk(userId);
+                // get user name
+                const username = user === null || user === void 0 ? void 0 : user.username;
+                if (!user) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "User not found"
+                    });
+                }
+                yield user.destroy({ transaction });
+                req.session.destroy((err) => {
+                    if (err) {
+                        return res.status(500).json({ message: err.message || "Internal Server Error" });
+                    }
+                });
+                res.clearCookie('connect.sid');
+                yield transaction.commit();
+                return res.status(200).json({
+                    message: `User ${username} deleted`
+                });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
 };
 //# sourceMappingURL=authentication.controller.js.map

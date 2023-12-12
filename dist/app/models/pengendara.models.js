@@ -34,7 +34,8 @@ const Pengendara = db_1.sequelize.define("pengendaras", {
         references: {
             model: user_models_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     }
 });
 exports.default = Pengendara;

@@ -26,7 +26,8 @@ const Montir = db_1.sequelize.define("montirs", {
         references: {
             model: user_models_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     }
 });
 exports.default = Montir;
