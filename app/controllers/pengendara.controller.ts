@@ -10,13 +10,12 @@ import Order from "../models/order.model";
 import OrderService from "../models/order.service.model";
 import BengkelService from "../models/bengkel.service.model";
 import Payment from "../models/payment.model";
-import { ORDER_CANCELED_STATUS_ID, ORDER_PAID_STATUS_ID, ORDER_PENDING_STATUS_ID } from "../utils/order.status";
+import { ORDER_CANCELED_STATUS_ID, ORDER_COMPLETED_STATUS_ID, ORDER_PAID_STATUS_ID, ORDER_PENDING_STATUS_ID } from "../utils/order.status";
 import { PAYMENT_METHOD_CASH, PAYMENT_METHOD_TRANSFER } from "../utils/payment.method";
 import { PAYMENT_PAID_STATUS_ID } from "../utils/payment.status";
 
 export const PengendaraController = {
     // feature Bengkel
-
 
     async getAllBengkel(req: CustomRequest, res: Response) {
         try {
@@ -127,6 +126,21 @@ export const PengendaraController = {
 
             const { bengkel_rating, review, bengkel_id } = req.body;
 
+            const hasOrder = await Order.findOne({
+                where: {
+                    bengkel_id: bengkel_id,
+                    pengendara_id: pengendara.id,
+                    order_status_id: ORDER_COMPLETED_STATUS_ID
+                },
+            });
+
+            if (!hasOrder) {
+                await transaction.rollback();
+                return res.status(403).json({
+                    message: "Review not allowed. You must completed order services from this bengkel first."
+                });
+            }
+
             const existingReview = await BengkelRating.findOne({
                 where: {
                     bengkel_id: bengkel_id,
@@ -232,19 +246,14 @@ export const PengendaraController = {
 
             const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
 
-            const newOrder: any = await Order.create({
-                additional_info: { precise_location, fullName, complaint },
-                pengendara_id: pengendara.id,
-                bengkel_id,
-                order_status_id: ORDER_PENDING_STATUS_ID,
-                transaction
-            });
-
             // init total price
             let totalPrice = 0;
 
             // add admin fee
             const adminFee = 1000;
+
+            // store service price
+            let servicePrice: any = [];
 
             for (const serviceId of service_id) {
                 const bengkelService: any = await BengkelService.findOne({
@@ -260,14 +269,25 @@ export const PengendaraController = {
                         message: "Service not found!"
                     });
                 }
+                totalPrice += bengkelService.harga;
+                servicePrice[serviceId] = bengkelService.harga;
+            }
 
+            const newOrder: any = await Order.create({
+                additional_info: { precise_location, fullName, complaint },
+                pengendara_id: pengendara.id,
+                bengkel_id,
+                order_status_id: ORDER_PENDING_STATUS_ID,
+                transaction
+            });
+
+            for (const serviceId of service_id) {
                 await OrderService.create({
                     order_id: newOrder.id,
                     service_id: serviceId,
-                    price: bengkelService.harga
+                    price: servicePrice[serviceId],
+                    transaction
                 });
-
-                totalPrice += bengkelService.harga;
             }
 
             const totalPayment = totalPrice + adminFee;

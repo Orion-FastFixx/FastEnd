@@ -15,7 +15,8 @@ const OrderService = sequelize.define("order_services", {
         references: {
             model: Order,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     service_id: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -23,7 +24,8 @@ const OrderService = sequelize.define("order_services", {
         references: {
             model: Service,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     price: {
         type: DataTypes.DECIMAL(10, 2),

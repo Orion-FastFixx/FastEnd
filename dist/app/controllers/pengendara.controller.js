@@ -127,6 +127,19 @@ exports.PengendaraController = {
                     });
                 }
                 const { bengkel_rating, review, bengkel_id } = req.body;
+                const hasOrder = yield order_model_1.default.findOne({
+                    where: {
+                        bengkel_id: bengkel_id,
+                        pengendara_id: pengendara.id,
+                        order_status_id: order_status_1.ORDER_COMPLETED_STATUS_ID
+                    },
+                });
+                if (!hasOrder) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Review not allowed. You must completed order services from this bengkel first."
+                    });
+                }
                 const existingReview = yield bengkel_rating_models_1.default.findOne({
                     where: {
                         bengkel_id: bengkel_id,
@@ -221,17 +234,12 @@ exports.PengendaraController = {
                     });
                 }
                 const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
-                const newOrder = yield order_model_1.default.create({
-                    additional_info: { precise_location, fullName, complaint },
-                    pengendara_id: pengendara.id,
-                    bengkel_id,
-                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
-                    transaction
-                });
                 // init total price
                 let totalPrice = 0;
                 // add admin fee
                 const adminFee = 1000;
+                // store service price
+                let servicePrice = [];
                 for (const serviceId of service_id) {
                     const bengkelService = yield bengkel_service_model_1.default.findOne({
                         where: {
@@ -245,12 +253,23 @@ exports.PengendaraController = {
                             message: "Service not found!"
                         });
                     }
+                    totalPrice += bengkelService.harga;
+                    servicePrice[serviceId] = bengkelService.harga;
+                }
+                const newOrder = yield order_model_1.default.create({
+                    additional_info: { precise_location, fullName, complaint },
+                    pengendara_id: pengendara.id,
+                    bengkel_id,
+                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
+                    transaction
+                });
+                for (const serviceId of service_id) {
                     yield order_service_model_1.default.create({
                         order_id: newOrder.id,
                         service_id: serviceId,
-                        price: bengkelService.harga
+                        price: servicePrice[serviceId],
+                        transaction
                     });
-                    totalPrice += bengkelService.harga;
                 }
                 const totalPayment = totalPrice + adminFee;
                 yield newOrder.update({

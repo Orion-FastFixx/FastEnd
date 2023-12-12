@@ -210,15 +210,17 @@ export const relations = () => {
     // End Pengendara Relations to Montir Rating
 
     // Order to Order status
-    
+
     OrderStatus.hasMany(Order, {
         foreignKey: 'order_status_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'order' // This is optional, it's an alias for the association, used in queries
+        as: 'order', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Order.belongsTo(OrderStatus, {
         foreignKey: 'order_status_id',
-        as: 'order_status' // Optional alias
+        as: 'order_status', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Order to Order status
@@ -227,12 +229,14 @@ export const relations = () => {
 
     PaymentStatus.hasMany(Payment, {
         foreignKey: 'payment_status_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'payment' // This is optional, it's an alias for the association, used in queries
+        as: 'payment', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Payment.belongsTo(PaymentStatus, {
         foreignKey: 'payment_status_id',
-        as: 'payment_status' // Optional alias
+        as: 'payment_status', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Payment to Payment status
@@ -241,12 +245,14 @@ export const relations = () => {
 
     PaymentMethod.hasMany(Payment, {
         foreignKey: 'payment_method_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'payment' // This is optional, it's an alias for the association, used in queries
+        as: 'payment', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Payment.belongsTo(PaymentMethod, {
         foreignKey: 'payment_method_id',
-        as: 'payment_method' // Optional alias
+        as: 'payment_method', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Payment to Payment method
@@ -255,45 +261,53 @@ export const relations = () => {
 
     Pengendara.hasMany(Order, {
         foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'order' // This is optional, it's an alias for the association, used in queries
+        as: 'order', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Order.belongsTo(Pengendara, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     Bengkel.hasMany(Order, {
         foreignKey: 'bengkel_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'order' // This is optional, it's an alias for the association, used in queries
+        as: 'order', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     Order.belongsTo(Bengkel, {
         foreignKey: 'bengkel_id',
-        as: 'bengkel' // Optional alias
+        as: 'bengkel', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     Order.belongsToMany(Service, {
         through: OrderService,
         as: 'services',
         foreignKey: 'order_id',
+        onDelete: 'CASCADE',
     });
 
     Service.belongsToMany(Order, {
         through: OrderService,
         as: 'orders',
         foreignKey: 'service_id',
+        onDelete: 'CASCADE',
     });
-    
+
 
     Order.hasOne(Payment, {
         foreignKey: 'order_id',
-        as: 'payment'
+        as: 'payment',
+        onDelete: 'CASCADE',
     });
 
     Payment.belongsTo(Order, {
         foreignKey: 'order_id',
-        as: 'order'
+        as: 'order',
+        onDelete: 'CASCADE',
     });
 
     // End Bengkel Orders
