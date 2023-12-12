@@ -20,6 +20,34 @@ const Montir = db_1.sequelize.define("montirs", {
         type: sequelize_1.DataTypes.STRING(12),
         allowNull: true,
     },
+    deskripsi: {
+        type: sequelize_1.DataTypes.TEXT,
+        allowNull: false,
+    },
+    jenis_montir: {
+        type: sequelize_1.DataTypes.ENUM,
+        values: ['Montir Mobil', 'Montir Motor'],
+        allowNull: false,
+    },
+    pengalaman: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+    },
+    foto_url: {
+        type: sequelize_1.DataTypes.TEXT,
+        allowNull: false,
+        get() {
+            const rawValue = this.getDataValue('foto_url');
+            return rawValue ? JSON.parse(rawValue) : [];
+        },
+        set(value) {
+            this.setDataValue('foto_url', JSON.stringify(value));
+        }
+    },
+    is_available: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     user_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,

@@ -12,6 +12,10 @@ const Admin = sequelize.define("admins", {
         type: DataTypes.STRING(30),
         allowNull: true,
     },
+    foto: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+    },
     phone: {
         type: DataTypes.STRING(12),
         allowNull: true,
