@@ -134,12 +134,14 @@ export const relations = () => {
         through: BengkelService,
         as: 'services',
         foreignKey: 'bengkel_id',
+        onDelete: 'CASCADE',
     });
 
     Service.belongsToMany(Bengkel, {
         through: BengkelService,
         as: 'bengkels',
         foreignKey: 'service_id',
+        onDelete: 'CASCADE',
     });
 
 
@@ -148,12 +150,14 @@ export const relations = () => {
 
     Bengkel.hasMany(BengkelRating, {
         foreignKey: 'bengkel_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'rating' // This is optional, it's an alias for the association, used in queries
+        as: 'rating', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     BengkelRating.belongsTo(Bengkel, {
         foreignKey: 'bengkel_id',
-        as: 'bengkel' // Optional alias
+        as: 'bengkel', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Bengkel Relations to Rating
@@ -161,12 +165,14 @@ export const relations = () => {
     // Start Pengendara Relations to Bengkel Rating
     Pengendara.hasMany(BengkelRating, {
         foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'rating_bengkel' // This is optional, it's an alias for the association, used in queries
+        as: 'rating_bengkel', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     BengkelRating.belongsTo(Pengendara, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Pengendara Relations to Bengkel Rating
@@ -175,12 +181,14 @@ export const relations = () => {
 
     Montir.hasMany(MontirRating, {
         foreignKey: 'montir_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'rating' // This is optional, it's an alias for the association, used in queries
+        as: 'rating', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     MontirRating.belongsTo(Montir, {
         foreignKey: 'montir_id',
-        as: 'montir' // Optional alias
+        as: 'montir', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Montir Relations to Montir Rating
@@ -189,12 +197,14 @@ export const relations = () => {
 
     Pengendara.hasMany(MontirRating, {
         foreignKey: 'pengendara_id', // Ensure this matches the foreign key attribute in the User model
-        as: 'rating_montir' // This is optional, it's an alias for the association, used in queries
+        as: 'rating_montir', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
     });
 
     MontirRating.belongsTo(Pengendara, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara', // Optional alias
+        onDelete: 'CASCADE',
     });
 
     // End Pengendara Relations to Montir Rating

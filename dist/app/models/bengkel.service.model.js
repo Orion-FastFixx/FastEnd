@@ -24,7 +24,8 @@ const BengkelService = db_1.sequelize.define("bengkel_services", {
         references: {
             model: bengkel_models_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
     service_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
@@ -32,7 +33,8 @@ const BengkelService = db_1.sequelize.define("bengkel_services", {
         references: {
             model: service_model_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 exports.default = BengkelService;
