@@ -2,6 +2,7 @@ import { Response } from "express";
 import fs from "fs";
 import multer from "multer";
 import path from "path";
+import { sequelize } from "../../db";
 import AdminBengkel from "../models/admin.bengkel.model";
 import Bengkel from "../models/bengkel.models";
 import BengkelService from "../models/bengkel.service.model";
@@ -12,7 +13,6 @@ import Service from "../models/service.model";
 import { maxSize } from "../utils/multer";
 import { ORDER_ACCEPTED_STATUS_ID, ORDER_CANCELED_STATUS_ID, ORDER_COMPLETED_STATUS_ID, ORDER_PAID_STATUS_ID } from "../utils/order.status";
 import { Request as CustomRequest } from "../utils/types";
-import { sequelize } from "../../db";
 
 
 export const BengkelController = {
@@ -181,6 +181,96 @@ export const BengkelController = {
                             }
                         ]
                     },
+                ],
+                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+            });
+
+            return res.status(200).json({
+                message: "Bengkel order fetched successfully",
+                data: orders
+            });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async getDetailBengkelOrderService(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            const order_id = req.params.orderId;
+
+            if(!order_id) {
+                return res.status(400).json({
+                    message: "Order id is required"
+                });
+            }
+
+            const order = await Order.findOne({
+                where: {
+                    id: order_id,
+                },
+                include: [
+                    {
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['price']
+                        }
+                    }
+                ],
+                attributes: ['id', 'total_harga', 'order_status_id'],
+            });
+
+            return res.status(200).json({
+                message: "Bengkel order fetched successfully",
+                data: order
+            });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async getCompletedBengkelOrderService(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            // fetch bengkel order
+            const orders = await Order.findAll({
+                where: {
+                    bengkel_id: adminBengkel.id,
+                    order_status_id: ORDER_COMPLETED_STATUS_ID
+                },
+                include: [
+                    {
+                        model: Pengendara,
+                        as: "pengendara",
+                        attributes: ["nama", "phone", "foto", "lokasi",],
+                        include: [
+                            {
+                                model: Kendaraan,
+                                as: "kendaraan",
+                                attributes: ["nama_kendaraan", "jenis", "plat"],
+                            }
+                        ]
+                    },
                     {
                         model: Service,
                         as: 'services',
@@ -197,7 +287,57 @@ export const BengkelController = {
                 message: "Bengkel order fetched successfully",
                 data: orders
             });
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
 
+    async getCanceledBengkelOrderService(req: CustomRequest, res: Response) {
+        try {
+            const bengkelOwner = req.userId;
+
+            const adminBengkel: any = await AdminBengkel.findOne({ where: { user_id: bengkelOwner } });
+            if (!adminBengkel) {
+                return res.status(403).json({
+                    message: "Require Admin Bengkel Role!"
+                });
+            }
+
+            // fetch bengkel order
+            const orders = await Order.findAll({
+                where: {
+                    bengkel_id: adminBengkel.id,
+                    order_status_id: ORDER_CANCELED_STATUS_ID
+                },
+                include: [
+                    {
+                        model: Pengendara,
+                        as: "pengendara",
+                        attributes: ["nama", "phone", "foto", "lokasi",],
+                        include: [
+                            {
+                                model: Kendaraan,
+                                as: "kendaraan",
+                                attributes: ["nama_kendaraan", "jenis", "plat"],
+                            }
+                        ]
+                    },
+                    {
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['price']
+                        }
+                    }
+                ],
+                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+            });
+
+            return res.status(200).json({
+                message: "Bengkel order fetched successfully",
+                data: orders
+            });
         } catch (error: any) {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
@@ -206,6 +346,8 @@ export const BengkelController = {
     // todo: pikirkan cara untuk membatalkan order yang sudah diterima jika melebihi waktu tertentu
 
     async acceptOrder(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const bengkelOwner = req.userId;
 
@@ -222,10 +364,22 @@ export const BengkelController = {
                 return res.status(404).json({ message: 'Order not found' });
             }
 
-            // Assuming the 'status' field holds the status name or ID
-            order.order_status_id = ORDER_ACCEPTED_STATUS_ID
-            await order.save();
+            if (order.order_status_id === ORDER_PAID_STATUS_ID) {
+                // Assuming the 'status' field holds the status name or ID
+                order.order_status_id = ORDER_ACCEPTED_STATUS_ID
+                await order.save();
+            } else {
+                await transaction.rollback();
+                if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already accepted' });
+                } else if (order.order_status_id === ORDER_COMPLETED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already completed' });
+                } else if (order.order_status_id === ORDER_CANCELED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already cancelled' });
+                }
+            }
 
+            await transaction.commit();
             return res.status(200).json({ message: 'Order accepted' });
 
         } catch (error: any) {
@@ -234,6 +388,8 @@ export const BengkelController = {
     },
 
     async cancelOrder(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const bengkelOwner = req.userId;
 
@@ -250,10 +406,22 @@ export const BengkelController = {
                 return res.status(404).json({ message: 'Order not found' });
             }
 
-            // Assuming the 'status' field holds the status name or ID
-            order.order_status_id = ORDER_CANCELED_STATUS_ID
-            await order.save();
+            if (order.order_status_id === ORDER_PAID_STATUS_ID) {
+                // Assuming the 'status' field holds the status name or ID
+                order.order_status_id = ORDER_CANCELED_STATUS_ID
+                await order.save();
+            } else {
+                await transaction.rollback();
+                if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already accepted' });
+                } else if (order.order_status_id === ORDER_COMPLETED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already completed' });
+                } else if (order.order_status_id === ORDER_CANCELED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already cancelled' });
+                }
+            }
 
+            await transaction.commit();
             return res.status(200).json({ message: 'Order cancelled' });
 
         } catch (error: any) {
@@ -262,6 +430,8 @@ export const BengkelController = {
     },
 
     async completedOrder(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const bengkelOwner = req.userId;
 
@@ -278,10 +448,22 @@ export const BengkelController = {
                 return res.status(404).json({ message: 'Order not found' });
             }
 
-            // Assuming the 'status' field holds the status name or ID
-            order.order_status_id = ORDER_COMPLETED_STATUS_ID
-            await order.save();
+            if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                // Assuming the 'status' field holds the status name or ID
+                order.order_status_id = ORDER_COMPLETED_STATUS_ID
+                await order.save();
+            } else {
+                await transaction.rollback();
+                if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already accepted' });
+                } else if (order.order_status_id === ORDER_COMPLETED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already completed' });
+                } else if (order.order_status_id === ORDER_CANCELED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already cancelled' });
+                }
+            }
 
+            await transaction.commit();
             return res.status(200).json({ message: 'Order completed' });
 
         } catch (error: any) {
