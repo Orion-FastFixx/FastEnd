@@ -111,6 +111,8 @@ export const BengkelController = {
 
             const { bengkel_id, layanan, harga } = req.body;
 
+            const uppercaseLayanan = layanan.toUpperCase();
+
             const bengkel: any = await Bengkel.findByPk(bengkel_id);
             if (!bengkel) {
                 await transaction.rollback();
@@ -127,9 +129,28 @@ export const BengkelController = {
                 });
             }
 
-            let services: any = await Service.findOne({ where: { layanan: layanan } });
+            let services: any = await Service.findOne({
+                where: {
+                    layanan: uppercaseLayanan
+                }
+            });
             if (!services) {
-                services = await Service.create({ layanan: layanan, transaction });
+                services = await Service.create({ layanan: uppercaseLayanan, transaction });
+            }
+
+            // Check if the service is already associated with this bengkel
+            const existingBengkelService = await BengkelService.findOne({
+                where: {
+                    bengkel_id: bengkel.id,
+                    service_id: services.id
+                }
+            });
+
+            if (existingBengkelService) {
+                await transaction.rollback();
+                return res.status(409).json({
+                    message: "Service already exists in this Bengkel"
+                });
             }
 
             const bengkelService = await BengkelService.create({
@@ -208,7 +229,7 @@ export const BengkelController = {
 
             const order_id = req.params.orderId;
 
-            if(!order_id) {
+            if (!order_id) {
                 return res.status(400).json({
                     message: "Order id is required"
                 });

@@ -110,6 +110,7 @@ exports.BengkelController = {
                     });
                 }
                 const { bengkel_id, layanan, harga } = req.body;
+                const uppercaseLayanan = layanan.toUpperCase();
                 const bengkel = yield bengkel_models_1.default.findByPk(bengkel_id);
                 if (!bengkel) {
                     yield transaction.rollback();
@@ -124,9 +125,26 @@ exports.BengkelController = {
                         message: "Unauthorized: Only the Bengkel owner can add services"
                     });
                 }
-                let services = yield service_model_1.default.findOne({ where: { layanan: layanan } });
+                let services = yield service_model_1.default.findOne({
+                    where: {
+                        layanan: uppercaseLayanan
+                    }
+                });
                 if (!services) {
-                    services = yield service_model_1.default.create({ layanan: layanan, transaction });
+                    services = yield service_model_1.default.create({ layanan: uppercaseLayanan, transaction });
+                }
+                // Check if the service is already associated with this bengkel
+                const existingBengkelService = yield bengkel_service_model_1.default.findOne({
+                    where: {
+                        bengkel_id: bengkel.id,
+                        service_id: services.id
+                    }
+                });
+                if (existingBengkelService) {
+                    yield transaction.rollback();
+                    return res.status(409).json({
+                        message: "Service already exists in this Bengkel"
+                    });
                 }
                 const bengkelService = yield bengkel_service_model_1.default.create({
                     bengkel_id: bengkel.id,
