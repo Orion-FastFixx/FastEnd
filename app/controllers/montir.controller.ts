@@ -98,14 +98,9 @@ export const MontirController = {
                 });
             }
 
-            if (montirown.user_id !== montir.id) {
-                return res.status(403).json({
-                    message: "Unauthorized: Only the Montir can add services"
-                });
-            }
 
             const montirServiceExists = await MontirService.findOne({
-                where: { montir_id: montir.id }
+                where: { montir_id: montirown.id }
             });
             
             if (montirServiceExists) {

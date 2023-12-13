@@ -97,13 +97,8 @@ exports.MontirController = {
                         message: "Montir not found"
                     });
                 }
-                if (montirown.user_id !== montir.id) {
-                    return res.status(403).json({
-                        message: "Unauthorized: Only the Montir can add services"
-                    });
-                }
                 const montirServiceExists = yield montir_service_model_1.default.findOne({
-                    where: { montir_id: montir.id }
+                    where: { montir_id: montirown.id }
                 });
                 if (montirServiceExists) {
                     return res.status(409).json({

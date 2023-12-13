@@ -91,8 +91,7 @@ exports.AuthenticationController = {
                             jenis_montir: check_jenis_montir,
                             pengalaman: check_pengalaman,
                             foto_url: fotoUrl,
-                            user_id: user.id,
-                            transaction
+                            user_id: user.id
                         });
                     }
                     yield transaction.commit();
