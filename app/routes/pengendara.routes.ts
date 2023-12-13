@@ -25,5 +25,11 @@ pengendaraRouter.post("/cancel-order/:orderId", AuthMiddleware.verifyToken, Auth
 pengendaraRouter.post("/add-review-montir", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.addReviewMontir);
 pengendaraRouter.get("/get-detail-review-montir/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getDetailReviewMontir);
 
+// Kendaraan
+pengendaraRouter.get("/get-all-kendaraan", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getAllKendaraan);
+pengendaraRouter.post("/add-kendaraan", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.addKendaraan);
+pengendaraRouter.put("/update-kendaraan/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.updateKendaraan);
+pengendaraRouter.delete("/delete-kendaraan/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.deleteKendaraan);
+
 
 export default pengendaraRouter;

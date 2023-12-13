@@ -26,6 +26,7 @@ const payment_model_1 = __importDefault(require("../models/payment.model"));
 const order_status_1 = require("../utils/order.status");
 const payment_method_1 = require("../utils/payment.method");
 const payment_status_1 = require("../utils/payment.status");
+const kendaraan_models_1 = __importDefault(require("../models/kendaraan.models"));
 exports.PengendaraController = {
     // feature Bengkel
     getAllBengkel(req, res) {
@@ -500,6 +501,164 @@ exports.PengendaraController = {
                 });
             }
             catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getAllKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const kendaraan = yield kendaraan_models_1.default.findAll({
+                    where: {
+                        pengendara_id: pengendara.id
+                    },
+                    attributes: ['nama_kendaraan'],
+                });
+                if (!kendaraan) {
+                    return res.status(404).json({
+                        message: "Kendaraan not found!"
+                    });
+                }
+                return res.status(200).json({
+                    message: "Success get all kendaraan",
+                    data: kendaraan
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    addKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { nama_kendaraan, jenis, tahun_kendaraan, plat } = req.body;
+                const newKendaraan = yield kendaraan_models_1.default.create({
+                    nama_kendaraan,
+                    jenis,
+                    tahun_kendaraan,
+                    plat,
+                    pengendara_id: pengendara.id,
+                    transaction
+                });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(201).json({
+                    message: "Kendaraan created successfully",
+                    data: newKendaraan
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    updateKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { nama_kendaraan, jenis, tahun_kendaraan, plat } = req.body;
+                const kendaraanId = req.params.id;
+                if (!kendaraanId) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Kendaraan id is required!"
+                    });
+                }
+                const kendaraan = yield kendaraan_models_1.default.findOne({
+                    where: {
+                        id: kendaraanId,
+                        pengendara_id: pengendara.id
+                    },
+                    transaction
+                });
+                if (!kendaraan) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "Kendaraan not found!"
+                    });
+                }
+                kendaraan.nama_kendaraan = nama_kendaraan;
+                kendaraan.jenis = jenis;
+                kendaraan.tahun_kendaraan = tahun_kendaraan;
+                kendaraan.plat = plat;
+                yield kendaraan.save({ transaction });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(200).json({
+                    message: "Kendaraan updated successfully",
+                    data: kendaraan
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    deleteKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const kendaraanId = req.params.id;
+                if (!kendaraanId) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Kendaraan id is required!"
+                    });
+                }
+                const kendaraan = yield kendaraan_models_1.default.findOne({
+                    where: {
+                        id: kendaraanId,
+                        pengendara_id: pengendara.id
+                    },
+                    transaction
+                });
+                if (!kendaraan) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "Kendaraan not found!"
+                    });
+                }
+                yield kendaraan.destroy({ transaction });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(200).json({
+                    message: "Kendaraan deleted successfully",
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });

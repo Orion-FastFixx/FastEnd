@@ -19,5 +19,10 @@ pengendaraRouter.post("/cancel-order/:orderId", auth_1.AuthMiddleware.verifyToke
 // Get Montir Review
 pengendaraRouter.post("/add-review-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.addReviewMontir);
 pengendaraRouter.get("/get-detail-review-montir/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getDetailReviewMontir);
+// Kendaraan
+pengendaraRouter.get("/get-all-kendaraan", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getAllKendaraan);
+pengendaraRouter.post("/add-kendaraan", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.addKendaraan);
+pengendaraRouter.put("/update-kendaraan/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.updateKendaraan);
+pengendaraRouter.delete("/delete-kendaraan/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.deleteKendaraan);
 exports.default = pengendaraRouter;
 //# sourceMappingURL=pengendara.routes.js.map
