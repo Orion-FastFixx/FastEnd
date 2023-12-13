@@ -27,6 +27,7 @@ const order_status_1 = require("../utils/order.status");
 const payment_method_1 = require("../utils/payment.method");
 const payment_status_1 = require("../utils/payment.status");
 const kendaraan_models_1 = __importDefault(require("../models/kendaraan.models"));
+const path_1 = __importDefault(require("path"));
 exports.PengendaraController = {
     // feature Bengkel
     getAllBengkel(req, res) {
@@ -505,6 +506,7 @@ exports.PengendaraController = {
             }
         });
     },
+    // feature account setting
     getAllKendaraan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -663,5 +665,43 @@ exports.PengendaraController = {
             }
         });
     },
+    updateProfilePengendara(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { nama, phone, lokasi } = req.body;
+                const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`;
+                let fotoUrl = placeHolderImgPath; // Default to placeholder
+                if (req.file) {
+                    const filename = path_1.default.basename(req.file.path); // Extract filename from path
+                    fotoUrl = `${req.protocol}://${req.get("host")}/images/${filename}`;
+                }
+                const newLokasi = lokasi ? lokasi : null;
+                pengendara.nama = nama;
+                pengendara.foto = fotoUrl;
+                pengendara.phone = phone;
+                pengendara.lokasi = newLokasi;
+                yield pengendara.save({ transaction });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(200).json({
+                    message: "Profile updated successfully",
+                    data: pengendara
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    // End feature account setting
 };
 //# sourceMappingURL=pengendara.controller.js.map

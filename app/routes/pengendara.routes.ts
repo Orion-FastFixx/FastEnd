@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PengendaraController } from "../controllers/pengendara.controller";
 import { AuthMiddleware } from "../middleware/auth";
+import uploads from "../utils/multer";
 
 const pengendaraRouter = Router();
 
@@ -25,11 +26,15 @@ pengendaraRouter.post("/cancel-order/:orderId", AuthMiddleware.verifyToken, Auth
 pengendaraRouter.post("/add-review-montir", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.addReviewMontir);
 pengendaraRouter.get("/get-detail-review-montir/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getDetailReviewMontir);
 
-// Kendaraan
+// Account Setting
 pengendaraRouter.get("/get-all-kendaraan", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getAllKendaraan);
 pengendaraRouter.post("/add-kendaraan", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.addKendaraan);
 pengendaraRouter.put("/update-kendaraan/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.updateKendaraan);
 pengendaraRouter.delete("/delete-kendaraan/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.deleteKendaraan);
+
+pengendaraRouter.put("/update-profile", uploads.single('foto'), AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.updateProfilePengendara);
+
+
 
 
 export default pengendaraRouter;

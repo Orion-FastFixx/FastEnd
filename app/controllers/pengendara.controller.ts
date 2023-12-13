@@ -14,6 +14,8 @@ import { ORDER_CANCELED_STATUS_ID, ORDER_COMPLETED_STATUS_ID, ORDER_PAID_STATUS_
 import { PAYMENT_METHOD_CASH, PAYMENT_METHOD_TRANSFER } from "../utils/payment.method";
 import { PAYMENT_PAID_STATUS_ID } from "../utils/payment.status";
 import Kendaraan from "../models/kendaraan.models";
+import path from "path";
+
 
 export const PengendaraController = {
     // feature Bengkel
@@ -550,6 +552,8 @@ export const PengendaraController = {
         }
     },
 
+    // feature account setting
+
     async getAllKendaraan(req: CustomRequest, res: Response) {
         try {
             const user = req.userId;
@@ -727,4 +731,50 @@ export const PengendaraController = {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
+
+    async updateProfilePengendara(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+        try {
+            const user = req.userId;
+
+            const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
+            if (!pengendara) {
+                await transaction.rollback();
+                return res.status(403).json({
+                    message: "Require Pengendara Role!"
+                });
+            }
+
+            const { nama, phone, lokasi } = req.body;
+
+            const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`
+            let fotoUrl = placeHolderImgPath; // Default to placeholder
+            if (req.file) {
+                const filename = path.basename(req.file.path); // Extract filename from path
+                fotoUrl = `${req.protocol}://${req.get("host")}/images/${filename}`;
+            }
+
+            const newLokasi = lokasi ? lokasi : null;
+
+            pengendara.nama = nama;
+            pengendara.foto = fotoUrl;
+            pengendara.phone = phone;
+            pengendara.lokasi = newLokasi;
+
+            await pengendara.save({ transaction });
+
+            await transaction.commit(); // Commit the transaction
+
+            return res.status(200).json({
+                message: "Profile updated successfully",
+                data: pengendara
+            });
+
+        } catch (error: any) {
+            await transaction.rollback(); // Rollback transaction if any errors were encountered
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    // End feature account setting
 }

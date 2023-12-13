@@ -174,6 +174,46 @@ exports.AuthenticationController = {
             }
         });
     },
+    updatePassword(req, res) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const userId = (_b = (_a = req.session) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.id;
+                if (!userId) {
+                    yield transaction.rollback();
+                    return res.status(401).json({
+                        message: "Unauthorized"
+                    });
+                }
+                const user = yield user_models_1.default.findByPk(userId);
+                if (!user) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "User not found"
+                    });
+                }
+                const { password, newPassword } = req.body;
+                const passwordIsValid = bcryptjs_1.default.compareSync(password, user.password);
+                if (!passwordIsValid) {
+                    yield transaction.rollback();
+                    return res.status(401).json({ message: 'Current password is incorrect' });
+                }
+                const hashedPassword = bcryptjs_1.default.hashSync(newPassword, 8);
+                yield user.update({
+                    password: hashedPassword
+                }, { transaction });
+                yield transaction.commit();
+                return res.status(200).json({
+                    message: "Password updated"
+                });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
     deleteAccount(req, res) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
