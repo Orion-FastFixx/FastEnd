@@ -10,13 +10,12 @@ import Order from "../models/order.model";
 import OrderService from "../models/order.service.model";
 import BengkelService from "../models/bengkel.service.model";
 import Payment from "../models/payment.model";
-import { ORDER_CANCELED_STATUS_ID, ORDER_PAID_STATUS_ID, ORDER_PENDING_STATUS_ID } from "../utils/order.status";
+import { ORDER_CANCELED_STATUS_ID, ORDER_COMPLETED_STATUS_ID, ORDER_PAID_STATUS_ID, ORDER_PENDING_STATUS_ID } from "../utils/order.status";
 import { PAYMENT_METHOD_CASH, PAYMENT_METHOD_TRANSFER } from "../utils/payment.method";
 import { PAYMENT_PAID_STATUS_ID } from "../utils/payment.status";
 
 export const PengendaraController = {
     // feature Bengkel
-
 
     async getAllBengkel(req: CustomRequest, res: Response) {
         try {
@@ -68,6 +67,12 @@ export const PengendaraController = {
             // Get bengkel_id from route parameters
             const bengkel_id = req.params.id;
 
+            if (!bengkel_id) {
+                return res.status(400).json({
+                    message: "Bengkel id is required!"
+                });
+            }
+
             const bengkel = await Bengkel.findOne({
                 where: { id: bengkel_id },
                 include: [
@@ -106,17 +111,35 @@ export const PengendaraController = {
     },
 
     async addReviewBengkel(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const user = req.userId;
 
             const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
             if (!pengendara) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "Require Pengendara Role!"
                 });
             }
 
             const { bengkel_rating, review, bengkel_id } = req.body;
+
+            const hasOrder = await Order.findOne({
+                where: {
+                    bengkel_id: bengkel_id,
+                    pengendara_id: pengendara.id,
+                    order_status_id: ORDER_COMPLETED_STATUS_ID
+                },
+            });
+
+            if (!hasOrder) {
+                await transaction.rollback();
+                return res.status(403).json({
+                    message: "Review not allowed. You must completed order services from this bengkel first."
+                });
+            }
 
             const existingReview = await BengkelRating.findOne({
                 where: {
@@ -126,6 +149,7 @@ export const PengendaraController = {
             });
 
             if (existingReview) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "You have already review this bengkel!"
                 });
@@ -135,15 +159,18 @@ export const PengendaraController = {
                 bengkel_rating,
                 review,
                 bengkel_id,
-                pengendara_id: pengendara.id
+                pengendara_id: pengendara.id,
+                transaction
             });
 
+            await transaction.commit(); // Commit the transaction
             return res.status(201).json({
                 message: "Review Bengkel created successfully",
                 data: ReviewBengkel
             });
 
         } catch (error: any) {
+            await transaction.rollback(); // Rollback transaction if any errors were encountered
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
@@ -219,19 +246,14 @@ export const PengendaraController = {
 
             const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
 
-            const newOrder: any = await Order.create({
-                additional_info: { precise_location, fullName, complaint },
-                pengendara_id: pengendara.id,
-                bengkel_id,
-                order_status_id: ORDER_PENDING_STATUS_ID,
-                transaction
-            });
-
             // init total price
             let totalPrice = 0;
 
             // add admin fee
             const adminFee = 1000;
+
+            // store service price
+            let servicePrice: any = [];
 
             for (const serviceId of service_id) {
                 const bengkelService: any = await BengkelService.findOne({
@@ -247,14 +269,25 @@ export const PengendaraController = {
                         message: "Service not found!"
                     });
                 }
+                totalPrice += bengkelService.harga;
+                servicePrice[serviceId] = bengkelService.harga;
+            }
 
+            const newOrder: any = await Order.create({
+                additional_info: { precise_location, fullName, complaint },
+                pengendara_id: pengendara.id,
+                bengkel_id,
+                order_status_id: ORDER_PENDING_STATUS_ID,
+                transaction
+            });
+
+            for (const serviceId of service_id) {
                 await OrderService.create({
                     order_id: newOrder.id,
                     service_id: serviceId,
-                    price: bengkelService.harga
+                    price: servicePrice[serviceId],
+                    transaction
                 });
-
-                totalPrice += bengkelService.harga;
             }
 
             const totalPayment = totalPrice + adminFee;
@@ -290,6 +323,7 @@ export const PengendaraController = {
             }
 
             const { order_id, payment_method_id } = req.body;
+
             // fetch order
             const order: any = await Order.findOne({
                 where: {
@@ -364,11 +398,14 @@ export const PengendaraController = {
     },
 
     async cancelOrder(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const user = req.userId;
 
             const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
             if (!pengendara) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "Require Pengendara Role!"
                 });
@@ -376,14 +413,23 @@ export const PengendaraController = {
 
             const order_id = req.params.orderId;
 
+            if (!order_id) {
+                await transaction.rollback();
+                return res.status(400).json({
+                    message: "Order id is required!"
+                });
+            }
+
             const order: any = await Order.findOne({
                 where: {
                     id: order_id,
-                    pengendara_id: pengendara.id
+                    pengendara_id: pengendara.id,
+                    transaction
                 }
             });
 
             if (!order) {
+                await transaction.rollback();
                 return res.status(404).json({
                     message: "Order not found!"
                 });
@@ -392,12 +438,14 @@ export const PengendaraController = {
             order.order_status_id = ORDER_CANCELED_STATUS_ID;
             await order.save();
 
+            await transaction.commit(); // Commit the transaction
             return res.status(200).json({
                 message: "Order cancelled",
                 order
             });
 
         } catch (error: any) {
+            await transaction.rollback(); // Rollback transaction if any errors were encountered
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },

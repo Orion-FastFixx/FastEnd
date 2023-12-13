@@ -74,6 +74,11 @@ exports.PengendaraController = {
                 }
                 // Get bengkel_id from route parameters
                 const bengkel_id = req.params.id;
+                if (!bengkel_id) {
+                    return res.status(400).json({
+                        message: "Bengkel id is required!"
+                    });
+                }
                 const bengkel = yield bengkel_models_1.default.findOne({
                     where: { id: bengkel_id },
                     include: [
@@ -111,15 +116,30 @@ exports.PengendaraController = {
     },
     addReviewBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const user = req.userId;
                 const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
                 if (!pengendara) {
+                    yield transaction.rollback();
                     return res.status(403).json({
                         message: "Require Pengendara Role!"
                     });
                 }
                 const { bengkel_rating, review, bengkel_id } = req.body;
+                const hasOrder = yield order_model_1.default.findOne({
+                    where: {
+                        bengkel_id: bengkel_id,
+                        pengendara_id: pengendara.id,
+                        order_status_id: order_status_1.ORDER_COMPLETED_STATUS_ID
+                    },
+                });
+                if (!hasOrder) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Review not allowed. You must completed order services from this bengkel first."
+                    });
+                }
                 const existingReview = yield bengkel_rating_models_1.default.findOne({
                     where: {
                         bengkel_id: bengkel_id,
@@ -127,6 +147,7 @@ exports.PengendaraController = {
                     }
                 });
                 if (existingReview) {
+                    yield transaction.rollback();
                     return res.status(403).json({
                         message: "You have already review this bengkel!"
                     });
@@ -135,14 +156,17 @@ exports.PengendaraController = {
                     bengkel_rating,
                     review,
                     bengkel_id,
-                    pengendara_id: pengendara.id
+                    pengendara_id: pengendara.id,
+                    transaction
                 });
+                yield transaction.commit(); // Commit the transaction
                 return res.status(201).json({
                     message: "Review Bengkel created successfully",
                     data: ReviewBengkel
                 });
             }
             catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
@@ -210,17 +234,12 @@ exports.PengendaraController = {
                     });
                 }
                 const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
-                const newOrder = yield order_model_1.default.create({
-                    additional_info: { precise_location, fullName, complaint },
-                    pengendara_id: pengendara.id,
-                    bengkel_id,
-                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
-                    transaction
-                });
                 // init total price
                 let totalPrice = 0;
                 // add admin fee
                 const adminFee = 1000;
+                // store service price
+                let servicePrice = [];
                 for (const serviceId of service_id) {
                     const bengkelService = yield bengkel_service_model_1.default.findOne({
                         where: {
@@ -234,12 +253,23 @@ exports.PengendaraController = {
                             message: "Service not found!"
                         });
                     }
+                    totalPrice += bengkelService.harga;
+                    servicePrice[serviceId] = bengkelService.harga;
+                }
+                const newOrder = yield order_model_1.default.create({
+                    additional_info: { precise_location, fullName, complaint },
+                    pengendara_id: pengendara.id,
+                    bengkel_id,
+                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
+                    transaction
+                });
+                for (const serviceId of service_id) {
                     yield order_service_model_1.default.create({
                         order_id: newOrder.id,
                         service_id: serviceId,
-                        price: bengkelService.harga
+                        price: servicePrice[serviceId],
+                        transaction
                     });
-                    totalPrice += bengkelService.harga;
                 }
                 const totalPayment = totalPrice + adminFee;
                 yield newOrder.update({
@@ -341,34 +371,46 @@ exports.PengendaraController = {
     },
     cancelOrder(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const user = req.userId;
                 const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
                 if (!pengendara) {
+                    yield transaction.rollback();
                     return res.status(403).json({
                         message: "Require Pengendara Role!"
                     });
                 }
                 const order_id = req.params.orderId;
+                if (!order_id) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Order id is required!"
+                    });
+                }
                 const order = yield order_model_1.default.findOne({
                     where: {
                         id: order_id,
-                        pengendara_id: pengendara.id
+                        pengendara_id: pengendara.id,
+                        transaction
                     }
                 });
                 if (!order) {
+                    yield transaction.rollback();
                     return res.status(404).json({
                         message: "Order not found!"
                     });
                 }
                 order.order_status_id = order_status_1.ORDER_CANCELED_STATUS_ID;
                 yield order.save();
+                yield transaction.commit(); // Commit the transaction
                 return res.status(200).json({
                     message: "Order cancelled",
                     order
                 });
             }
             catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });

@@ -12,6 +12,10 @@ const AdminBengkel = sequelize.define("admin_bengkels", {
         type: DataTypes.STRING(30),
         allowNull: true,
     },
+    foto: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+    },
     phone: {
         type: DataTypes.STRING(12),
         allowNull: true,
@@ -22,7 +26,8 @@ const AdminBengkel = sequelize.define("admin_bengkels", {
         references: {
             model: User, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     }
 });
 

@@ -16,6 +16,7 @@ exports.BengkelController = void 0;
 const fs_1 = __importDefault(require("fs"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
+const db_1 = require("../../db");
 const admin_bengkel_model_1 = __importDefault(require("../models/admin.bengkel.model"));
 const bengkel_models_1 = __importDefault(require("../models/bengkel.models"));
 const bengkel_service_model_1 = __importDefault(require("../models/bengkel.service.model"));
@@ -25,7 +26,6 @@ const pengendara_models_1 = __importDefault(require("../models/pengendara.models
 const service_model_1 = __importDefault(require("../models/service.model"));
 const multer_2 = require("../utils/multer");
 const order_status_1 = require("../utils/order.status");
-const db_1 = require("../../db");
 exports.BengkelController = {
     createBengkel(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -110,6 +110,7 @@ exports.BengkelController = {
                     });
                 }
                 const { bengkel_id, layanan, harga } = req.body;
+                const uppercaseLayanan = layanan.toUpperCase();
                 const bengkel = yield bengkel_models_1.default.findByPk(bengkel_id);
                 if (!bengkel) {
                     yield transaction.rollback();
@@ -124,9 +125,26 @@ exports.BengkelController = {
                         message: "Unauthorized: Only the Bengkel owner can add services"
                     });
                 }
-                let services = yield service_model_1.default.findOne({ where: { layanan: layanan } });
+                let services = yield service_model_1.default.findOne({
+                    where: {
+                        layanan: uppercaseLayanan
+                    }
+                });
                 if (!services) {
-                    services = yield service_model_1.default.create({ layanan: layanan, transaction });
+                    services = yield service_model_1.default.create({ layanan: uppercaseLayanan, transaction });
+                }
+                // Check if the service is already associated with this bengkel
+                const existingBengkelService = yield bengkel_service_model_1.default.findOne({
+                    where: {
+                        bengkel_id: bengkel.id,
+                        service_id: services.id
+                    }
+                });
+                if (existingBengkelService) {
+                    yield transaction.rollback();
+                    return res.status(409).json({
+                        message: "Service already exists in this Bengkel"
+                    });
                 }
                 const bengkelService = yield bengkel_service_model_1.default.create({
                     bengkel_id: bengkel.id,
@@ -175,6 +193,140 @@ exports.BengkelController = {
                                 }
                             ]
                         },
+                    ],
+                    attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+                });
+                return res.status(200).json({
+                    message: "Bengkel order fetched successfully",
+                    data: orders
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getDetailBengkelOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const bengkelOwner = req.userId;
+                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
+                if (!adminBengkel) {
+                    return res.status(403).json({
+                        message: "Require Admin Bengkel Role!"
+                    });
+                }
+                const order_id = req.params.orderId;
+                if (!order_id) {
+                    return res.status(400).json({
+                        message: "Order id is required"
+                    });
+                }
+                const order = yield order_model_1.default.findOne({
+                    where: {
+                        id: order_id,
+                    },
+                    include: [
+                        {
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: { exclude: ['createdAt', 'updatedAt'] },
+                            through: {
+                                attributes: ['price']
+                            }
+                        }
+                    ],
+                    attributes: ['id', 'total_harga', 'order_status_id'],
+                });
+                return res.status(200).json({
+                    message: "Bengkel order fetched successfully",
+                    data: order
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getCompletedBengkelOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const bengkelOwner = req.userId;
+                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
+                if (!adminBengkel) {
+                    return res.status(403).json({
+                        message: "Require Admin Bengkel Role!"
+                    });
+                }
+                // fetch bengkel order
+                const orders = yield order_model_1.default.findAll({
+                    where: {
+                        bengkel_id: adminBengkel.id,
+                        order_status_id: order_status_1.ORDER_COMPLETED_STATUS_ID
+                    },
+                    include: [
+                        {
+                            model: pengendara_models_1.default,
+                            as: "pengendara",
+                            attributes: ["nama", "phone", "foto", "lokasi",],
+                            include: [
+                                {
+                                    model: kendaraan_models_1.default,
+                                    as: "kendaraan",
+                                    attributes: ["nama_kendaraan", "jenis", "plat"],
+                                }
+                            ]
+                        },
+                        {
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: { exclude: ['createdAt', 'updatedAt'] },
+                            through: {
+                                attributes: ['price']
+                            }
+                        }
+                    ],
+                    attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+                });
+                return res.status(200).json({
+                    message: "Bengkel order fetched successfully",
+                    data: orders
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getCanceledBengkelOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const bengkelOwner = req.userId;
+                const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
+                if (!adminBengkel) {
+                    return res.status(403).json({
+                        message: "Require Admin Bengkel Role!"
+                    });
+                }
+                // fetch bengkel order
+                const orders = yield order_model_1.default.findAll({
+                    where: {
+                        bengkel_id: adminBengkel.id,
+                        order_status_id: order_status_1.ORDER_CANCELED_STATUS_ID
+                    },
+                    include: [
+                        {
+                            model: pengendara_models_1.default,
+                            as: "pengendara",
+                            attributes: ["nama", "phone", "foto", "lokasi",],
+                            include: [
+                                {
+                                    model: kendaraan_models_1.default,
+                                    as: "kendaraan",
+                                    attributes: ["nama_kendaraan", "jenis", "plat"],
+                                }
+                            ]
+                        },
                         {
                             model: service_model_1.default,
                             as: 'services',
@@ -199,6 +351,7 @@ exports.BengkelController = {
     // todo: pikirkan cara untuk membatalkan order yang sudah diterima jika melebihi waktu tertentu
     acceptOrder(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const bengkelOwner = req.userId;
                 const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
@@ -212,9 +365,24 @@ exports.BengkelController = {
                 if (!order) {
                     return res.status(404).json({ message: 'Order not found' });
                 }
-                // Assuming the 'status' field holds the status name or ID
-                order.order_status_id = order_status_1.ORDER_ACCEPTED_STATUS_ID;
-                yield order.save();
+                if (order.order_status_id === order_status_1.ORDER_PAID_STATUS_ID) {
+                    // Assuming the 'status' field holds the status name or ID
+                    order.order_status_id = order_status_1.ORDER_ACCEPTED_STATUS_ID;
+                    yield order.save();
+                }
+                else {
+                    yield transaction.rollback();
+                    if (order.order_status_id === order_status_1.ORDER_ACCEPTED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already accepted' });
+                    }
+                    else if (order.order_status_id === order_status_1.ORDER_COMPLETED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already completed' });
+                    }
+                    else if (order.order_status_id === order_status_1.ORDER_CANCELED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already cancelled' });
+                    }
+                }
+                yield transaction.commit();
                 return res.status(200).json({ message: 'Order accepted' });
             }
             catch (error) {
@@ -224,6 +392,7 @@ exports.BengkelController = {
     },
     cancelOrder(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const bengkelOwner = req.userId;
                 const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
@@ -237,9 +406,24 @@ exports.BengkelController = {
                 if (!order) {
                     return res.status(404).json({ message: 'Order not found' });
                 }
-                // Assuming the 'status' field holds the status name or ID
-                order.order_status_id = order_status_1.ORDER_CANCELED_STATUS_ID;
-                yield order.save();
+                if (order.order_status_id === order_status_1.ORDER_PAID_STATUS_ID) {
+                    // Assuming the 'status' field holds the status name or ID
+                    order.order_status_id = order_status_1.ORDER_CANCELED_STATUS_ID;
+                    yield order.save();
+                }
+                else {
+                    yield transaction.rollback();
+                    if (order.order_status_id === order_status_1.ORDER_ACCEPTED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already accepted' });
+                    }
+                    else if (order.order_status_id === order_status_1.ORDER_COMPLETED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already completed' });
+                    }
+                    else if (order.order_status_id === order_status_1.ORDER_CANCELED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already cancelled' });
+                    }
+                }
+                yield transaction.commit();
                 return res.status(200).json({ message: 'Order cancelled' });
             }
             catch (error) {
@@ -249,6 +433,7 @@ exports.BengkelController = {
     },
     completedOrder(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
             try {
                 const bengkelOwner = req.userId;
                 const adminBengkel = yield admin_bengkel_model_1.default.findOne({ where: { user_id: bengkelOwner } });
@@ -262,9 +447,24 @@ exports.BengkelController = {
                 if (!order) {
                     return res.status(404).json({ message: 'Order not found' });
                 }
-                // Assuming the 'status' field holds the status name or ID
-                order.order_status_id = order_status_1.ORDER_COMPLETED_STATUS_ID;
-                yield order.save();
+                if (order.order_status_id === order_status_1.ORDER_ACCEPTED_STATUS_ID) {
+                    // Assuming the 'status' field holds the status name or ID
+                    order.order_status_id = order_status_1.ORDER_COMPLETED_STATUS_ID;
+                    yield order.save();
+                }
+                else {
+                    yield transaction.rollback();
+                    if (order.order_status_id === order_status_1.ORDER_ACCEPTED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already accepted' });
+                    }
+                    else if (order.order_status_id === order_status_1.ORDER_COMPLETED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already completed' });
+                    }
+                    else if (order.order_status_id === order_status_1.ORDER_CANCELED_STATUS_ID) {
+                        return res.status(409).json({ message: 'Order already cancelled' });
+                    }
+                }
+                yield transaction.commit();
                 return res.status(200).json({ message: 'Order completed' });
             }
             catch (error) {

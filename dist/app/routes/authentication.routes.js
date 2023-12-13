@@ -6,5 +6,6 @@ const authRouter = (0, express_1.Router)();
 authRouter.post("/signup", authentication_controller_1.AuthenticationController.signUp);
 authRouter.post("/signin", authentication_controller_1.AuthenticationController.signIn);
 authRouter.post("/signout", authentication_controller_1.AuthenticationController.signOut);
+authRouter.delete("/delete", authentication_controller_1.AuthenticationController.deleteAccount);
 exports.default = authRouter;
 //# sourceMappingURL=authentication.routes.js.map

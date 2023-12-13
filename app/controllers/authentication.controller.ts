@@ -10,9 +10,6 @@ import Pengendara from "../models/pengendara.models";
 import User from "../models/user.models";
 import { sequelize } from "../../db";
 
-
-
-
 export const AuthenticationController = {
     async signUp(req: Request, res: Response) {
         const transaction = await sequelize.transaction();
@@ -209,6 +206,52 @@ export const AuthenticationController = {
                 message: "User logged out"
             });
         } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async deleteAccount(req: Request, res: Response) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const userId = req.session?.user?.id;
+            if (!userId) {
+                await transaction.rollback();
+                return res.status(401).json({
+                    message: "Unauthorized"
+                });
+            }
+
+            const user: any = await User.findByPk(userId);
+
+            // get user name
+            const username = user?.username;
+
+            if (!user) {
+                await transaction.rollback();
+                return res.status(404).json({
+                    message: "User not found"
+                });
+            }
+
+            await user.destroy({ transaction });
+
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ message: err.message || "Internal Server Error" });
+                }
+            });
+
+            res.clearCookie('connect.sid');
+
+            await transaction.commit();
+
+            return res.status(200).json({
+                message: `User ${username} deleted`
+            });
+
+        } catch (error: any) {
+            await transaction.rollback();
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },

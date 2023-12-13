@@ -16,7 +16,8 @@ const Payment = sequelize.define("payments", {
         references: {
             model: Order,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     payment_method_id: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -24,7 +25,8 @@ const Payment = sequelize.define("payments", {
         references: {
             model: PaymentMethod,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     payment_status_id: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -32,7 +34,8 @@ const Payment = sequelize.define("payments", {
         references: {
             model: PaymentStatus,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 

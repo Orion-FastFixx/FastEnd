@@ -34,7 +34,8 @@ const Order = db_1.sequelize.define("orders", {
         references: {
             model: pengendara_models_1.default,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     bengkel_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
@@ -42,7 +43,8 @@ const Order = db_1.sequelize.define("orders", {
         references: {
             model: bengkel_models_1.default,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     montir_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
@@ -50,7 +52,8 @@ const Order = db_1.sequelize.define("orders", {
         references: {
             model: montir_models_1.default,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
     total_harga: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
@@ -63,7 +66,8 @@ const Order = db_1.sequelize.define("orders", {
         references: {
             model: order_status_model_1.default,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 exports.default = Order;

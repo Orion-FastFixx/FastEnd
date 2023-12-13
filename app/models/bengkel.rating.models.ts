@@ -23,7 +23,8 @@ const BengkelRating = sequelize.define("bengkel_ratings", {
         references: {
             model: Bengkel, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
     pengendara_id: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -31,7 +32,8 @@ const BengkelRating = sequelize.define("bengkel_ratings", {
         references: {
             model: Pengendara, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 

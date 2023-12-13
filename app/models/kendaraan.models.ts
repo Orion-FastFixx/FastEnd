@@ -38,7 +38,8 @@ const Kendaraan = sequelize.define("kendaraans", {
         references: {
             model: Pengendara,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 

@@ -27,7 +27,8 @@ const BengkelRating = db_1.sequelize.define("bengkel_ratings", {
         references: {
             model: bengkel_models_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
     pengendara_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
@@ -35,7 +36,8 @@ const BengkelRating = db_1.sequelize.define("bengkel_ratings", {
         references: {
             model: pengendara_models_1.default,
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 exports.default = BengkelRating;

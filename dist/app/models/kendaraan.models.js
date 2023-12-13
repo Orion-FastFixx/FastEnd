@@ -42,7 +42,8 @@ const Kendaraan = db_1.sequelize.define("kendaraans", {
         references: {
             model: pengendara_models_1.default,
             key: "id"
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 exports.default = Kendaraan;

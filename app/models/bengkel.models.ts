@@ -60,7 +60,8 @@ const Bengkel = sequelize.define("bengkels", {
         references: {
             model: AdminBengkel, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     },
 });
 

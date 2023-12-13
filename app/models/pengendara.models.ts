@@ -1,7 +1,6 @@
-import { sequelize } from "../../db";
 import { DataTypes } from 'sequelize';
+import { sequelize } from "../../db";
 import User from "./user.models";
-import Kendaraan from "./kendaraan.models";
 
 const Pengendara = sequelize.define("pengendaras", {
     id: {
@@ -14,7 +13,7 @@ const Pengendara = sequelize.define("pengendaras", {
         allowNull: true,
     },
     foto: {
-        type: DataTypes.STRING(50),
+        type: DataTypes.STRING(100),
         allowNull: true,
     },
     phone: {
@@ -31,7 +30,8 @@ const Pengendara = sequelize.define("pengendaras", {
         references: {
             model: User, // This is a reference to another model
             key: 'id', // This is the column name of the referenced model
-        }
+        },
+        onDelete: 'CASCADE',
     }
 });
 

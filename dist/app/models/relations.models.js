@@ -36,61 +36,73 @@ const relations = () => {
     // Start User Relations to Pengendara
     user_models_1.default.hasMany(pengendara_models_1.default, {
         foreignKey: 'user_id',
-        as: 'pengendara' // This is optional, it's an alias for the association, used in queries
+        as: 'pengendara',
+        onDelete: 'CASCADE',
     });
     pengendara_models_1.default.belongsTo(user_models_1.default, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user',
+        onDelete: 'CASCADE',
     });
     // End User Relations to Pengendara
     // Start Pengendara Relations to Kendaraan
     pengendara_models_1.default.hasMany(kendaraan_models_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'kendaraan' // This is optional, it's an alias for the association, used in queries
+        as: 'kendaraan',
+        onDelete: 'CASCADE',
     });
     kendaraan_models_1.default.belongsTo(pengendara_models_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara',
+        onDelete: 'CASCADE',
     });
     // End Pengendara Relations to Kendaraan
     // Start User Relations to Admin
     user_models_1.default.hasMany(admin_models_1.default, {
         foreignKey: 'user_id',
-        as: 'admin' // This is optional, it's an alias for the association, used in queries
+        as: 'admin',
+        onDelete: 'CASCADE',
     });
     admin_models_1.default.belongsTo(user_models_1.default, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user',
+        onDelete: 'CASCADE',
     });
     // End User Relations to Admin
     // Start User Relations to Montir
     user_models_1.default.hasMany(montir_models_1.default, {
         foreignKey: 'user_id',
-        as: 'montir' // This is optional, it's an alias for the association, used in queries
+        as: 'montir',
+        onDelete: 'CASCADE',
     });
     montir_models_1.default.belongsTo(user_models_1.default, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user',
+        onDelete: 'CASCADE',
     });
     // End User Relations to Montir
     // Start User Relations to Admin Bengkel
     user_models_1.default.hasMany(admin_bengkel_model_1.default, {
         foreignKey: 'user_id',
-        as: 'admin_bengkel' // This is optional, it's an alias for the association, used in queries
+        as: 'admin_bengkel',
+        onDelete: 'CASCADE',
     });
     admin_bengkel_model_1.default.belongsTo(user_models_1.default, {
         foreignKey: 'user_id',
-        as: 'user' // Optional alias
+        as: 'user',
+        onDelete: 'CASCADE',
     });
     // End User Relations to Admin Bengkel
     // Start Admin Bengkel Relations to Bengkel
     admin_bengkel_model_1.default.hasMany(bengkel_models_1.default, {
         foreignKey: 'pemilik_id',
-        as: 'bengkel' // This is optional, it's an alias for the association, used in queries
+        as: 'bengkel',
+        onDelete: 'CASCADE',
     });
     bengkel_models_1.default.belongsTo(admin_bengkel_model_1.default, {
         foreignKey: 'pemilik_id',
-        as: 'admin_bengkel' // Optional alias
+        as: 'admin_bengkel',
+        onDelete: 'CASCADE',
     });
     // End Admin Bengkel Relations to Bengkel
     // Bengkel Service is a pivot table between Bengkel and Service
@@ -98,116 +110,140 @@ const relations = () => {
         through: bengkel_service_model_1.default,
         as: 'services',
         foreignKey: 'bengkel_id',
+        onDelete: 'CASCADE',
     });
     service_model_1.default.belongsToMany(bengkel_models_1.default, {
         through: bengkel_service_model_1.default,
         as: 'bengkels',
         foreignKey: 'service_id',
+        onDelete: 'CASCADE',
     });
     // Start Bengkel Relations to Bengkel Rating
     bengkel_models_1.default.hasMany(bengkel_rating_models_1.default, {
         foreignKey: 'bengkel_id',
-        as: 'rating' // This is optional, it's an alias for the association, used in queries
+        as: 'rating',
+        onDelete: 'CASCADE',
     });
     bengkel_rating_models_1.default.belongsTo(bengkel_models_1.default, {
         foreignKey: 'bengkel_id',
-        as: 'bengkel' // Optional alias
+        as: 'bengkel',
+        onDelete: 'CASCADE',
     });
     // End Bengkel Relations to Rating
     // Start Pengendara Relations to Bengkel Rating
     pengendara_models_1.default.hasMany(bengkel_rating_models_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'rating_bengkel' // This is optional, it's an alias for the association, used in queries
+        as: 'rating_bengkel',
+        onDelete: 'CASCADE',
     });
     bengkel_rating_models_1.default.belongsTo(pengendara_models_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara',
+        onDelete: 'CASCADE',
     });
     // End Pengendara Relations to Bengkel Rating
     // Start Montir Relations to Montir Rating
     montir_models_1.default.hasMany(montir_rating_model_1.default, {
         foreignKey: 'montir_id',
-        as: 'rating' // This is optional, it's an alias for the association, used in queries
+        as: 'rating',
+        onDelete: 'CASCADE',
     });
     montir_rating_model_1.default.belongsTo(montir_models_1.default, {
         foreignKey: 'montir_id',
-        as: 'montir' // Optional alias
+        as: 'montir',
+        onDelete: 'CASCADE',
     });
     // End Montir Relations to Montir Rating
     // Start Pengendara Relations to Montir Rating
     pengendara_models_1.default.hasMany(montir_rating_model_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'rating_montir' // This is optional, it's an alias for the association, used in queries
+        as: 'rating_montir',
+        onDelete: 'CASCADE',
     });
     montir_rating_model_1.default.belongsTo(pengendara_models_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara',
+        onDelete: 'CASCADE',
     });
     // End Pengendara Relations to Montir Rating
     // Order to Order status
     order_status_model_1.default.hasMany(order_model_1.default, {
         foreignKey: 'order_status_id',
-        as: 'order' // This is optional, it's an alias for the association, used in queries
+        as: 'order',
+        onDelete: 'CASCADE',
     });
     order_model_1.default.belongsTo(order_status_model_1.default, {
         foreignKey: 'order_status_id',
-        as: 'order_status' // Optional alias
+        as: 'order_status',
+        onDelete: 'CASCADE',
     });
     // End Order to Order status
     // Payment to Payment status
     payment_status_model_1.default.hasMany(payment_model_1.default, {
         foreignKey: 'payment_status_id',
-        as: 'payment' // This is optional, it's an alias for the association, used in queries
+        as: 'payment',
+        onDelete: 'CASCADE',
     });
     payment_model_1.default.belongsTo(payment_status_model_1.default, {
         foreignKey: 'payment_status_id',
-        as: 'payment_status' // Optional alias
+        as: 'payment_status',
+        onDelete: 'CASCADE',
     });
     // End Payment to Payment status
     // Payment to Payment method
     payment_method_model_1.default.hasMany(payment_model_1.default, {
         foreignKey: 'payment_method_id',
-        as: 'payment' // This is optional, it's an alias for the association, used in queries
+        as: 'payment',
+        onDelete: 'CASCADE',
     });
     payment_model_1.default.belongsTo(payment_method_model_1.default, {
         foreignKey: 'payment_method_id',
-        as: 'payment_method' // Optional alias
+        as: 'payment_method',
+        onDelete: 'CASCADE',
     });
     // End Payment to Payment method
     // The bengkel orders
     pengendara_models_1.default.hasMany(order_model_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'order' // This is optional, it's an alias for the association, used in queries
+        as: 'order',
+        onDelete: 'CASCADE',
     });
     order_model_1.default.belongsTo(pengendara_models_1.default, {
         foreignKey: 'pengendara_id',
-        as: 'pengendara' // Optional alias
+        as: 'pengendara',
+        onDelete: 'CASCADE',
     });
     bengkel_models_1.default.hasMany(order_model_1.default, {
         foreignKey: 'bengkel_id',
-        as: 'order' // This is optional, it's an alias for the association, used in queries
+        as: 'order',
+        onDelete: 'CASCADE',
     });
     order_model_1.default.belongsTo(bengkel_models_1.default, {
         foreignKey: 'bengkel_id',
-        as: 'bengkel' // Optional alias
+        as: 'bengkel',
+        onDelete: 'CASCADE',
     });
     order_model_1.default.belongsToMany(service_model_1.default, {
         through: order_service_model_1.default,
         as: 'services',
         foreignKey: 'order_id',
+        onDelete: 'CASCADE',
     });
     service_model_1.default.belongsToMany(order_model_1.default, {
         through: order_service_model_1.default,
         as: 'orders',
         foreignKey: 'service_id',
+        onDelete: 'CASCADE',
     });
     order_model_1.default.hasOne(payment_model_1.default, {
         foreignKey: 'order_id',
-        as: 'payment'
+        as: 'payment',
+        onDelete: 'CASCADE',
     });
     payment_model_1.default.belongsTo(order_model_1.default, {
         foreignKey: 'order_id',
-        as: 'order'
+        as: 'order',
+        onDelete: 'CASCADE',
     });
     // End Bengkel Orders
 };
