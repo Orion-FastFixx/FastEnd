@@ -312,6 +312,8 @@ export const PengendaraController = {
 
     // End feature Bengkel
 
+    // Start feature Montir
+
     async getAllMontir(req: CustomRequest, res: Response) {
         try {
 
@@ -526,6 +528,8 @@ export const PengendaraController = {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
+
+    // End feature Montir
 
     async payOrderService(req: CustomRequest, res: Response) {
         const transaction = await sequelize.transaction();

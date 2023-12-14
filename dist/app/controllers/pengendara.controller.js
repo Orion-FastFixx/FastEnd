@@ -290,6 +290,7 @@ exports.PengendaraController = {
         });
     },
     // End feature Bengkel
+    // Start feature Montir
     getAllMontir(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -479,6 +480,7 @@ exports.PengendaraController = {
             }
         });
     },
+    // End feature Montir
     payOrderService(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield db_1.sequelize.transaction();
