@@ -8,6 +8,6 @@ import uploads from "../utils/multer";
 const adminRouter = Router();
 
 adminRouter.get("/list-user", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.getAllUser);
-adminRouter.post("/create-education",  AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, EducationController.createEducation, uploads.array('foto_url'),);
+adminRouter.post("/create-education", uploads.array('foto_url'), AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, EducationController.createEducation,);
 
 export default adminRouter;
