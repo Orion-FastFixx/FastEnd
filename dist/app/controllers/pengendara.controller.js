@@ -27,6 +27,8 @@ const payment_model_1 = __importDefault(require("../models/payment.model"));
 const order_status_1 = require("../utils/order.status");
 const payment_method_1 = require("../utils/payment.method");
 const payment_status_1 = require("../utils/payment.status");
+const kendaraan_models_1 = __importDefault(require("../models/kendaraan.models"));
+const path_1 = __importDefault(require("path"));
 const montir_service_model_1 = __importDefault(require("../models/montir.service.model"));
 exports.PengendaraController = {
     // feature Bengkel
@@ -289,199 +291,7 @@ exports.PengendaraController = {
             }
         });
     },
-    // End feature Bengkel
-    // Start feature Montir
-    getAllMontir(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = req.userId;
-                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
-                if (!pengendara) {
-                    return res.status(403).json({
-                        message: "Require Pengendara Role!"
-                    });
-                }
-                const montirs = yield montir_models_1.default.findAll({
-                    include: [
-                        {
-                            model: montir_rating_model_1.default,
-                            as: 'rating',
-                            attributes: [
-                                [db_1.sequelize.fn('ROUND', db_1.sequelize.fn('AVG', db_1.sequelize.col('montir_rating')), 1), 'average_rating'],
-                                [db_1.sequelize.fn('COUNT', db_1.sequelize.col('review')), 'review_count']
-                            ],
-                        }
-                    ],
-                    attributes: { exclude: ['phone', 'deskripsi', 'user_id', 'createdAt', 'updatedAt'],
-                        include: ['is_available'], },
-                    group: ['montirs.id'] // Adjust according to the models' relationships
-                });
-                res.status(200).json({
-                    message: "Success get all montir",
-                    data: montirs
-                });
-            }
-            catch (error) {
-                res.status(500).json({ message: error.message });
-            }
-        });
-    },
-    addReviewMontir(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = req.userId;
-                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
-                if (!pengendara) {
-                    return res.status(403).json({
-                        message: "Require Pengendara Role!"
-                    });
-                }
-                const { montir_rating, review, montir_id } = req.body;
-                const existingReview = yield montir_rating_model_1.default.findOne({
-                    where: {
-                        montir_id: montir_id,
-                        pengendara_id: pengendara.id
-                    }
-                });
-                if (existingReview) {
-                    return res.status(403).json({
-                        message: "You have already review this montir!"
-                    });
-                }
-                const ReviewMontir = yield montir_rating_model_1.default.create({
-                    montir_rating,
-                    review,
-                    montir_id,
-                    pengendara_id: pengendara.id
-                });
-                return res.status(201).json({
-                    message: "Review Montir created successfully",
-                    data: ReviewMontir
-                });
-            }
-            catch (error) {
-                return res.status(500).json({ message: error.message || "Internal Server Error" });
-            }
-        });
-    },
-    getDetailReviewMontir(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = req.userId;
-                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
-                if (!pengendara) {
-                    return res.status(403).json({
-                        message: "Require Pengendara Role!"
-                    });
-                }
-                // Get montir_id from route parameters
-                const montir_id = req.params.id;
-                if (!montir_id) {
-                    return res.status(400).json({
-                        message: "Montir id is required!"
-                    });
-                }
-                const ReviewMontir = yield montir_rating_model_1.default.findAll({
-                    where: {
-                        montir_id: montir_id,
-                    },
-                    include: [{
-                            model: pengendara_models_1.default,
-                            as: 'pengendara',
-                            attributes: ['nama', 'foto']
-                        }],
-                    attributes: { exclude: ['pengendara_id'] },
-                });
-                // Calculate the average rating and count of ratings
-                const reviewSummary = yield montir_rating_model_1.default.findOne({
-                    where: { montir_id: montir_id },
-                    attributes: [
-                        [db_1.sequelize.fn('ROUND', db_1.sequelize.fn('AVG', db_1.sequelize.col('montir_rating')), 1), 'average_rating'],
-                        [db_1.sequelize.fn('COUNT', db_1.sequelize.col('montir_rating')), 'rating_count']
-                    ],
-                    raw: true
-                });
-                return res.status(200).json({
-                    message: "Success get all review montir",
-                    data: {
-                        review_summary: reviewSummary,
-                        review_all: ReviewMontir
-                    }
-                });
-            }
-            catch (error) {
-                return res.status(500).json({ message: error.message || "Internal Server Error" });
-            }
-        });
-    },
-    orderMontirService(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const transaction = yield db_1.sequelize.transaction();
-            try {
-                const user = req.userId;
-                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
-                if (!pengendara) {
-                    yield transaction.rollback();
-                    return res.status(403).json({
-                        message: "Require Pengendara Role!"
-                    });
-                }
-                const { montir_id, service_id } = req.body;
-                // init total price
-                let totalPrice = 0;
-                // add admin fee
-                const adminFee = 1000;
-                // store service price
-                let servicePrice = [];
-                for (const serviceId of service_id) {
-                    const montirService = yield montir_service_model_1.default.findOne({
-                        where: {
-                            montir_id: montir_id,
-                            service_id: serviceId
-                        }
-                    });
-                    if (!montirService) {
-                        yield transaction.rollback();
-                        return res.status(400).json({
-                            message: "Service not found!"
-                        });
-                    }
-                    totalPrice += montirService.harga;
-                    servicePrice[serviceId] = montirService.harga;
-                }
-                const newOrder = yield order_model_1.default.create({
-                    additional_info: {},
-                    pengendara_id: pengendara.id,
-                    montir_id,
-                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
-                    transaction
-                });
-                for (const serviceId of service_id) {
-                    yield order_service_model_1.default.create({
-                        order_id: newOrder.id,
-                        service_id: serviceId,
-                        price: servicePrice[serviceId],
-                        transaction
-                    });
-                }
-                const totalPayment = totalPrice + adminFee;
-                yield newOrder.update({
-                    total_harga: totalPayment
-                });
-                yield transaction.commit(); // Commit the transaction
-                return res.status(201).json({
-                    message: "Order created successfully",
-                    data: newOrder
-                });
-            }
-            catch (error) {
-                yield transaction.rollback(); // Rollback transaction if any errors were encountered
-                return res.status(500).json({ message: error.message || "Internal Server Error" });
-            }
-        });
-    },
-    // End feature Montir
-    payOrderService(req, res) {
+    payBengkelService(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield db_1.sequelize.transaction();
             try {
@@ -609,5 +419,202 @@ exports.PengendaraController = {
             }
         });
     },
+    // feature account setting
+    getAllKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const kendaraan = yield kendaraan_models_1.default.findAll({
+                    where: {
+                        pengendara_id: pengendara.id
+                    },
+                    attributes: ['nama_kendaraan'],
+                });
+                if (!kendaraan) {
+                    return res.status(404).json({
+                        message: "Kendaraan not found!"
+                    });
+                }
+                return res.status(200).json({
+                    message: "Success get all kendaraan",
+                    data: kendaraan
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    addKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { nama_kendaraan, jenis, tahun_kendaraan, plat } = req.body;
+                const newKendaraan = yield kendaraan_models_1.default.create({
+                    nama_kendaraan,
+                    jenis,
+                    tahun_kendaraan,
+                    plat,
+                    pengendara_id: pengendara.id,
+                    transaction
+                });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(201).json({
+                    message: "Kendaraan created successfully",
+                    data: newKendaraan
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    updateKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { nama_kendaraan, jenis, tahun_kendaraan, plat } = req.body;
+                const kendaraanId = req.params.id;
+                if (!kendaraanId) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Kendaraan id is required!"
+                    });
+                }
+                const kendaraan = yield kendaraan_models_1.default.findOne({
+                    where: {
+                        id: kendaraanId,
+                        pengendara_id: pengendara.id
+                    },
+                    transaction
+                });
+                if (!kendaraan) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "Kendaraan not found!"
+                    });
+                }
+                kendaraan.nama_kendaraan = nama_kendaraan;
+                kendaraan.jenis = jenis;
+                kendaraan.tahun_kendaraan = tahun_kendaraan;
+                kendaraan.plat = plat;
+                yield kendaraan.save({ transaction });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(200).json({
+                    message: "Kendaraan updated successfully",
+                    data: kendaraan
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    deleteKendaraan(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const kendaraanId = req.params.id;
+                if (!kendaraanId) {
+                    yield transaction.rollback();
+                    return res.status(400).json({
+                        message: "Kendaraan id is required!"
+                    });
+                }
+                const kendaraan = yield kendaraan_models_1.default.findOne({
+                    where: {
+                        id: kendaraanId,
+                        pengendara_id: pengendara.id
+                    },
+                    transaction
+                });
+                if (!kendaraan) {
+                    yield transaction.rollback();
+                    return res.status(404).json({
+                        message: "Kendaraan not found!"
+                    });
+                }
+                yield kendaraan.destroy({ transaction });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(200).json({
+                    message: "Kendaraan deleted successfully",
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    updateProfilePengendara(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { nama, phone, lokasi } = req.body;
+                const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`;
+                let fotoUrl = placeHolderImgPath; // Default to placeholder
+                if (req.file) {
+                    const filename = path_1.default.basename(req.file.path); // Extract filename from path
+                    fotoUrl = `${req.protocol}://${req.get("host")}/images/${filename}`;
+                }
+                const newLokasi = lokasi ? lokasi : null;
+                pengendara.nama = nama;
+                pengendara.foto = fotoUrl;
+                pengendara.phone = phone;
+                pengendara.lokasi = newLokasi;
+                yield pengendara.save({ transaction });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(200).json({
+                    message: "Profile updated successfully",
+                    data: pengendara
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    // End feature account setting
 };
 //# sourceMappingURL=pengendara.controller.js.map

@@ -210,6 +210,53 @@ export const AuthenticationController = {
         }
     },
 
+    async updatePassword(req: Request, res: Response) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const userId = req.session?.user?.id;
+            if (!userId) {
+                await transaction.rollback();
+                return res.status(401).json({
+                    message: "Unauthorized"
+                });
+            }
+
+            const user: any = await User.findByPk(userId);
+
+            if (!user) {
+                await transaction.rollback();
+                return res.status(404).json({
+                    message: "User not found"
+                });
+            }
+
+            const { password, newPassword } = req.body;
+
+            const passwordIsValid = bcryptjs.compareSync(password, user.password);
+
+            if (!passwordIsValid) {
+                await transaction.rollback();
+                return res.status(401).json({ message: 'Current password is incorrect' });
+            }
+
+            const hashedPassword = bcryptjs.hashSync(newPassword, 8);
+
+            await user.update({
+                password: hashedPassword
+            }, { transaction });
+
+            await transaction.commit();
+
+            return res.status(200).json({
+                message: "Password updated"
+            });
+        } catch (error: any) {
+            await transaction.rollback();
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
     async deleteAccount(req: Request, res: Response) {
         const transaction = await sequelize.transaction();
 
