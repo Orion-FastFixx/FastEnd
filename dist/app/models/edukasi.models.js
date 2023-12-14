@@ -5,37 +5,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../../db");
 const sequelize_1 = require("sequelize");
-const user_models_1 = __importDefault(require("./user.models"));
-const Montir = db_1.sequelize.define("montirs", {
+const admin_models_1 = __importDefault(require("./admin.models"));
+const Education = db_1.sequelize.define("educations", {
     id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         primaryKey: true,
     },
-    nama: {
-        type: sequelize_1.DataTypes.STRING(30),
-        allowNull: true,
+    judul: {
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
     },
-    phone: {
-        type: sequelize_1.DataTypes.STRING(12),
-        allowNull: true,
+    jenis_kendaraan: {
+        type: sequelize_1.DataTypes.ENUM,
+        values: ['Mobil', 'Motor'],
+        allowNull: false,
     },
-    deskripsi: {
+    kategori: {
+        type: sequelize_1.DataTypes.ENUM,
+        values: ['Tips', 'Interior', 'Exterior', 'Mesin'],
+        allowNull: false,
+    },
+    sub_judul: {
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: false,
+    },
+    isi_konten: {
         type: sequelize_1.DataTypes.TEXT,
         allowNull: false,
-    },
-    jenis_montir: {
-        type: sequelize_1.DataTypes.ENUM,
-        values: ['Montir Mobil', 'Montir Motor'],
-        allowNull: false,
-    },
-    pengalaman: {
-        type: sequelize_1.DataTypes.INTEGER,
-        allowNull: true,
     },
     foto_url: {
         type: sequelize_1.DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
         get() {
             const rawValue = this.getDataValue('foto_url');
             return rawValue ? JSON.parse(rawValue) : [];
@@ -44,19 +45,15 @@ const Montir = db_1.sequelize.define("montirs", {
             this.setDataValue('foto_url', JSON.stringify(value));
         }
     },
-    is_available: {
-        type: sequelize_1.DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
     user_id: {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: user_models_1.default,
+            model: admin_models_1.default,
             key: 'id', // This is the column name of the referenced model
         },
         onDelete: 'CASCADE',
     }
 });
-exports.default = Montir;
-//# sourceMappingURL=montir.models%20copy.js.map
+exports.default = Education;
+//# sourceMappingURL=edukasi.models.js.map

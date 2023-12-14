@@ -14,30 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
 const user_models_1 = __importDefault(require("../models/user.models"));
-const montir_rating_model_1 = __importDefault(require("../models/montir.rating.model"));
-const db_1 = require("../../db");
 exports.AdminController = {
-    getAllMontir(req, res) {
+    getAllUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const montirs = yield user_models_1.default.findAll({
-                    where: { role_id: 4 },
-                    include: [
-                        {
-                            model: montir_rating_model_1.default,
-                            as: 'rating',
-                            attributes: [
-                                [db_1.sequelize.fn('ROUND', db_1.sequelize.fn('AVG', db_1.sequelize.col('montir_rating')), 1), 'average_rating'],
-                                [db_1.sequelize.fn('COUNT', db_1.sequelize.col('review')), 'review_count']
-                            ],
-                        }
-                    ],
-                    attributes: { exclude: ['user_id', 'createdAt', 'updatedAt'] },
-                    group: ['montirs.id', 'services.id']
-                });
+                const user = yield user_models_1.default.findAll({});
                 res.status(200).json({
-                    message: "Success get all montir",
-                    data: montirs
+                    message: "Success get all user",
+                    data: user
                 });
             }
             catch (error) {

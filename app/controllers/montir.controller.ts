@@ -1,6 +1,7 @@
 import { Response } from "express";
 import fs from "fs";
 import multer from "multer";
+import { sequelize } from "../../db";
 import path from "path";
 import User from "../models/user.models";
 import Admin from "../models/admin.models";
@@ -79,62 +80,60 @@ export const MontirController = {
     
 
     async createLayanan(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
         try {
             const montirOwner = req.userId;
-
             const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
+    
             if (!montir) {
+                await transaction.rollback();
                 return res.status(403).json({
                     message: "Require Montir Role!"
                 });
             }
-
-            const { montir_id, harga, layanan  } = req.body;
-
-            const montirown: any = await Montir.findByPk(montir_id);
+    
+            const montirId = montir.id;
+            const montirown: any = await Montir.findByPk(montirId);
+    
             if (!montirown) {
+                await transaction.rollback();
                 return res.status(404).json({
                     message: "Montir not found"
                 });
             }
+    
+            const { harga } = req.body;
 
-
-            const montirServiceExists = await MontirService.findOne({
+            const defaultLayanan = "CONSULTATION";
+            let services: any = await Service.findOne({ where: { layanan: defaultLayanan } });
+    
+            if (!services) {
+                services = await Service.create({ layanan: defaultLayanan }, { transaction });
+            }
+    
+            let montirServiceExists = await MontirService.findOne({
                 where: { montir_id: montirown.id }
             });
-            
-            if (montirServiceExists) {
-                return res.status(409).json({
-                    message: "Layanan already created for this Montir"
+    
+            if (!montirServiceExists) {
+                const montirservice = await MontirService.create({
+                    montir_id: montirown.id,
+                    service_id: services.id,
+                    harga: harga
+                }, { transaction });
+    
+                await transaction.commit();
+                return res.status(201).json({
+                    message: "Layanan created successfully",
+                    data: montirservice
                 });
-            }
-
-            let services: any = await Service.findOne({ where: { layanan: layanan  } });
-            if (!services) {
-            
-                services = await Service.create({ layanan: layanan });
-            } else {
-            
-                return res.status(409).json({
-                    message: "Layanan already exists"
-                });
-            }
-
-            const montirservice = await MontirService.create({
-                montir_id: montir.id,
-                service_id: services.id,
-                harga: harga
-            });
-
-            return res.status(201).json({
-                message: "Layanan created successfully",
-                data: montirservice
-            });
-
+            } 
         } catch (error: any) {
+            await transaction.rollback();
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }
     },
+    
 
     async getMontirOrderService(req: CustomRequest, res: Response) {
         try {
@@ -147,7 +146,6 @@ export const MontirController = {
                 });
             }
 
-            // fetch bengkel order
             const orders = await Order.findAll({
                 where: {
                     montir_id: montir.id,
@@ -188,16 +186,62 @@ export const MontirController = {
         }
     },
 
-    // todo: pikirkan cara untuk membatalkan order yang sudah diterima jika melebihi waktu tertentu
-    
-    async acceptOrder(req: CustomRequest, res: Response) {
+    async getDetailMontirOrderService(req: CustomRequest, res: Response) {
         try {
             const montirOwner = req.userId;
 
             const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
             if (!montir) {
                 return res.status(403).json({
-                    message: "Require Admin Montir Role!"
+                    message: "Require Montir Role!"
+                });
+            }
+
+            const order_id = req.params.orderId;
+
+            if (!order_id) {
+                return res.status(400).json({
+                    message: "Order id is required"
+                });
+            }
+
+            const order = await Order.findOne({
+                where: {
+                    id: order_id,
+                },
+                include: [
+                    {
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['price']
+                        }
+                    }
+                ],
+                attributes: ['id', 'total_harga', 'order_status_id'],
+            });
+
+            return res.status(200).json({
+                message: "Montir order fetched successfully",
+                data: order
+            });
+
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+    
+    async acceptMontirOrderService(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const montirOwner = req.userId;
+
+            const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
+            if (!montir) {
+                return res.status(403).json({
+                    message: "Require Montir Role!"
                 });
             }
 
@@ -207,10 +251,22 @@ export const MontirController = {
                 return res.status(404).json({ message: 'Order not found' });
             }
 
-            // Assuming the 'status' field holds the status name or ID
-            order.order_status_id = ORDER_ACCEPTED_STATUS_ID
-            await order.save();
+            if (order.order_status_id === ORDER_PAID_STATUS_ID) {
+                // Assuming the 'status' field holds the status name or ID
+                order.order_status_id = ORDER_ACCEPTED_STATUS_ID
+                await order.save();
+            } else {
+                await transaction.rollback();
+                if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already accepted' });
+                } else if (order.order_status_id === ORDER_COMPLETED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already completed' });
+                } else if (order.order_status_id === ORDER_CANCELED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already cancelled' });
+                }
+            }
 
+            await transaction.commit();
             return res.status(200).json({ message: 'Order accepted' });
 
         } catch (error: any) {
@@ -218,14 +274,16 @@ export const MontirController = {
         }
     },
 
-    async cancelOrder(req: CustomRequest, res: Response) {
+    async cancelMontirOrderService(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const montirOwner = req.userId;
 
             const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
             if (!montir) {
                 return res.status(403).json({
-                    message: "Require Montir Bengkel Role!"
+                    message: "Require Montir Role!"
                 });
             }
 
@@ -235,10 +293,22 @@ export const MontirController = {
                 return res.status(404).json({ message: 'Order not found' });
             }
 
-            // Assuming the 'status' field holds the status name or ID
-            order.order_status_id = ORDER_CANCELED_STATUS_ID
-            await order.save();
+            if (order.order_status_id === ORDER_PAID_STATUS_ID) {
+                // Assuming the 'status' field holds the status name or ID
+                order.order_status_id = ORDER_CANCELED_STATUS_ID
+                await order.save();
+            } else {
+                await transaction.rollback();
+                if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already accepted' });
+                } else if (order.order_status_id === ORDER_COMPLETED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already completed' });
+                } else if (order.order_status_id === ORDER_CANCELED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already cancelled' });
+                }
+            }
 
+            await transaction.commit();
             return res.status(200).json({ message: 'Order cancelled' });
 
         } catch (error: any) {
@@ -246,14 +316,16 @@ export const MontirController = {
         }
     },
 
-    async completedOrder(req: CustomRequest, res: Response) {
+    async completedMontirOrderService(req: CustomRequest, res: Response) {
+        const transaction = await sequelize.transaction();
+
         try {
             const montirOwner = req.userId;
 
             const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
             if (!montir) {
                 return res.status(403).json({
-                    message: "Require Admin Montir Role!"
+                    message: "Require Montir Role!"
                 });
             }
 
@@ -263,12 +335,126 @@ export const MontirController = {
                 return res.status(404).json({ message: 'Order not found' });
             }
 
-            // Assuming the 'status' field holds the status name or ID
-            order.order_status_id = ORDER_COMPLETED_STATUS_ID
-            await order.save();
+            if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                // Assuming the 'status' field holds the status name or ID
+                order.order_status_id = ORDER_COMPLETED_STATUS_ID
+                await order.save();
+            } else {
+                await transaction.rollback();
+                if (order.order_status_id === ORDER_ACCEPTED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already accepted' });
+                } else if (order.order_status_id === ORDER_COMPLETED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already completed' });
+                } else if (order.order_status_id === ORDER_CANCELED_STATUS_ID) {
+                    return res.status(409).json({ message: 'Order already cancelled' });
+                }
+            }
 
+            await transaction.commit();
             return res.status(200).json({ message: 'Order completed' });
 
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async getCompletedMontirOrderService(req: CustomRequest, res: Response) {
+        try {
+            const montirOwner = req.userId;
+
+            const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
+            if (!montir) {
+                return res.status(403).json({
+                    message: "Require Montir Role!"
+                });
+            }
+
+            // fetch bengkel order
+            const orders = await Order.findAll({
+                where: {
+                    bengkel_id: montir.id,
+                    order_status_id: ORDER_COMPLETED_STATUS_ID
+                },
+                include: [
+                    {
+                        model: Pengendara,
+                        as: "pengendara",
+                        attributes: ["nama", "phone", "foto", "lokasi",],
+                        include: [
+                            {
+                                model: Kendaraan,
+                                as: "kendaraan",
+                                attributes: ["nama_kendaraan", "jenis", "plat"],
+                            }
+                        ]
+                    },
+                    {
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['price']
+                        }
+                    }
+                ],
+                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+            });
+
+            return res.status(200).json({
+                message: "Bengkel order fetched successfully",
+                data: orders
+            });
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
+    async getCanceledMontirOrderService(req: CustomRequest, res: Response) {
+        try {
+            const montirOwner = req.userId;
+
+            const montir: any = await Montir.findOne({ where: { user_id: montirOwner } });
+            if (!montir) {
+                return res.status(403).json({
+                    message: "Require Montir Role!"
+                });
+            }
+
+            // fetch bengkel order
+            const orders = await Order.findAll({
+                where: {
+                    bengkel_id: montir.id,
+                    order_status_id: ORDER_CANCELED_STATUS_ID
+                },
+                include: [
+                    {
+                        model: Pengendara,
+                        as: "pengendara",
+                        attributes: ["nama", "phone", "foto", "lokasi",],
+                        include: [
+                            {
+                                model: Kendaraan,
+                                as: "kendaraan",
+                                attributes: ["nama_kendaraan", "jenis", "plat"],
+                            }
+                        ]
+                    },
+                    {
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['price']
+                        }
+                    }
+                ],
+                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+            });
+
+            return res.status(200).json({
+                message: "Bengkel order fetched successfully",
+                data: orders
+            });
         } catch (error: any) {
             return res.status(500).json({ message: error.message || "Internal Server Error" });
         }

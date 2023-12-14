@@ -15,5 +15,4 @@ router.use('/montir', montirRoutes);
 router.use('/pengendara', pengendaraRoutes);
 
 
-
 export const routes = router;
