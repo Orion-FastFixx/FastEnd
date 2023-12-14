@@ -180,21 +180,7 @@ exports.BengkelController = {
                         bengkel_id: adminBengkel.id,
                         order_status_id: order_status_1.ORDER_PAID_STATUS_ID
                     },
-                    include: [
-                        {
-                            model: pengendara_models_1.default,
-                            as: "pengendara",
-                            attributes: ["nama", "phone", "foto", "lokasi",],
-                            include: [
-                                {
-                                    model: kendaraan_models_1.default,
-                                    as: "kendaraan",
-                                    attributes: ["nama_kendaraan", "jenis", "plat"],
-                                }
-                            ]
-                        },
-                    ],
-                    attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+                    attributes: ['id', 'additional_info', 'order_status_id', 'createdAt', 'updatedAt'],
                 });
                 return res.status(200).json({
                     message: "Bengkel order fetched successfully",
@@ -228,6 +214,18 @@ exports.BengkelController = {
                     },
                     include: [
                         {
+                            model: pengendara_models_1.default,
+                            as: "pengendara",
+                            attributes: ["nama", "phone", "foto", "lokasi",],
+                            include: [
+                                {
+                                    model: kendaraan_models_1.default,
+                                    as: "kendaraan",
+                                    attributes: ["nama_kendaraan", "jenis", "plat"],
+                                }
+                            ]
+                        },
+                        {
                             model: service_model_1.default,
                             as: 'services',
                             attributes: { exclude: ['createdAt', 'updatedAt'] },
@@ -236,7 +234,7 @@ exports.BengkelController = {
                             }
                         }
                     ],
-                    attributes: ['id', 'total_harga', 'order_status_id'],
+                    attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] }
                 });
                 return res.status(200).json({
                     message: "Bengkel order fetched successfully",

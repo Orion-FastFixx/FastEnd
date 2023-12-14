@@ -189,21 +189,7 @@ export const BengkelController = {
                     bengkel_id: adminBengkel.id,
                     order_status_id: ORDER_PAID_STATUS_ID
                 },
-                include: [
-                    {
-                        model: Pengendara,
-                        as: "pengendara",
-                        attributes: ["nama", "phone", "foto", "lokasi",],
-                        include: [
-                            {
-                                model: Kendaraan,
-                                as: "kendaraan",
-                                attributes: ["nama_kendaraan", "jenis", "plat"],
-                            }
-                        ]
-                    },
-                ],
-                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+                attributes: ['id', 'additional_info', 'order_status_id', 'createdAt', 'updatedAt'],
             });
 
             return res.status(200).json({
@@ -241,6 +227,18 @@ export const BengkelController = {
                 },
                 include: [
                     {
+                        model: Pengendara,
+                        as: "pengendara",
+                        attributes: ["nama", "phone", "foto", "lokasi",],
+                        include: [
+                            {
+                                model: Kendaraan,
+                                as: "kendaraan",
+                                attributes: ["nama_kendaraan", "jenis", "plat"],
+                            }
+                        ]
+                    },
+                    {
                         model: Service,
                         as: 'services',
                         attributes: { exclude: ['createdAt', 'updatedAt'] },
@@ -249,7 +247,7 @@ export const BengkelController = {
                         }
                     }
                 ],
-                attributes: ['id', 'total_harga', 'order_status_id'],
+                attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] }
             });
 
             return res.status(200).json({
