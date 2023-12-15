@@ -6,19 +6,53 @@ import path from "path";
 import fs from "fs";
 import { maxSize } from "../utils/multer";
 import Admin from "../models/admin.models";
+import Montir from "../models/montir.models";
+import Bengkel from "../models/bengkel.models";
 import Education from "../models/edukasi.models";
 
 export const AdminController = {
 
-    async getAllUser(req: Request, res: Response) {
+    async getAllMontir(req: CustomRequest, res: Response) {
         try {
-            const user = await User.findAll({
+            const superAdmin = req.userId;
+            const admin: any = await Admin.findOne({ where: { user_id: superAdmin } });
+    
+            if (!admin) {
+                return res.status(403).json({
+                    message: "Require Admin Role!"
+                });
+            }
+            const montir = await Montir.findAll({
 
             });
 
             res.status(200).json({
-                message: "Success get all user",
-                data: user
+                message: "Success get all montir",
+                data: montir
+            });
+
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    async getAllBengkel(req: CustomRequest, res: Response) {
+        try {
+            const superAdmin = req.userId;
+            const admin: any = await Admin.findOne({ where: { user_id: superAdmin } });
+    
+            if (!admin) {
+                return res.status(403).json({
+                    message: "Require Admin Role!"
+                });
+            }
+            const bengkel = await Bengkel.findAll({
+
+            });
+
+            res.status(200).json({
+                message: "Success get all montir",
+                data: bengkel
             });
 
         } catch (error: any) {

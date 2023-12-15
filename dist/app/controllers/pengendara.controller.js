@@ -291,7 +291,200 @@ exports.PengendaraController = {
             }
         });
     },
-    payBengkelService(req, res) {
+    // End feature Bengkel
+    // Start feature Montir
+    getAllMontir(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const montirs = yield montir_models_1.default.findAll({
+                    include: [
+                        {
+                            model: montir_rating_model_1.default,
+                            as: 'rating',
+                            attributes: [
+                                [db_1.sequelize.fn('ROUND', db_1.sequelize.fn('AVG', db_1.sequelize.col('montir_rating')), 1), 'average_rating'],
+                                [db_1.sequelize.fn('COUNT', db_1.sequelize.col('review')), 'review_count']
+                            ],
+                        }
+                    ],
+                    attributes: { exclude: ['phone', 'deskripsi', 'user_id', 'createdAt', 'updatedAt'],
+                        include: ['is_available'], },
+                    group: ['montirs.id'] // Adjust according to the models' relationships
+                });
+                res.status(200).json({
+                    message: "Success get all montir",
+                    data: montirs
+                });
+            }
+            catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        });
+    },
+    addReviewMontir(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { montir_rating, review, montir_id } = req.body;
+                const existingReview = yield montir_rating_model_1.default.findOne({
+                    where: {
+                        montir_id: montir_id,
+                        pengendara_id: pengendara.id
+                    }
+                });
+                if (existingReview) {
+                    return res.status(403).json({
+                        message: "You have already review this montir!"
+                    });
+                }
+                const ReviewMontir = yield montir_rating_model_1.default.create({
+                    montir_rating,
+                    review,
+                    montir_id,
+                    pengendara_id: pengendara.id
+                });
+                return res.status(201).json({
+                    message: "Review Montir created successfully",
+                    data: ReviewMontir
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getDetailReviewMontir(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                // Get montir_id from route parameters
+                const montir_id = req.params.id;
+                if (!montir_id) {
+                    return res.status(400).json({
+                        message: "Montir id is required!"
+                    });
+                }
+                const ReviewMontir = yield montir_rating_model_1.default.findAll({
+                    where: {
+                        montir_id: montir_id,
+                    },
+                    include: [{
+                            model: pengendara_models_1.default,
+                            as: 'pengendara',
+                            attributes: ['nama', 'foto']
+                        }],
+                    attributes: { exclude: ['pengendara_id'] },
+                });
+                // Calculate the average rating and count of ratings
+                const reviewSummary = yield montir_rating_model_1.default.findOne({
+                    where: { montir_id: montir_id },
+                    attributes: [
+                        [db_1.sequelize.fn('ROUND', db_1.sequelize.fn('AVG', db_1.sequelize.col('montir_rating')), 1), 'average_rating'],
+                        [db_1.sequelize.fn('COUNT', db_1.sequelize.col('montir_rating')), 'rating_count']
+                    ],
+                    raw: true
+                });
+                return res.status(200).json({
+                    message: "Success get all review montir",
+                    data: {
+                        review_summary: reviewSummary,
+                        review_all: ReviewMontir
+                    }
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    orderMontirService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const { montir_id, service_id } = req.body;
+                // init total price
+                let totalPrice = 0;
+                // add admin fee
+                const adminFee = 1000;
+                // store service price
+                let servicePrice = [];
+                for (const serviceId of service_id) {
+                    const montirService = yield montir_service_model_1.default.findOne({
+                        where: {
+                            montir_id: montir_id,
+                            service_id: serviceId
+                        }
+                    });
+                    if (!montirService) {
+                        yield transaction.rollback();
+                        return res.status(400).json({
+                            message: "Service not found!"
+                        });
+                    }
+                    totalPrice += montirService.harga;
+                    servicePrice[serviceId] = montirService.harga;
+                }
+                const newOrder = yield order_model_1.default.create({
+                    additional_info: {},
+                    pengendara_id: pengendara.id,
+                    montir_id,
+                    order_status_id: order_status_1.ORDER_PENDING_STATUS_ID,
+                    transaction
+                });
+                for (const serviceId of service_id) {
+                    yield order_service_model_1.default.create({
+                        order_id: newOrder.id,
+                        service_id: serviceId,
+                        price: servicePrice[serviceId],
+                        transaction
+                    });
+                }
+                const totalPayment = totalPrice + adminFee;
+                yield newOrder.update({
+                    total_harga: totalPayment
+                });
+                yield transaction.commit(); // Commit the transaction
+                return res.status(201).json({
+                    message: "Order created successfully",
+                    data: newOrder
+                });
+            }
+            catch (error) {
+                yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    // End feature Montir
+    // Start feature order
+    payOrderService(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield db_1.sequelize.transaction();
             try {
@@ -419,6 +612,7 @@ exports.PengendaraController = {
             }
         });
     },
+    // End feature order
     // feature account setting
     getAllKendaraan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {

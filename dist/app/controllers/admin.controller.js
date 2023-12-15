@@ -13,21 +13,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
-const user_models_1 = __importDefault(require("../models/user.models"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const multer_2 = require("../utils/multer");
 const admin_models_1 = __importDefault(require("../models/admin.models"));
+const montir_models_1 = __importDefault(require("../models/montir.models"));
+const bengkel_models_1 = __importDefault(require("../models/bengkel.models"));
 const edukasi_models_1 = __importDefault(require("../models/edukasi.models"));
 exports.AdminController = {
-    getAllUser(req, res) {
+    getAllMontir(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield user_models_1.default.findAll({});
+                const superAdmin = req.userId;
+                const admin = yield admin_models_1.default.findOne({ where: { user_id: superAdmin } });
+                if (!admin) {
+                    return res.status(403).json({
+                        message: "Require Admin Role!"
+                    });
+                }
+                const montir = yield montir_models_1.default.findAll({});
                 res.status(200).json({
-                    message: "Success get all user",
-                    data: user
+                    message: "Success get all montir",
+                    data: montir
+                });
+            }
+            catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        });
+    },
+    getAllBengkel(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const superAdmin = req.userId;
+                const admin = yield admin_models_1.default.findOne({ where: { user_id: superAdmin } });
+                if (!admin) {
+                    return res.status(403).json({
+                        message: "Require Admin Role!"
+                    });
+                }
+                const bengkel = yield bengkel_models_1.default.findAll({});
+                res.status(200).json({
+                    message: "Success get all montir",
+                    data: bengkel
                 });
             }
             catch (error) {

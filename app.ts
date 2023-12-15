@@ -5,12 +5,15 @@ import logger from 'morgan';
 import { routes } from './app/routes/index.routes';
 import path from 'path';
 import session from 'express-session';
+import cors from "cors";
 
 import { relations } from './app/models/relations.models';
 import { checkOrderTimeouts } from './app/utils/scheduler';
 
+
 var app = express();
 
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
