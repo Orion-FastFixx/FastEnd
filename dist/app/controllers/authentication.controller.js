@@ -137,7 +137,7 @@ exports.AuthenticationController = {
                 }
                 const passwordIsValid = bcryptjs_1.default.compareSync(password, user.password);
                 if (!passwordIsValid) {
-                    return res.status(401).json({ auth: false, token: null, message: 'Invalid password' });
+                    return res.status(401).json({ auth: false, token: null, message: 'Invalid credentials' });
                 }
                 // // Periksa apakah 2FA diaktifkan
                 // if (user.otp_secret) {
