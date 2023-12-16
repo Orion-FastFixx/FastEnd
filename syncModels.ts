@@ -2,6 +2,7 @@ import AdminBengkel from "./app/models/admin.bengkel.model";
 import Admin from "./app/models/admin.models";
 import Bengkel from "./app/models/bengkel.models";
 import BengkelService from "./app/models/bengkel.service.model";
+import MontirService from "./app/models/montir.service.model";
 import Pengendara from "./app/models/pengendara.models";
 import Kendaraan from "./app/models/kendaraan.models";
 import Montir from "./app/models/montir.models";
@@ -17,6 +18,8 @@ import Order from "./app/models/order.model";
 import OrderService from "./app/models/order.service.model";
 import Payment from "./app/models/payment.model";
 import { sequelize } from "./db";
+import Education from "./app/models/edukasi.models";
+
 
 console.log('Is Role model registered:', Role === sequelize.model('roles'));
 console.log('Is User model registered:', User === sequelize.model('users'));
@@ -36,6 +39,8 @@ console.log('Is PaymentMethod model registered:', PaymentMethod === sequelize.mo
 console.log('Is Order model registered:', Order === sequelize.model('orders'));
 console.log('Is OrderService model registered:', OrderService === sequelize.model('order_services'));
 console.log('Is Payment model registered:', Payment === sequelize.model('payments'));
+console.log('Is MontirService model registered:', MontirService === sequelize.model('montir_services'));
+console.log('Is Education model registered:', Education === sequelize.model('educations'));
 
 
 sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first

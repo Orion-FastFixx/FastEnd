@@ -7,6 +7,7 @@ const admin_bengkel_model_1 = __importDefault(require("./app/models/admin.bengke
 const admin_models_1 = __importDefault(require("./app/models/admin.models"));
 const bengkel_models_1 = __importDefault(require("./app/models/bengkel.models"));
 const bengkel_service_model_1 = __importDefault(require("./app/models/bengkel.service.model"));
+const montir_service_model_1 = __importDefault(require("./app/models/montir.service.model"));
 const pengendara_models_1 = __importDefault(require("./app/models/pengendara.models"));
 const kendaraan_models_1 = __importDefault(require("./app/models/kendaraan.models"));
 const montir_models_1 = __importDefault(require("./app/models/montir.models"));
@@ -22,6 +23,7 @@ const order_model_1 = __importDefault(require("./app/models/order.model"));
 const order_service_model_1 = __importDefault(require("./app/models/order.service.model"));
 const payment_model_1 = __importDefault(require("./app/models/payment.model"));
 const db_1 = require("./db");
+const edukasi_models_1 = __importDefault(require("./app/models/edukasi.models"));
 console.log('Is Role model registered:', role_models_1.default === db_1.sequelize.model('roles'));
 console.log('Is User model registered:', user_models_1.default === db_1.sequelize.model('users'));
 console.log('Is Pengendara model registered:', pengendara_models_1.default === db_1.sequelize.model('pengendaras'));
@@ -40,6 +42,8 @@ console.log('Is PaymentMethod model registered:', payment_method_model_1.default
 console.log('Is Order model registered:', order_model_1.default === db_1.sequelize.model('orders'));
 console.log('Is OrderService model registered:', order_service_model_1.default === db_1.sequelize.model('order_services'));
 console.log('Is Payment model registered:', payment_model_1.default === db_1.sequelize.model('payments'));
+console.log('Is MontirService model registered:', montir_service_model_1.default === db_1.sequelize.model('montir_services'));
+console.log('Is Education model registered:', edukasi_models_1.default === db_1.sequelize.model('educations'));
 db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
