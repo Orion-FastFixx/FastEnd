@@ -1,13 +1,29 @@
-import mongoose from 'mongoose';
 import {config} from '../app/config';
-import { initializeRoles } from '../app/controllers/initRole.controller';
+import { Sequelize } from "sequelize";
 
 
-mongoose.connect(config.urlDb)
-  .then(() => {
-    console.log('MongoDB connected...')
-    initializeRoles();
-  })
-  .catch((err) => console.log("Connection error: ", err));
 
-export const db = mongoose.connection;
+
+// Initialize a new Sequelize instance
+const sequelize = new Sequelize(config.mysqlDatabase, config.mysqlUser, config.mysqlPassword, {
+  host: config.mysqlHost,
+  dialect: 'mysql',
+  port: config.mysqlPort,
+  timezone: config.mysqlTimezone, // for writing to database
+});
+
+const connectDb = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+    
+  } catch (error: any) {
+    console.error('Unable to connect to the database:', error);
+    
+  }
+}
+
+connectDb();
+
+export { sequelize, connectDb };
+

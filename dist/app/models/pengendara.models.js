@@ -3,39 +3,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Pengendara = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
-exports.Pengendara = mongoose_1.default.model("Pengendara", new mongoose_1.default.Schema({
-    nama: {
-        type: String,
-        required: [true, "Nama wajib diisi"],
-        maxlength: [30, "Nama maksimal 30 karakter"],
+const sequelize_1 = require("sequelize");
+const db_1 = require("../../db");
+const user_models_1 = __importDefault(require("./user.models"));
+const Pengendara = db_1.sequelize.define("pengendaras", {
+    id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
     },
-    jenisKelamin: {
-        type: String,
-        enum: [
-            "Laki-laki",
-            "Perempuan",
-        ]
+    nama: {
+        type: sequelize_1.DataTypes.STRING(30),
+        allowNull: true,
+    },
+    foto: {
+        type: sequelize_1.DataTypes.STRING(100),
+        allowNull: true,
     },
     phone: {
-        type: String,
-        required: [true, "No telepon wajib diisi"],
-        unique: true,
-        maxlength: [12, "No telepon maksimal 12 karakter"],
+        type: sequelize_1.DataTypes.STRING(12),
+        allowNull: true,
     },
     lokasi: {
-        type: String,
-        required: [true, "Lokasi wajib diisi"],
-        maxlength: [30, "Lokasi maksimal 30 karakter"],
+        type: sequelize_1.DataTypes.STRING(50),
+        allowNull: true,
     },
-    kendaraan: [{
-            type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: "Kendaraan",
-        }],
-    user: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "User",
-    },
-}));
+    user_id: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: user_models_1.default,
+            key: 'id', // This is the column name of the referenced model
+        },
+        onDelete: 'CASCADE',
+    }
+});
+exports.default = Pengendara;
 //# sourceMappingURL=pengendara.models.js.map

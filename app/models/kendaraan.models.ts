@@ -1,30 +1,46 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import { sequelize } from "../../db";
+import Pengendara from './pengendara.models';
 
-export const Kendaraan = mongoose.model(
-    "Kendaraan",
-    new mongoose.Schema({
-        namaKendaraan: {
-            type: String,
-            required: [true, "Nama kendaraan wajib diisi"],
-            maxlength: [20, "Nama kendaraan maksimal 20 karakter"],
+const Kendaraan = sequelize.define("kendaraans", {
+    id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    nama_kendaraan: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+    },
+    jenis: {
+        type: DataTypes.ENUM,
+        values: ['Motor', 'Mobil'],
+        allowNull: false,
+    },
+    tahun_kendaraan: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+            len: {
+                args: [4, 4],
+                msg: "Tahun kendaraan harus 4 karakter"
+            }
+        }
+    },
+    plat: {
+        type: DataTypes.STRING(10),
+        allowNull: false,
+        unique: true,
+    },
+    pengendara_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: Pengendara,
+            key: "id"
         },
-        jenis: {
-            type: String,
-            enum: [
-                "Motor",
-                "Mobil",
-            ]
-        },
-        plat: {
-            type: String,
-            required: [true, "No plat wajib diisi"],
-            unique: true,
-            maxlength: [10, "No plat maksimal 10 karakter"],
-        },
-        pengendara: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Pengendara",
-            required: true,
-        },
-    })
-);
+        onDelete: 'CASCADE',
+    },
+});
+
+export default Kendaraan;

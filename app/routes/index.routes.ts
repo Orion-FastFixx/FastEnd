@@ -1,7 +1,17 @@
-import router from './user.routes';
-import userRoutes from './user.routes';
+import router from './router';
+import initRolesRoutes from './initConstantValue.routes';
+import authenticationRoutes from './authentication.routes';
+import adminRoutes from './admin.routes';
+import bengkelRoutes from './bengkel.routes';
+import pengendaraRoutes from './pengendara.routes';
 
-router.use('/user', userRoutes);
+
+router.use('/admin', adminRoutes);
+router.use('/auth', authenticationRoutes);
+router.use('/init-constant-value', initRolesRoutes);
+router.use('/bengkel', bengkelRoutes);
+router.use('/pengendara', pengendaraRoutes);
+
 
 
 export const routes = router;

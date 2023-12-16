@@ -4,26 +4,40 @@
   "private": true,
   "scripts": {
     "dev": "npx nodemon ./bin/www",
-    "build": "tsc"
+    "build": "tsc",
+    "sync": "node ./dist/syncModels.js"
   },
   "dependencies": {
+    "@types/express-session": "^1.17.10",
+    "@types/md5": "^2.3.5",
     "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.11",
+    "@types/node-cron": "^3.0.11",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
+    "express-session": "^1.17.3",
     "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "md5": "^2.3.0",
     "morgan": "~1.9.1",
-    "nodemon": "^3.0.1"
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.6.3",
+    "node-cron": "^3.0.3",
+    "nodemon": "^3.0.1",
+    "sequelize": "^6.35.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.6",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.9.0",
+    "depcheck": "^1.4.7",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"

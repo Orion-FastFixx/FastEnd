@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PAYMENT_CANCELED_STATUS_ID = exports.PAYMENT_PAID_STATUS_ID = exports.PAYMENT_PENDING_STATUS_ID = void 0;
+const PAYMENT_PENDING_STATUS_ID = 1;
+exports.PAYMENT_PENDING_STATUS_ID = PAYMENT_PENDING_STATUS_ID;
+const PAYMENT_PAID_STATUS_ID = 2;
+exports.PAYMENT_PAID_STATUS_ID = PAYMENT_PAID_STATUS_ID;
+const PAYMENT_CANCELED_STATUS_ID = 3;
+exports.PAYMENT_CANCELED_STATUS_ID = PAYMENT_CANCELED_STATUS_ID;
+//# sourceMappingURL=payment.status.js.map

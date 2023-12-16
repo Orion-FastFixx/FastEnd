@@ -1,37 +1,38 @@
-import mongoose from "mongoose";
-export const Pengendara = mongoose.model(
-    "Pengendara",
-    new mongoose.Schema({
-        nama: {
-            type: String,
-            required: [true, "Nama wajib diisi"],
-            maxlength: [30, "Nama maksimal 30 karakter"],
+import { DataTypes } from 'sequelize';
+import { sequelize } from "../../db";
+import User from "./user.models";
+
+const Pengendara = sequelize.define("pengendaras", {
+    id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    nama: {
+        type: DataTypes.STRING(30),
+        allowNull: true,
+    },
+    foto: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+    },
+    phone: {
+        type: DataTypes.STRING(12),
+        allowNull: true,
+    },
+    lokasi: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+    },
+    user_id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: User, // This is a reference to another model
+            key: 'id', // This is the column name of the referenced model
         },
-        jenisKelamin: {
-            type: String,
-            enum: [
-                "Laki-laki",
-                "Perempuan",
-            ]
-        },
-        phone: {
-            type: String,
-            required: [true, "No telepon wajib diisi"],
-            unique: true,
-            maxlength: [12, "No telepon maksimal 12 karakter"],
-        },
-        lokasi: {
-            type: String,
-            required: [true, "Lokasi wajib diisi"],
-            maxlength: [30, "Lokasi maksimal 30 karakter"],
-        },
-        kendaraan: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Kendaraan",
-        }],
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        },
-    })
-);
+        onDelete: 'CASCADE',
+    }
+});
+
+export default Pengendara;

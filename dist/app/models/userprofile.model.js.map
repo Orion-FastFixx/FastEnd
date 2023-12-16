@@ -1,0 +1,1 @@
+{"version":3,"file":"userprofile.model.js","sourceRoot":"","sources":["../../../app/models/userprofile.model.ts"],"names":[],"mappings":";;AAAA,iCAAqC;AACrC,yCAAsC;AAItC,MAAM,WAAW,GAAG,cAAS,CAAC,MAAM,CAAC,eAAe,EAAE;IAClD,GAAG,EAAE;QACD,IAAI,EAAE,qBAAS,CAAC,IAAI;QACpB,SAAS,EAAE,KAAK;KACnB;CACJ,CAAC,CAAC;AAEH,kBAAe,WAAW,CAAC"}
