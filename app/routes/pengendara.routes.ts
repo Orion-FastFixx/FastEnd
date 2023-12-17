@@ -41,5 +41,9 @@ pengendaraRouter.post("/pay-order", AuthMiddleware.verifyToken, AuthMiddleware.i
 // Cancel Order
 pengendaraRouter.post("/cancel-order/:orderId", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.cancelOrder);
 
+// Education
+pengendaraRouter.get("/get-all-education", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getAllEducation);
+pengendaraRouter.get("/get-detail-education/:id", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getDetailEducation);
+
 
 export default pengendaraRouter;

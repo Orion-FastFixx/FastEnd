@@ -30,7 +30,7 @@ const Montir = db_1.sequelize.define("montirs", {
         allowNull: false,
     },
     pengalaman: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.FLOAT,
         allowNull: true,
     },
     foto_url: {

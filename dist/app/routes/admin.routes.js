@@ -12,7 +12,7 @@ adminRouter.get("/list-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMi
 adminRouter.get("/list-bengkel", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isAdmin, admin_controller_1.AdminController.getAllBengkel);
 adminRouter.get("/list-education", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isAdmin, admin_controller_1.AdminController.getAllContent);
 adminRouter.post("/create-education", multer_1.default.array('foto_url'), auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isAdmin, admin_controller_1.AdminController.createEducation);
-adminRouter.post("/edit-education", multer_1.default.array('foto_url'), auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isAdmin, admin_controller_1.AdminController.updateContent);
+adminRouter.put("/edit-education/:id", multer_1.default.array('foto_url'), auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isAdmin, admin_controller_1.AdminController.updateContent);
 adminRouter.post("/delete-education", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isAdmin, admin_controller_1.AdminController.deleteContent);
 exports.default = adminRouter;
 //# sourceMappingURL=admin.routes.js.map

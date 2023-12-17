@@ -17,6 +17,7 @@ import { PAYMENT_PAID_STATUS_ID } from "../utils/payment.status";
 import Kendaraan from "../models/kendaraan.models";
 import path from "path";
 import MontirService from "../models/montir.service.model";
+import Education from "../models/edukasi.models";
 
 export const PengendaraController = {
     // feature Bengkel
@@ -330,6 +331,16 @@ export const PengendaraController = {
 
             const montirs = await Montir.findAll({
                 include: [
+                    {
+                        // populate Services and MontirService
+                        model: Service,
+                        as: 'services',
+                        attributes: { exclude: ['createdAt', 'updatedAt'] },
+                        through: {
+                            attributes: ['harga'], // Include additional attributes from MontirService
+                            as: 'harga_layanan'
+                        }
+                    },
                     {
                         model: MontirRating,
                         as: 'rating',
@@ -678,6 +689,67 @@ export const PengendaraController = {
     },
 
     // End feature order
+
+    // Start feature education
+    async getAllEducation(req: CustomRequest, res: Response) {
+            try {
+                const user = req.userId;
+
+                const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+
+                const content = await Education.findAll({
+    
+                });
+    
+                res.status(200).json({
+                    message: "Success get all content",
+                    data: content
+                });
+    
+            } catch (error: any) {
+                res.status(500).json({ message: error.message });
+            }
+    },
+
+    async getDetailEducation(req: CustomRequest, res: Response) {
+            try {
+                const user = req.userId;
+
+                const pengendara: any = await Pengendara.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+
+                const content_id = req.params.id;
+
+                if (!content_id) {
+                    return res.status(400).json({
+                        message: "Education id is required!"
+                    });
+                }
+
+                const content = await Education.findOne({
+                    where: { id: content_id },
+                });
+    
+                res.status(200).json({
+                    message: "Success get the content",
+                    data: content
+                });
+    
+            } catch (error: any) {
+                res.status(500).json({ message: error.message });
+            }
+    },
+    
+    // End feature education
 
     // feature account setting
 

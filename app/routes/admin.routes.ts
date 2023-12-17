@@ -10,7 +10,7 @@ adminRouter.get("/list-montir", AuthMiddleware.verifyToken, AuthMiddleware.isAdm
 adminRouter.get("/list-bengkel", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.getAllBengkel);
 adminRouter.get("/list-education", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.getAllContent);
 adminRouter.post("/create-education", uploads.array('foto_url'), AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.createEducation,);
-adminRouter.post("/edit-education", uploads.array('foto_url'), AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.updateContent,);
+adminRouter.put("/edit-education/:id", uploads.array('foto_url'), AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.updateContent,);
 adminRouter.post("/delete-education", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.deleteContent,);
 
 

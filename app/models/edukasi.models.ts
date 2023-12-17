@@ -40,15 +40,6 @@ const Education = sequelize.define("educations", {
         set(value) {
             this.setDataValue('foto_url', JSON.stringify(value));
         }
-    },
-    user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: false,
-        references: {
-            model: Admin, // This is a reference to another model
-            key: 'id', // This is the column name of the referenced model
-        },
-        onDelete: 'CASCADE',
     }
 });
 

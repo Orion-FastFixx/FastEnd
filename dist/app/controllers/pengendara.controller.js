@@ -30,6 +30,7 @@ const payment_status_1 = require("../utils/payment.status");
 const kendaraan_models_1 = __importDefault(require("../models/kendaraan.models"));
 const path_1 = __importDefault(require("path"));
 const montir_service_model_1 = __importDefault(require("../models/montir.service.model"));
+const edukasi_models_1 = __importDefault(require("../models/edukasi.models"));
 exports.PengendaraController = {
     // feature Bengkel
     getAllBengkel(req, res) {
@@ -305,6 +306,16 @@ exports.PengendaraController = {
                 }
                 const montirs = yield montir_models_1.default.findAll({
                     include: [
+                        {
+                            // populate Services and MontirService
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: { exclude: ['createdAt', 'updatedAt'] },
+                            through: {
+                                attributes: ['harga'],
+                                as: 'harga_layanan'
+                            }
+                        },
                         {
                             model: montir_rating_model_1.default,
                             as: 'rating',
@@ -613,6 +624,58 @@ exports.PengendaraController = {
         });
     },
     // End feature order
+    // Start feature education
+    getAllEducation(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const content = yield edukasi_models_1.default.findAll({});
+                res.status(200).json({
+                    message: "Success get all content",
+                    data: content
+                });
+            }
+            catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        });
+    },
+    getDetailEducation(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                const content_id = req.params.id;
+                if (!content_id) {
+                    return res.status(400).json({
+                        message: "Education id is required!"
+                    });
+                }
+                const content = yield edukasi_models_1.default.findOne({
+                    where: { id: content_id },
+                });
+                res.status(200).json({
+                    message: "Success get the content",
+                    data: content
+                });
+            }
+            catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        });
+    },
+    // End feature education
     // feature account setting
     getAllKendaraan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {

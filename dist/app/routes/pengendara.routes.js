@@ -34,5 +34,8 @@ pengendaraRouter.post("/order-montir-service", auth_1.AuthMiddleware.verifyToken
 pengendaraRouter.post("/pay-order", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.payOrderService);
 // Cancel Order
 pengendaraRouter.post("/cancel-order/:orderId", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.cancelOrder);
+// Education
+pengendaraRouter.get("/get-all-education", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getAllEducation);
+pengendaraRouter.get("/get-detail-education/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getDetailEducation);
 exports.default = pengendaraRouter;
 //# sourceMappingURL=pengendara.routes.js.map

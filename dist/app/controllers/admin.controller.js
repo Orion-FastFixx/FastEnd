@@ -158,7 +158,13 @@ exports.AdminController = {
                         return `${req.protocol}://${req.get("host")}/images/${filename}`;
                     });
                 }
-                const content = yield edukasi_models_1.default.findOne({ where: { judul: judul } });
+                const content_id = req.params.id;
+                if (!content_id) {
+                    return res.status(400).json({
+                        message: "Education id is required!"
+                    });
+                }
+                const content = yield edukasi_models_1.default.findOne({ where: { content_id: content_id } });
                 if (!content) {
                     return res.status(404).json({
                         message: "Content not found"
