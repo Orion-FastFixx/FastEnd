@@ -247,10 +247,15 @@ export const PengendaraController = {
                 });
             }
 
+
+            const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
+
+            
             // fetch order to check if user already have order
             const hasOrder = await Order.findOne({
                 where: {
                     pengendara_id: pengendara.id,
+                    bengkel_id: bengkel_id,
                     order_status_id: ORDER_PENDING_STATUS_ID
                 }
             });
@@ -261,8 +266,6 @@ export const PengendaraController = {
                     message: "You already have pending order!"
                 });
             }
-
-            const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
 
             // init total price
             let totalPrice = 0;
