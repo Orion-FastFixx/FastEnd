@@ -247,6 +247,21 @@ export const PengendaraController = {
                 });
             }
 
+            // fetch order to check if user already have order
+            const hasOrder = await Order.findOne({
+                where: {
+                    pengendara_id: pengendara.id,
+                    order_status_id: ORDER_PENDING_STATUS_ID
+                }
+            });
+
+            if (hasOrder) {
+                await transaction.rollback();
+                return res.status(403).json({
+                    message: "You already have pending order!"
+                });
+            }
+
             const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
 
             // init total price
@@ -299,10 +314,35 @@ export const PengendaraController = {
                 total_harga: totalPayment
             });
 
+
+            const completeOrder: any = await Order.findOne({
+                where: { id: newOrder.id },
+                include: [{
+                    model: Service,
+                    as: 'services',
+                    attributes: {
+                        exclude: ['createdAt', 'updatedAt']
+                    },
+                    through: {
+                        attributes: ['price']
+                    }
+                }],
+                transaction
+            });
+
+            if (completeOrder) {
+                completeOrder.total_harga = parseInt(completeOrder.total_harga);
+
+                completeOrder.services.forEach((service: any) => {
+                    service.order_services.price = parseInt(service.order_services.price);
+                });
+            }
+
+
             await transaction.commit(); // Commit the transaction
             return res.status(201).json({
                 message: "Order created successfully",
-                data: newOrder
+                data: completeOrder
             });
 
         } catch (error: any) {
