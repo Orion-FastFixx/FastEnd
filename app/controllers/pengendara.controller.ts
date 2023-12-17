@@ -354,7 +354,7 @@ export const PengendaraController = {
                 ],
                 attributes: { exclude: ['phone', 'deskripsi', 'user_id', 'createdAt', 'updatedAt'],
                             include: ['is_available'], },
-                group: ['montirs.id'] // Adjust according to the models' relationships
+                group: ['montirs.id', 'services.id'] // Adjust according to the models' relationships
             });
 
             res.status(200).json({
