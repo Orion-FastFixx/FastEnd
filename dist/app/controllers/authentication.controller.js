@@ -199,22 +199,32 @@ exports.AuthenticationController = {
         });
     },
     signOut(req, res) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let userId = null;
-                // If using session
-                if (req.session.user) {
-                    userId = req.session.user.id;
+                const token = (_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+                if (!token) {
+                    return res.status(400).json({ message: "Token is required" });
                 }
+                let decode;
+                try {
+                    decode = jsonwebtoken_1.default.verify(token, config_1.config.jwtKey);
+                }
+                catch (error) {
+                    return res.status(401).json({ message: "Invalid token" });
+                }
+                const userId = decode.id;
                 req.session.destroy((err) => {
                     if (err) {
                         return res.status(500).json({ message: err.message || "Internal Server Error" });
                     }
                 });
                 res.clearCookie('connect.sid');
-                if (userId) {
-                    yield refresh_token_model_1.default.destroy({ where: { user_id: userId } });
-                }
+                yield refresh_token_model_1.default.destroy({
+                    where: {
+                        user_id: userId
+                    }
+                });
                 return res.status(200).json({
                     auth: false,
                     token: null,

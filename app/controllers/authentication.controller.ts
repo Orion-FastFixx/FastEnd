@@ -202,12 +202,20 @@ export const AuthenticationController = {
 
     async signOut(req: Request, res: Response) {
         try {
-            let userId = null;
+            const token = req.headers['authorization']?.split(' ')[1];
 
-            // If using session
-            if (req.session.user) {
-                userId = req.session.user.id;
+            if (!token) {
+                return res.status(400).json({ message: "Token is required" });
             }
+
+            let decode: any;
+            try {
+                decode = jwt.verify(token, config.jwtKey);
+            } catch (error: any) {
+                return res.status(401).json({ message: "Invalid token" });
+            }
+
+            const userId = decode.id;
 
             req.session.destroy((err) => {
                 if (err) {
@@ -217,9 +225,12 @@ export const AuthenticationController = {
 
             res.clearCookie('connect.sid');
 
-            if (userId) {
-                await RefreshToken.destroy({ where: { user_id: userId } });
-            }
+            await RefreshToken.destroy({
+                where: {
+                    user_id: userId
+                }
+            });
+
 
             return res.status(200).json({
                 auth: false,
