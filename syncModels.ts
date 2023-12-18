@@ -17,6 +17,7 @@ import PaymentMethod from "./app/models/payment.method.model";
 import Order from "./app/models/order.model";
 import OrderService from "./app/models/order.service.model";
 import Payment from "./app/models/payment.model";
+import RefreshToken from "./app/models/refresh.token.model";
 import { sequelize } from "./db";
 import Education from "./app/models/edukasi.models";
 
@@ -39,11 +40,13 @@ console.log('Is PaymentMethod model registered:', PaymentMethod === sequelize.mo
 console.log('Is Order model registered:', Order === sequelize.model('orders'));
 console.log('Is OrderService model registered:', OrderService === sequelize.model('order_services'));
 console.log('Is Payment model registered:', Payment === sequelize.model('payments'));
+console.log('Is RefreshToken model registered:', RefreshToken === sequelize.model('refresh_tokens'));
+
 console.log('Is MontirService model registered:', MontirService === sequelize.model('montir_services'));
 console.log('Is Education model registered:', Education === sequelize.model('educations'));
 
 
-sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
+sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
     .then(() => {
         console.log('Database synchronized successfully.');
         process.exit();

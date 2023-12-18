@@ -10,6 +10,8 @@ dotenv_1.default.config();
 exports.config = {
     serviceName: process.env.SERVICE_NAME,
     jwtKey: process.env.SECRET,
+    jwtRefresh: process.env.REFRESH_SECRET,
+    sessionKey: process.env.SESSION_SECRET,
     mysqlHost: process.env.DB_HOST,
     mysqlUser: process.env.DB_USERNAME,
     mysqlPassword: process.env.DB_PASSWORD,

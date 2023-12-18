@@ -8,6 +8,7 @@ const authRouter = Router();
 
 authRouter.post("/signup", AuthenticationController.signUp);
 authRouter.post("/signin", AuthenticationController.signIn);
+authRouter.post("/generate-new-token", AuthenticationController.generateAccessToken);
 authRouter.post("/signout", AuthMiddleware.verifyToken, AuthenticationController.signOut);
 authRouter.put("/update-password", AuthMiddleware.verifyToken, AuthenticationController.updatePassword);
 authRouter.delete("/delete", AuthMiddleware.verifyToken, AuthenticationController.deleteAccount);

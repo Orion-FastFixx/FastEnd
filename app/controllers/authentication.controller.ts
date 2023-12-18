@@ -9,24 +9,18 @@ import Montir from "../models/montir.models";
 import Pengendara from "../models/pengendara.models";
 import User from "../models/user.models";
 import { sequelize } from "../../db";
+import RefreshToken from "../models/refresh.token.model";
 
 export const AuthenticationController = {
     async signUp(req: Request, res: Response) {
         const transaction = await sequelize.transaction();
 
         try {
-            const { username, foto, email, password, role_id, deskripsi, jenis_montir, pengalaman } = req.body;
+            const { username, foto, email, password, role_id } = req.body;
             const hashedPassword = bcryptjs.hashSync(password, 8);
-
 
             const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`
             const fotoUrl = foto ? foto : placeHolderImgPath;
-
-            const check_description = deskripsi ? deskripsi : null
-
-            const check_jenis_montir = jenis_montir ? jenis_montir : null
-
-            const check_pengalaman = pengalaman ? pengalaman : null
 
             const userExists = await User.findOne({
                 where: {
@@ -80,11 +74,8 @@ export const AuthenticationController = {
                     await Montir.create({
                         nama: user.username,
                         phone: user.phone,
-                        deskripsi: check_description,             
-                        jenis_montir: check_jenis_montir,
-                        pengalaman: check_pengalaman,
-                        foto_url: fotoUrl,
-                        user_id: user.id
+                        user_id: user.id,
+                        transaction
                     });
                 }
 
@@ -137,47 +128,26 @@ export const AuthenticationController = {
                 return res.status(401).json({ auth: false, token: null, message: 'Invalid credentials' });
             }
 
-                        // // Periksa apakah 2FA diaktifkan
-                        // if (user.otp_secret) {
-                        //     // Jika 2FA diaktifkan, buat dan kirim token JWT dan permintaan 2FA
-                        //     const tokenPayload = { id: user.id, twoFactorRequired: true };
-                        //     const token = jwt.sign(tokenPayload, config.jwtKey, { expiresIn: 43200 });
-            
-                        //     return res.status(200).json({
-                        //         message: "User found. Two-factor authentication required.",
-                        //         user: { id: user.id, username: user.username, email: user.email, role_id: user.role_id },
-                        //         token: token
-                        //     });
-                        // } else {
-                        //     // Jika 2FA tidak diaktifkan, buat dan kirim token JWT langsung
-                        //     const tokenPayload = { id: user.id, twoFactorRequired: false };
-                        //     const token = jwt.sign(tokenPayload, config.jwtKey, { expiresIn: 43200 });
-            
-                        //     req.session.user = {
-                        //         id: user.id,
-                        //         username: user.username,
-                        //         email: user.email,
-                        //         role_id: user.role_id,
-                        //         token: token
-                        //     };
-            
-                        //     return res.status(200).json({
-                        //         message: "User found",
-                        //         user: req.session.user,
-                        //     });
-                        // }
-
-            var token = jwt.sign({ id: user.id }, config.jwtKey, {
-                // exp in 12 hours
-                expiresIn: 43200
+            const accessToken = jwt.sign({ id: user.id }, config.jwtKey, {
+                // exp in 1 hour
+                expiresIn: 3600
             });
+
+            const refreshToken = jwt.sign({ id: user.id }, config.jwtRefresh, {});
+
+            await RefreshToken.create({
+                token: refreshToken,
+                user_id: user.id,
+            });
+
 
             req.session.user = {
                 id: user.id,
                 username: user.username,
                 email: user.email,
                 role_id: user.role_id,
-                token: token
+                token: accessToken,
+                refreshToken: refreshToken,
             };
 
             return res.status(200).json({
@@ -190,8 +160,55 @@ export const AuthenticationController = {
         }
     },
 
+    async generateAccessToken(req: Request, res: Response) {
+        const transaction = await sequelize.transaction();
+        try {
+            const { refreshToken } = req.body;
+
+            if (!refreshToken) {
+                await transaction.rollback();
+                return res.status(400).json({ message: "Refresh token is required" });
+            }
+
+            const decoded: any = jwt.verify(refreshToken, config.jwtRefresh);
+            const existingToken = await RefreshToken.findOne({
+                where: {
+                    token: refreshToken,
+                    user_id: decoded.id
+                }
+            });
+
+            if (!existingToken) {
+                await transaction.rollback();
+                return res.status(401).json({ message: "Invalid refresh token" });
+            }
+
+            // generate new access token
+            const accessToken = jwt.sign({ id: decoded.id }, config.jwtKey, {
+                // exp in 12 hours
+                expiresIn: 3600
+            });
+
+            await transaction.commit();
+            return res.status(200).json({
+                message: "Token refreshed",
+                token: accessToken
+            });
+        } catch (error: any) {
+            await transaction.rollback();
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
     async signOut(req: Request, res: Response) {
         try {
+            let userId = null;
+
+            // If using session
+            if (req.session.user) {
+                userId = req.session.user.id;
+            }
+
             req.session.destroy((err) => {
                 if (err) {
                     return res.status(500).json({ message: err.message || "Internal Server Error" });
@@ -199,6 +216,10 @@ export const AuthenticationController = {
             });
 
             res.clearCookie('connect.sid');
+
+            if (userId) {
+                await RefreshToken.destroy({ where: { user_id: userId } });
+            }
 
             return res.status(200).json({
                 auth: false,
@@ -303,4 +324,3 @@ export const AuthenticationController = {
         }
     },
 }
-

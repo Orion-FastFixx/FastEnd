@@ -22,6 +22,7 @@ const payment_method_model_1 = __importDefault(require("./app/models/payment.met
 const order_model_1 = __importDefault(require("./app/models/order.model"));
 const order_service_model_1 = __importDefault(require("./app/models/order.service.model"));
 const payment_model_1 = __importDefault(require("./app/models/payment.model"));
+const refresh_token_model_1 = __importDefault(require("./app/models/refresh.token.model"));
 const db_1 = require("./db");
 const edukasi_models_1 = __importDefault(require("./app/models/edukasi.models"));
 console.log('Is Role model registered:', role_models_1.default === db_1.sequelize.model('roles'));
@@ -42,9 +43,10 @@ console.log('Is PaymentMethod model registered:', payment_method_model_1.default
 console.log('Is Order model registered:', order_model_1.default === db_1.sequelize.model('orders'));
 console.log('Is OrderService model registered:', order_service_model_1.default === db_1.sequelize.model('order_services'));
 console.log('Is Payment model registered:', payment_model_1.default === db_1.sequelize.model('payments'));
+console.log('Is RefreshToken model registered:', refresh_token_model_1.default === db_1.sequelize.model('refresh_tokens'));
 console.log('Is MontirService model registered:', montir_service_model_1.default === db_1.sequelize.model('montir_services'));
 console.log('Is Education model registered:', edukasi_models_1.default === db_1.sequelize.model('educations'));
-db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
+db_1.sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
     process.exit();

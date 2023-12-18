@@ -23,18 +23,16 @@ const montir_models_1 = __importDefault(require("../models/montir.models"));
 const pengendara_models_1 = __importDefault(require("../models/pengendara.models"));
 const user_models_1 = __importDefault(require("../models/user.models"));
 const db_1 = require("../../db");
+const refresh_token_model_1 = __importDefault(require("../models/refresh.token.model"));
 exports.AuthenticationController = {
     signUp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield db_1.sequelize.transaction();
             try {
-                const { username, foto, email, password, role_id, deskripsi, jenis_montir, pengalaman } = req.body;
+                const { username, foto, email, password, role_id } = req.body;
                 const hashedPassword = bcryptjs_1.default.hashSync(password, 8);
                 const placeHolderImgPath = `${req.protocol}://${req.get("host")}/placeholder/user_placeholder.png`;
                 const fotoUrl = foto ? foto : placeHolderImgPath;
-                const check_description = deskripsi ? deskripsi : null;
-                const check_jenis_montir = jenis_montir ? jenis_montir : null;
-                const check_pengalaman = pengalaman ? pengalaman : null;
                 const userExists = yield user_models_1.default.findOne({
                     where: {
                         [sequelize_1.Op.or]: [
@@ -87,11 +85,8 @@ exports.AuthenticationController = {
                         yield montir_models_1.default.create({
                             nama: user.username,
                             phone: user.phone,
-                            deskripsi: check_description,
-                            jenis_montir: check_jenis_montir,
-                            pengalaman: check_pengalaman,
-                            foto_url: fotoUrl,
-                            user_id: user.id
+                            user_id: user.id,
+                            transaction
                         });
                     }
                     yield transaction.commit();
@@ -139,42 +134,22 @@ exports.AuthenticationController = {
                 if (!passwordIsValid) {
                     return res.status(401).json({ auth: false, token: null, message: 'Invalid credentials' });
                 }
-                // // Periksa apakah 2FA diaktifkan
-                // if (user.otp_secret) {
-                //     // Jika 2FA diaktifkan, buat dan kirim token JWT dan permintaan 2FA
-                //     const tokenPayload = { id: user.id, twoFactorRequired: true };
-                //     const token = jwt.sign(tokenPayload, config.jwtKey, { expiresIn: 43200 });
-                //     return res.status(200).json({
-                //         message: "User found. Two-factor authentication required.",
-                //         user: { id: user.id, username: user.username, email: user.email, role_id: user.role_id },
-                //         token: token
-                //     });
-                // } else {
-                //     // Jika 2FA tidak diaktifkan, buat dan kirim token JWT langsung
-                //     const tokenPayload = { id: user.id, twoFactorRequired: false };
-                //     const token = jwt.sign(tokenPayload, config.jwtKey, { expiresIn: 43200 });
-                //     req.session.user = {
-                //         id: user.id,
-                //         username: user.username,
-                //         email: user.email,
-                //         role_id: user.role_id,
-                //         token: token
-                //     };
-                //     return res.status(200).json({
-                //         message: "User found",
-                //         user: req.session.user,
-                //     });
-                // }
-                var token = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtKey, {
-                    // exp in 12 hours
-                    expiresIn: 43200
+                const accessToken = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtKey, {
+                    // exp in 1 hour
+                    expiresIn: 3600
+                });
+                const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtRefresh, {});
+                yield refresh_token_model_1.default.create({
+                    token: refreshToken,
+                    user_id: user.id,
                 });
                 req.session.user = {
                     id: user.id,
                     username: user.username,
                     email: user.email,
                     role_id: user.role_id,
-                    token: token
+                    token: accessToken,
+                    refreshToken: refreshToken,
                 };
                 return res.status(200).json({
                     message: "User found",
@@ -186,15 +161,60 @@ exports.AuthenticationController = {
             }
         });
     },
+    generateAccessToken(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const { refreshToken } = req.body;
+                if (!refreshToken) {
+                    yield transaction.rollback();
+                    return res.status(400).json({ message: "Refresh token is required" });
+                }
+                const decoded = jsonwebtoken_1.default.verify(refreshToken, config_1.config.jwtRefresh);
+                const existingToken = yield refresh_token_model_1.default.findOne({
+                    where: {
+                        token: refreshToken,
+                        user_id: decoded.id
+                    }
+                });
+                if (!existingToken) {
+                    yield transaction.rollback();
+                    return res.status(401).json({ message: "Invalid refresh token" });
+                }
+                // generate new access token
+                const accessToken = jsonwebtoken_1.default.sign({ id: decoded.id }, config_1.config.jwtKey, {
+                    // exp in 12 hours
+                    expiresIn: 3600
+                });
+                yield transaction.commit();
+                return res.status(200).json({
+                    message: "Token refreshed",
+                    token: accessToken
+                });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
     signOut(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let userId = null;
+                // If using session
+                if (req.session.user) {
+                    userId = req.session.user.id;
+                }
                 req.session.destroy((err) => {
                     if (err) {
                         return res.status(500).json({ message: err.message || "Internal Server Error" });
                     }
                 });
                 res.clearCookie('connect.sid');
+                if (userId) {
+                    yield refresh_token_model_1.default.destroy({ where: { user_id: userId } });
+                }
                 return res.status(200).json({
                     auth: false,
                     token: null,
