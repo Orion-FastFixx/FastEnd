@@ -293,7 +293,23 @@ export const AuthenticationController = {
         const transaction = await sequelize.transaction();
 
         try {
-            const userId = req.session?.user?.id;
+            const token = req.headers['authorization']?.split(' ')[1];
+
+            if (!token) {
+                await transaction.rollback();
+                return res.status(400).json({ message: "Token is required" });
+            }
+
+            let decode: any;
+            try {
+                decode = jwt.verify(token, config.jwtKey);
+            } catch (error: any) {
+                await transaction.rollback();
+                return res.status(401).json({ message: "Invalid token" });
+            }
+
+            const userId = decode.id;
+
             if (!userId) {
                 await transaction.rollback();
                 return res.status(401).json({
@@ -312,6 +328,12 @@ export const AuthenticationController = {
                     message: "User not found"
                 });
             }
+
+            await RefreshToken.destroy({
+                where: {
+                    user_id: userId
+                }
+            });
 
             await user.destroy({ transaction });
 

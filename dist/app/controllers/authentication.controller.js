@@ -277,11 +277,24 @@ exports.AuthenticationController = {
         });
     },
     deleteAccount(req, res) {
-        var _a, _b;
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield db_1.sequelize.transaction();
             try {
-                const userId = (_b = (_a = req.session) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.id;
+                const token = (_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+                if (!token) {
+                    yield transaction.rollback();
+                    return res.status(400).json({ message: "Token is required" });
+                }
+                let decode;
+                try {
+                    decode = jsonwebtoken_1.default.verify(token, config_1.config.jwtKey);
+                }
+                catch (error) {
+                    yield transaction.rollback();
+                    return res.status(401).json({ message: "Invalid token" });
+                }
+                const userId = decode.id;
                 if (!userId) {
                     yield transaction.rollback();
                     return res.status(401).json({
@@ -297,6 +310,11 @@ exports.AuthenticationController = {
                         message: "User not found"
                     });
                 }
+                yield refresh_token_model_1.default.destroy({
+                    where: {
+                        user_id: userId
+                    }
+                });
                 yield user.destroy({ transaction });
                 req.session.destroy((err) => {
                     if (err) {
