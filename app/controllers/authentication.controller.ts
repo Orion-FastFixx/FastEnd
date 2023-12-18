@@ -9,6 +9,7 @@ import Montir from "../models/montir.models";
 import Pengendara from "../models/pengendara.models";
 import User from "../models/user.models";
 import { sequelize } from "../../db";
+import RefreshToken from "../models/refresh.token.model";
 
 export const AuthenticationController = {
     async signUp(req: Request, res: Response) {
@@ -127,17 +128,26 @@ export const AuthenticationController = {
                 return res.status(401).json({ auth: false, token: null, message: 'Invalid credentials' });
             }
 
-            var token = jwt.sign({ id: user.id }, config.jwtKey, {
+            const accessToken = jwt.sign({ id: user.id }, config.jwtKey, {
                 // exp in 12 hours
                 expiresIn: 43200
             });
+
+            const refreshToken = jwt.sign({ id: user.id }, config.jwtRefresh, {});
+
+            await RefreshToken.create({
+                token: refreshToken,
+                user_id: user.id,
+            });
+
 
             req.session.user = {
                 id: user.id,
                 username: user.username,
                 email: user.email,
                 role_id: user.role_id,
-                token: token
+                token: accessToken,
+                refreshToken: refreshToken,
             };
 
             return res.status(200).json({
@@ -150,8 +160,55 @@ export const AuthenticationController = {
         }
     },
 
+    async generateAccessToken(req: Request, res: Response) {
+        const transaction = await sequelize.transaction();
+        try {
+            const { refreshToken } = req.body;
+
+            if (!refreshToken) {
+                await transaction.rollback();
+                return res.status(400).json({ message: "Refresh token is required" });
+            }
+
+            const decoded: any = jwt.verify(refreshToken, config.jwtRefresh);
+            const existingToken = await RefreshToken.findOne({
+                where: {
+                    token: refreshToken,
+                    user_id: decoded.id
+                }
+            });
+
+            if (!existingToken) {
+                await transaction.rollback();
+                return res.status(401).json({ message: "Invalid refresh token" });
+            }
+
+            // generate new access token
+            const accessToken = jwt.sign({ id: decoded.id }, config.jwtKey, {
+                // exp in 12 hours
+                expiresIn: 43200
+            });
+
+            await transaction.commit();
+            return res.status(200).json({
+                message: "Token refreshed",
+                token: accessToken
+            });
+        } catch (error: any) {
+            await transaction.rollback();
+            return res.status(500).json({ message: error.message || "Internal Server Error" });
+        }
+    },
+
     async signOut(req: Request, res: Response) {
         try {
+            let userId = null;
+
+            // If using session
+            if (req.session.user) {
+                userId = req.session.user.id;
+            }
+
             req.session.destroy((err) => {
                 if (err) {
                     return res.status(500).json({ message: err.message || "Internal Server Error" });
@@ -159,6 +216,10 @@ export const AuthenticationController = {
             });
 
             res.clearCookie('connect.sid');
+
+            if (userId) {
+                await RefreshToken.destroy({ where: { user_id: userId } });
+            }
 
             return res.status(200).json({
                 auth: false,

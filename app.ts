@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import createError from 'http-errors';
 import logger from 'morgan';
 import { routes } from './app/routes/index.routes';
+import { config } from './app/config';
 import path from 'path';
 import session from 'express-session';
 
@@ -18,7 +19,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'app/public')));
 
 app.use(session({
-  secret: 'house of el',
+  secret: config.sessionKey,
   resave: false,
   saveUninitialized: true,
   cookie: {}

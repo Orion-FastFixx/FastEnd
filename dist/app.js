@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const morgan_1 = __importDefault(require("morgan"));
 const index_routes_1 = require("./app/routes/index.routes");
+const config_1 = require("./app/config");
 const path_1 = __importDefault(require("path"));
 const express_session_1 = __importDefault(require("express-session"));
 const relations_models_1 = require("./app/models/relations.models");
@@ -19,7 +20,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.static(path_1.default.join(__dirname, 'app/public')));
 app.use((0, express_session_1.default)({
-    secret: 'house of el',
+    secret: config_1.config.sessionKey,
     resave: false,
     saveUninitialized: true,
     cookie: {}

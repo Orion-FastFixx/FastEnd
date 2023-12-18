@@ -23,6 +23,7 @@ const montir_models_1 = __importDefault(require("../models/montir.models"));
 const pengendara_models_1 = __importDefault(require("../models/pengendara.models"));
 const user_models_1 = __importDefault(require("../models/user.models"));
 const db_1 = require("../../db");
+const refresh_token_model_1 = __importDefault(require("../models/refresh.token.model"));
 exports.AuthenticationController = {
     signUp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -133,16 +134,22 @@ exports.AuthenticationController = {
                 if (!passwordIsValid) {
                     return res.status(401).json({ auth: false, token: null, message: 'Invalid credentials' });
                 }
-                var token = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtKey, {
+                const accessToken = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtKey, {
                     // exp in 12 hours
                     expiresIn: 43200
+                });
+                const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtRefresh, {});
+                yield refresh_token_model_1.default.create({
+                    token: refreshToken,
+                    user_id: user.id,
                 });
                 req.session.user = {
                     id: user.id,
                     username: user.username,
                     email: user.email,
                     role_id: user.role_id,
-                    token: token
+                    token: accessToken,
+                    refreshToken: refreshToken,
                 };
                 return res.status(200).json({
                     message: "User found",
@@ -154,15 +161,60 @@ exports.AuthenticationController = {
             }
         });
     },
+    generateAccessToken(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const { refreshToken } = req.body;
+                if (!refreshToken) {
+                    yield transaction.rollback();
+                    return res.status(400).json({ message: "Refresh token is required" });
+                }
+                const decoded = jsonwebtoken_1.default.verify(refreshToken, config_1.config.jwtRefresh);
+                const existingToken = yield refresh_token_model_1.default.findOne({
+                    where: {
+                        token: refreshToken,
+                        user_id: decoded.id
+                    }
+                });
+                if (!existingToken) {
+                    yield transaction.rollback();
+                    return res.status(401).json({ message: "Invalid refresh token" });
+                }
+                // generate new access token
+                const accessToken = jsonwebtoken_1.default.sign({ id: decoded.id }, config_1.config.jwtKey, {
+                    // exp in 12 hours
+                    expiresIn: 43200
+                });
+                yield transaction.commit();
+                return res.status(200).json({
+                    message: "Token refreshed",
+                    token: accessToken
+                });
+            }
+            catch (error) {
+                yield transaction.rollback();
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
     signOut(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let userId = null;
+                // If using session
+                if (req.session.user) {
+                    userId = req.session.user.id;
+                }
                 req.session.destroy((err) => {
                     if (err) {
                         return res.status(500).json({ message: err.message || "Internal Server Error" });
                     }
                 });
                 res.clearCookie('connect.sid');
+                if (userId) {
+                    yield refresh_token_model_1.default.destroy({ where: { user_id: userId } });
+                }
                 return res.status(200).json({
                     auth: false,
                     token: null,
