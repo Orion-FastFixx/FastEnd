@@ -43,7 +43,7 @@ console.log('Is MontirService model registered:', MontirService === sequelize.mo
 console.log('Is Education model registered:', Education === sequelize.model('educations'));
 
 
-sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
+sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
     .then(() => {
         console.log('Database synchronized successfully.');
         process.exit();
