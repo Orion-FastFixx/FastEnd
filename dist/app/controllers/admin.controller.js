@@ -158,13 +158,13 @@ exports.AdminController = {
                         return `${req.protocol}://${req.get("host")}/images/${filename}`;
                     });
                 }
-                const content_id = req.params.id;
+                const content_id = req.params.contentId;
                 if (!content_id) {
                     return res.status(400).json({
-                        message: "Education id is required!"
+                        message: "Montir id is required"
                     });
                 }
-                const content = yield edukasi_models_1.default.findOne({ where: { content_id: content_id } });
+                const content = yield edukasi_models_1.default.findOne({ where: { id: content_id } });
                 if (!content) {
                     return res.status(404).json({
                         message: "Content not found"
@@ -208,13 +208,13 @@ exports.AdminController = {
                         message: "Require Admin Role!"
                     });
                 }
-                const content_id = req.params.id;
+                const content_id = req.params.contentId;
                 if (!content_id) {
                     return res.status(400).json({
-                        message: "Education id is required!"
+                        message: "Content id is required"
                     });
                 }
-                const content = yield edukasi_models_1.default.findOne({ where: { content_id: content_id } });
+                const content = yield edukasi_models_1.default.findOne({ where: { id: content_id } });
                 if (!content) {
                     return res.status(404).json({
                         message: "Content not found"

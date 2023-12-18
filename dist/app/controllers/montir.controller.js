@@ -36,7 +36,7 @@ exports.MontirController = {
                         message: "Require Role!"
                     });
                 }
-                const { id, nama, phone, deskripsi, jenis_montir, pengalaman, is_available } = req.body;
+                const { nama, phone, deskripsi, jenis_montir, pengalaman, is_available } = req.body;
                 let foto_url = [];
                 if (req.files) {
                     const files = req.files;
@@ -45,7 +45,13 @@ exports.MontirController = {
                         return `${req.protocol}://${req.get("host")}/images/${filename}`;
                     });
                 }
-                const montir = yield montir_models_1.default.findByPk(id);
+                const montir_id = req.params.montirId;
+                if (!montir_id) {
+                    return res.status(400).json({
+                        message: "Montir id is required"
+                    });
+                }
+                const montir = yield montir_models_1.default.findOne({ where: { montir_id: montir_id } });
                 if (!montir) {
                     return res.status(404).json({
                         message: "Montir not found"

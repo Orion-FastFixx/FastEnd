@@ -4,7 +4,7 @@ const express_1 = require("express");
 const montir_controller_1 = require("../controllers/montir.controller");
 const auth_1 = require("../middleware/auth");
 const montirRouter = (0, express_1.Router)();
-montirRouter.put("/update-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.updateMontir);
+montirRouter.put("/update-montir/:montirId", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.updateMontir);
 montirRouter.post("/create-layanan-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.createLayanan);
 montirRouter.get("/get-montir-order-service", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.getMontirOrderService);
 montirRouter.get("/get-detail-montir-order-service/:orderId", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isMontir, montir_controller_1.MontirController.getDetailMontirOrderService);

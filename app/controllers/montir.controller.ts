@@ -27,7 +27,7 @@ export const MontirController = {
                 });
             }
     
-            const {  id, nama, phone, deskripsi, jenis_montir, pengalaman, is_available } = req.body;
+            const { nama, phone, deskripsi, jenis_montir, pengalaman, is_available } = req.body;
             let foto_url: string[] = [];
     
             if (req.files) {
@@ -38,7 +38,15 @@ export const MontirController = {
                 });
             }
 
-            const montir: any = await Montir.findByPk(id);
+            const montir_id = req.params.montirId;
+
+            if (!montir_id) {
+                return res.status(400).json({
+                    message: "Montir id is required"
+                });
+            }
+
+            const montir: any = await Montir.findOne({ where: { montir_id : montir_id } });
             if (!montir) {
                 return res.status(404).json({
                     message: "Montir not found"

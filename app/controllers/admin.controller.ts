@@ -166,15 +166,16 @@ export const AdminController = {
                     });
                 }
 
-                const content_id = req.params.id;
+
+                const content_id = req.params.contentId;
 
                 if (!content_id) {
                     return res.status(400).json({
-                        message: "Education id is required!"
+                        message: "Montir id is required"
                     });
                 }
-    
-                const content: any = await Education.findOne({ where: { content_id : content_id } });
+
+                const content: any = await Education.findOne({ where: { id : content_id } });
                 if (!content) {
                     return res.status(404).json({
                         message: "Content not found"
@@ -222,16 +223,17 @@ export const AdminController = {
                 message: "Require Admin Role!"
                 });
                 }
+                
 
-                const content_id = req.params.id;
+                const content_id = req.params.contentId;
 
                 if (!content_id) {
                     return res.status(400).json({
-                        message: "Education id is required!"
+                        message: "Content id is required"
                     });
                 }
-    
-                const content: any = await Education.findOne({ where: { content_id : content_id } });
+
+                const content: any = await Education.findOne({ where: { id : content_id } });
                 if (!content) {
                     return res.status(404).json({
                         message: "Content not found"

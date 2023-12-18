@@ -5,7 +5,7 @@ import uploads from "../utils/multer";
 
 const montirRouter = Router();
 
-montirRouter.put("/update-montir", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.updateMontir);
+montirRouter.put("/update-montir/:montirId", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.updateMontir);
 montirRouter.post("/create-layanan-montir", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.createLayanan);
 montirRouter.get("/get-montir-order-service", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.getMontirOrderService);
 montirRouter.get("/get-detail-montir-order-service/:orderId", AuthMiddleware.verifyToken, AuthMiddleware.isMontir, MontirController.getDetailMontirOrderService);
