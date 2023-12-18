@@ -135,8 +135,8 @@ exports.AuthenticationController = {
                     return res.status(401).json({ auth: false, token: null, message: 'Invalid credentials' });
                 }
                 const accessToken = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtKey, {
-                    // exp in 12 hours
-                    expiresIn: 43200
+                    // exp in 1 hour
+                    expiresIn: 3600
                 });
                 const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, config_1.config.jwtRefresh, {});
                 yield refresh_token_model_1.default.create({
@@ -184,7 +184,7 @@ exports.AuthenticationController = {
                 // generate new access token
                 const accessToken = jsonwebtoken_1.default.sign({ id: decoded.id }, config_1.config.jwtKey, {
                     // exp in 12 hours
-                    expiresIn: 43200
+                    expiresIn: 3600
                 });
                 yield transaction.commit();
                 return res.status(200).json({

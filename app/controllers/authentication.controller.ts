@@ -129,8 +129,8 @@ export const AuthenticationController = {
             }
 
             const accessToken = jwt.sign({ id: user.id }, config.jwtKey, {
-                // exp in 12 hours
-                expiresIn: 43200
+                // exp in 1 hour
+                expiresIn: 3600
             });
 
             const refreshToken = jwt.sign({ id: user.id }, config.jwtRefresh, {});
@@ -186,7 +186,7 @@ export const AuthenticationController = {
             // generate new access token
             const accessToken = jwt.sign({ id: decoded.id }, config.jwtKey, {
                 // exp in 12 hours
-                expiresIn: 43200
+                expiresIn: 3600
             });
 
             await transaction.commit();
