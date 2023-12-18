@@ -223,13 +223,19 @@ export const AdminController = {
                 });
                 }
 
-                const { judul } = req.body;
+                const content_id = req.params.id;
 
-                const content: any = await Education.findOne({ where: { judul: judul } });
+                if (!content_id) {
+                    return res.status(400).json({
+                        message: "Education id is required!"
+                    });
+                }
+    
+                const content: any = await Education.findOne({ where: { content_id : content_id } });
                 if (!content) {
-                return res.status(404).json({
-                message: "Content not found"
-                });
+                    return res.status(404).json({
+                        message: "Content not found"
+                    });
                 }
 
                 await content.destroy();

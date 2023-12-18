@@ -11,7 +11,6 @@ adminRouter.get("/list-bengkel", AuthMiddleware.verifyToken, AuthMiddleware.isAd
 adminRouter.get("/list-education", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.getAllContent);
 adminRouter.post("/create-education", uploads.array('foto_url'), AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.createEducation,);
 adminRouter.put("/edit-education/:id", uploads.array('foto_url'), AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.updateContent,);
-adminRouter.post("/delete-education", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.deleteContent,);
-
+adminRouter.post("/delete-education/:id", AuthMiddleware.verifyToken, AuthMiddleware.isAdmin, AdminController.deleteContent,);
 
 export default adminRouter;
