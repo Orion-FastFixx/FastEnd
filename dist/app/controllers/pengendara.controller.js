@@ -239,6 +239,20 @@ exports.PengendaraController = {
                     });
                 }
                 const { bengkel_id, service_id, precise_location, fullName, complaint } = req.body;
+                // fetch order to check if user already have order
+                const hasOrder = yield order_model_1.default.findOne({
+                    where: {
+                        pengendara_id: pengendara.id,
+                        bengkel_id: bengkel_id,
+                        order_status_id: order_status_1.ORDER_PENDING_STATUS_ID
+                    }
+                });
+                if (hasOrder) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "You already have pending order!"
+                    });
+                }
                 // init total price
                 let totalPrice = 0;
                 // add admin fee
@@ -280,10 +294,30 @@ exports.PengendaraController = {
                 yield newOrder.update({
                     total_harga: totalPayment
                 });
+                const completeOrder = yield order_model_1.default.findOne({
+                    where: { id: newOrder.id },
+                    include: [{
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: {
+                                exclude: ['createdAt', 'updatedAt']
+                            },
+                            through: {
+                                attributes: ['price']
+                            }
+                        }],
+                    transaction
+                });
+                if (completeOrder) {
+                    completeOrder.total_harga = parseInt(completeOrder.total_harga);
+                    completeOrder.services.forEach((service) => {
+                        service.order_services.price = parseInt(service.order_services.price);
+                    });
+                }
                 yield transaction.commit(); // Commit the transaction
                 return res.status(201).json({
                     message: "Order created successfully",
-                    data: newOrder
+                    data: completeOrder
                 });
             }
             catch (error) {
