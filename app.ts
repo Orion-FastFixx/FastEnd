@@ -6,12 +6,15 @@ import { routes } from './app/routes/index.routes';
 import { config } from './app/config';
 import path from 'path';
 import session from 'express-session';
+import cors from "cors";
 
 import { relations } from './app/models/relations.models';
 import { checkOrderTimeouts } from './app/utils/scheduler';
 
+
 var app = express();
 
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -26,7 +29,6 @@ app.use(session({
 }));
 
 app.use('/api/v1', routes);
-
 
 // catch 404 and forward to error handler
 app.use(function (req: Request, res: Response, next: NextFunction) {

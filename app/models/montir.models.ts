@@ -26,7 +26,7 @@ const Montir = sequelize.define("montirs", {
         allowNull: false,
     },
     pengalaman: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         allowNull: true,
     },
     foto_url: {

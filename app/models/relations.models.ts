@@ -3,6 +3,7 @@ import Admin from "./admin.models";
 import Bengkel from "./bengkel.models";
 import BengkelRating from "./bengkel.rating.models";
 import BengkelService from "./bengkel.service.model";
+import MontirService from "./montir.service.model";
 import Kendaraan from "./kendaraan.models";
 import Montir from "./montir.models";
 import MontirRating from "./montir.rating.model";
@@ -127,6 +128,22 @@ export const relations = () => {
     });
 
     // End Admin Bengkel Relations to Bengkel
+
+    // Bengkel Service is a pivot table between Montir and Service
+
+    Montir.belongsToMany(Service, {
+        through: MontirService,
+        as: 'services',
+        foreignKey: 'montir_id',
+        onDelete: 'CASCADE',
+    });
+
+    Service.belongsToMany(Montir, {
+        through: MontirService,
+        as: 'montirs',
+        foreignKey: 'service_id',
+        onDelete: 'CASCADE',
+    });
 
     // Bengkel Service is a pivot table between Bengkel and Service
 

@@ -9,6 +9,7 @@ const admin_models_1 = __importDefault(require("./admin.models"));
 const bengkel_models_1 = __importDefault(require("./bengkel.models"));
 const bengkel_rating_models_1 = __importDefault(require("./bengkel.rating.models"));
 const bengkel_service_model_1 = __importDefault(require("./bengkel.service.model"));
+const montir_service_model_1 = __importDefault(require("./montir.service.model"));
 const kendaraan_models_1 = __importDefault(require("./kendaraan.models"));
 const montir_models_1 = __importDefault(require("./montir.models"));
 const montir_rating_model_1 = __importDefault(require("./montir.rating.model"));
@@ -105,6 +106,19 @@ const relations = () => {
         onDelete: 'CASCADE',
     });
     // End Admin Bengkel Relations to Bengkel
+    // Bengkel Service is a pivot table between Montir and Service
+    montir_models_1.default.belongsToMany(service_model_1.default, {
+        through: montir_service_model_1.default,
+        as: 'services',
+        foreignKey: 'montir_id',
+        onDelete: 'CASCADE',
+    });
+    service_model_1.default.belongsToMany(montir_models_1.default, {
+        through: montir_service_model_1.default,
+        as: 'montirs',
+        foreignKey: 'service_id',
+        onDelete: 'CASCADE',
+    });
     // Bengkel Service is a pivot table between Bengkel and Service
     bengkel_models_1.default.belongsToMany(service_model_1.default, {
         through: bengkel_service_model_1.default,

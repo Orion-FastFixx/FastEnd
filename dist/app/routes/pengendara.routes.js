@@ -16,10 +16,9 @@ pengendaraRouter.post("/add-review-bengkel", auth_1.AuthMiddleware.verifyToken, 
 pengendaraRouter.get("/get-detail-review-bengkel/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getDetailReviewBengkel);
 // Order Bengkel Service
 pengendaraRouter.post("/order-bengkel-service", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.orderBengkelService);
-// Pay Order
-pengendaraRouter.post("/pay-order", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.payBengkelService);
-// Cancel Order
-pengendaraRouter.post("/cancel-order/:orderId", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.cancelOrder);
+// Get Montir
+pengendaraRouter.get("/get-all-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getAllMontir);
+pengendaraRouter.get("/get-detail-montir/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getDetailBengkel);
 // Get Montir Review
 pengendaraRouter.post("/add-review-montir", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.addReviewMontir);
 pengendaraRouter.get("/get-detail-review-montir/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getDetailReviewMontir);
@@ -29,5 +28,14 @@ pengendaraRouter.post("/add-kendaraan", auth_1.AuthMiddleware.verifyToken, auth_
 pengendaraRouter.put("/update-kendaraan/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.updateKendaraan);
 pengendaraRouter.delete("/delete-kendaraan/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.deleteKendaraan);
 pengendaraRouter.put("/update-profile", multer_1.default.single('foto'), auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.updateProfilePengendara);
+// Order Montir Service
+pengendaraRouter.post("/order-montir-service", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.orderMontirService);
+// Pay Order
+pengendaraRouter.post("/pay-order", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.payOrderService);
+// Cancel Order
+pengendaraRouter.post("/cancel-order/:orderId", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.cancelOrder);
+// Education
+pengendaraRouter.get("/get-all-education", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getAllEducation);
+pengendaraRouter.get("/get-detail-education/:id", auth_1.AuthMiddleware.verifyToken, auth_1.AuthMiddleware.isPengendara, pengendara_controller_1.PengendaraController.getDetailEducation);
 exports.default = pengendaraRouter;
 //# sourceMappingURL=pengendara.routes.js.map
