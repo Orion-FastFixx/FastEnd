@@ -237,6 +237,16 @@ const relations = () => {
         as: 'bengkel',
         onDelete: 'CASCADE',
     });
+    montir_models_1.default.hasMany(order_model_1.default, {
+        foreignKey: 'montir_id',
+        as: 'order',
+        onDelete: 'CASCADE',
+    });
+    order_model_1.default.belongsTo(montir_models_1.default, {
+        foreignKey: 'montir_id',
+        as: 'montir',
+        onDelete: 'CASCADE',
+    });
     order_model_1.default.belongsToMany(service_model_1.default, {
         through: order_service_model_1.default,
         as: 'services',

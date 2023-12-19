@@ -300,6 +300,18 @@ export const relations = () => {
         onDelete: 'CASCADE',
     });
 
+    Montir.hasMany(Order, {
+        foreignKey: 'montir_id', // Ensure this matches the foreign key attribute in the User model
+        as: 'order', // This is optional, it's an alias for the association, used in queries
+        onDelete: 'CASCADE',
+    });
+
+    Order.belongsTo(Montir, {
+        foreignKey: 'montir_id',
+        as: 'montir', // Optional alias
+        onDelete: 'CASCADE',
+    });
+
     Order.belongsToMany(Service, {
         through: OrderService,
         as: 'services',

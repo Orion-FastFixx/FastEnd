@@ -515,10 +515,24 @@ exports.PengendaraController = {
                 yield newOrder.update({
                     total_harga: totalPayment
                 });
+                const completeOrder = yield order_model_1.default.findOne({
+                    where: { id: newOrder.id },
+                    include: [{
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: {
+                                exclude: ['createdAt', 'updatedAt']
+                            },
+                            through: {
+                                attributes: ['price']
+                            }
+                        }],
+                    transaction
+                });
                 yield transaction.commit(); // Commit the transaction
                 return res.status(201).json({
                     message: "Order created successfully",
-                    data: newOrder
+                    data: completeOrder
                 });
             }
             catch (error) {
@@ -653,6 +667,207 @@ exports.PengendaraController = {
             }
             catch (error) {
                 yield transaction.rollback(); // Rollback transaction if any errors were encountered
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                // fetch bengkel order
+                const orders = yield order_model_1.default.findAll({
+                    where: {
+                        pengendara_id: pengendara.id,
+                    },
+                    include: [{
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: {
+                                exclude: ['createdAt', 'updatedAt']
+                            },
+                            through: {
+                                attributes: ['price']
+                            }
+                        },
+                        {
+                            model: montir_models_1.default,
+                            as: 'montir',
+                            attributes: ['nama'] // Replace with the actual attribute name in your Montir model
+                        },
+                        {
+                            model: bengkel_models_1.default,
+                            as: 'bengkel',
+                            attributes: ['nama_bengkel'] // Replace with the actual attribute name in your Bengkel model
+                        }
+                    ],
+                    attributes: ['id', 'additional_info', 'order_status_id', 'createdAt', 'updatedAt'],
+                });
+                return res.status(200).json({
+                    message: "Order fetched successfully",
+                    data: orders
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getPaidOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                // fetch bengkel order
+                const orders = yield order_model_1.default.findAll({
+                    where: {
+                        pengendara_id: pengendara.id,
+                        order_status_id: order_status_1.ORDER_PAID_STATUS_ID
+                    },
+                    include: [{
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: {
+                                exclude: ['createdAt', 'updatedAt']
+                            },
+                            through: {
+                                attributes: ['price']
+                            }
+                        },
+                        {
+                            model: montir_models_1.default,
+                            as: 'montir',
+                            attributes: ['nama'] // Replace with the actual attribute name in your Montir model
+                        },
+                        {
+                            model: bengkel_models_1.default,
+                            as: 'bengkel',
+                            attributes: ['nama_bengkel'] // Replace with the actual attribute name in your Bengkel model
+                        }
+                    ],
+                    attributes: ['id', 'additional_info', 'order_status_id', 'createdAt', 'updatedAt'],
+                });
+                return res.status(200).json({
+                    message: "Order fetched successfully",
+                    data: orders
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getCompletedOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                // fetch bengkel order
+                const orders = yield order_model_1.default.findAll({
+                    where: {
+                        pengendara_id: pengendara.id,
+                        order_status_id: order_status_1.ORDER_COMPLETED_STATUS_ID
+                    },
+                    include: [
+                        {
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: { exclude: ['createdAt', 'updatedAt'] },
+                            through: {
+                                attributes: ['price']
+                            }
+                        },
+                        {
+                            model: montir_models_1.default,
+                            as: 'montir',
+                            attributes: ['nama'] // Replace with the actual attribute name in your Montir model
+                        },
+                        {
+                            model: bengkel_models_1.default,
+                            as: 'bengkel',
+                            attributes: ['nama_bengkel'] // Replace with the actual attribute name in your Bengkel model
+                        }
+                    ],
+                    attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+                });
+                return res.status(200).json({
+                    message: "Bengkel order fetched successfully",
+                    data: orders
+                });
+            }
+            catch (error) {
+                return res.status(500).json({ message: error.message || "Internal Server Error" });
+            }
+        });
+    },
+    getCanceledOrderService(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield db_1.sequelize.transaction();
+            try {
+                const user = req.userId;
+                const pengendara = yield pengendara_models_1.default.findOne({ where: { user_id: user } });
+                if (!pengendara) {
+                    yield transaction.rollback();
+                    return res.status(403).json({
+                        message: "Require Pengendara Role!"
+                    });
+                }
+                // fetch bengkel order
+                const orders = yield order_model_1.default.findAll({
+                    where: {
+                        pengendara_id: pengendara.id,
+                        order_status_id: order_status_1.ORDER_CANCELED_STATUS_ID
+                    },
+                    include: [
+                        {
+                            model: service_model_1.default,
+                            as: 'services',
+                            attributes: { exclude: ['createdAt', 'updatedAt'] },
+                            through: {
+                                attributes: ['price']
+                            }
+                        },
+                        {
+                            model: montir_models_1.default,
+                            as: 'montir',
+                            attributes: ['nama'] // Replace with the actual attribute name in your Montir model
+                        },
+                        {
+                            model: bengkel_models_1.default,
+                            as: 'bengkel',
+                            attributes: ['nama_bengkel'] // Replace with the actual attribute name in your Bengkel model
+                        }
+                    ],
+                    attributes: { exclude: ['pengendara_id', 'bengkel_id', 'montir_id'] },
+                });
+                return res.status(200).json({
+                    message: "Cancel order fetched successfully",
+                    data: orders
+                });
+            }
+            catch (error) {
                 return res.status(500).json({ message: error.message || "Internal Server Error" });
             }
         });
