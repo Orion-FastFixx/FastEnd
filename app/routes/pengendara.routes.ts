@@ -19,9 +19,7 @@ pengendaraRouter.post("/order-bengkel-service", AuthMiddleware.verifyToken, Auth
 
 // get Order
 pengendaraRouter.get("/get-order-service", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getOrderService);
-pengendaraRouter.get("/get-paid-order-service", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getPaidOrderService);
-pengendaraRouter.get("/get-cancel-order-service", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getCanceledOrderService);
-pengendaraRouter.get("/get-complete-service", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getCompletedOrderService);
+
 
 // Get Montir
 pengendaraRouter.get("/get-all-montir", AuthMiddleware.verifyToken, AuthMiddleware.isPengendara, PengendaraController.getAllMontir);

@@ -46,7 +46,7 @@ console.log('Is Payment model registered:', payment_model_1.default === db_1.seq
 console.log('Is RefreshToken model registered:', refresh_token_model_1.default === db_1.sequelize.model('refresh_tokens'));
 console.log('Is MontirService model registered:', montir_service_model_1.default === db_1.sequelize.model('montir_services'));
 console.log('Is Education model registered:', edukasi_models_1.default === db_1.sequelize.model('educations'));
-db_1.sequelize.sync({ force: false }) // Set force to true if you want to drop the tables first
+db_1.sequelize.sync({ force: true }) // Set force to true if you want to drop the tables first
     .then(() => {
     console.log('Database synchronized successfully.');
     process.exit();
