@@ -2,7 +2,7 @@
 
 ![fastfixx_logo](https://github.com/Orion-FastFixx/FastEnd/assets/72327884/3bc005aa-a9dc-45f6-86a5-874efc733b61)
 
-This is the backend services for the FastFixx application. It is built using the [Next.js](https://nextjs.org/) framework with [TypeScript](https://www.typescriptlang.org/). The database is [MySQL](https://www.mysql.com/).
+This is the backend services for the FastFixx application. It is built using the [Express](https://expressjs.com/) framework with [TypeScript](https://www.typescriptlang.org/). The database is [MySQL](https://www.mysql.com/).
 
 ## Contributors
 
